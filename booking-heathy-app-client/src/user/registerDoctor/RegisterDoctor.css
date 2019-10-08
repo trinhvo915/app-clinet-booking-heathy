@@ -1,0 +1,16 @@
+.new-doctor-container {
+    max-width: 520px;
+    margin: 0 auto;
+    margin-top: 10px;
+}
+
+.create-doctor-form-button {
+    width: 100%;
+}
+
+.create-doctor-form-button[disabled], .create-doctor-form-button[disabled]:hover, .create-doctor-form-button[disabled]:focus {
+    opacity: 0.6;
+    color: #fff;
+    background-color: #1890ff;
+    border-color: #1890ff;
+}

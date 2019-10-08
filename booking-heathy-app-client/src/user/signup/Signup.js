@@ -166,14 +166,14 @@ class SignupForm extends Component {
                 <h1 className="page-title">Sign Up</h1>
                 <div className="signup-content">
                     <Form onSubmit={this.handleSubmit} className="signup-form">
-                        <FormItem
+                        <FormItem className = "row-file"
                             label={
                                 <span><strong>Họ và Tên</strong></span>
                             }>
                             {getFieldDecorator('fullName', {
                                 rules: [
                                     { 
-                                        required: true, message: 'Hãy nhập tên đầy đủ của bạn!'
+                                        required: true, message: 'Hãy nhập tên đầy đủ của bạn !'
                                     },
                                     {
                                         validator: this.validateName,
@@ -183,10 +183,10 @@ class SignupForm extends Component {
                                 size="large"
                                 name="fullName"
                                 autoComplete="off"
-                                placeholder="Hãy nhập tài khoản đăng nhập của bạn!"
+                                placeholder="Hãy nhập tên đầy đủ của bạn !"
                             />)}
                         </FormItem>
-                        <FormItem
+                        <FormItem className = "row-file"
                             label={
                                 <span> <strong>Username</strong></span>
                             }>
@@ -206,7 +206,7 @@ class SignupForm extends Component {
                                 placeholder="Hãy nhập tài khoản đăng nhập của bạn!"
                             />)}
                         </FormItem>
-                        <FormItem
+                        <FormItem className = "row-file"
                             label={
                                 <span> <strong>Số điện thoại</strong></span>
                             }>
@@ -224,7 +224,7 @@ class SignupForm extends Component {
                                 placeholder="Hãy nhập số điện thoại của bạn!"
                             />)}
                         </FormItem>
-                        <FormItem
+                        <FormItem className = "row-file"
                              label={
                                 <span> <strong>E-mail</strong></span>
                             }>
@@ -249,7 +249,7 @@ class SignupForm extends Component {
                                 placeholder="Hãy nhập email của bạn !"
                             />)}
                         </FormItem>
-                        <FormItem  label={
+                        <FormItem  className = "row-file"  label={
                                 <span> <strong>Password</strong></span>
                             } hasFeedback>
                             {getFieldDecorator('password', {
@@ -272,20 +272,20 @@ class SignupForm extends Component {
                                 placeholder="Hãy nhập mật khẩu của bạn !"
                             />)}
                         </FormItem>
-                        <FormItem  label={
+                        <FormItem  className = "row-file" label={
                                 <span> <strong>Confirm Password</strong></span>
                             } hasFeedback>
                             {getFieldDecorator('confirm_password', {
                                 rules: [
                                     {
                                         required: true,
-                                        message: 'Hãy nhập lại mật khẩu!',
+                                        message: 'Hãy nhập lại mật khẩu !',
                                     },
                                     {
                                         validator: this.compareToFirstPassword,
                                     },
                                 ],
-                            })(<Input.Password  size="large" onBlur={this.handleConfirmBlur} />)}
+                            })(<Input.Password placeholder="Nhập lại mật khẩu !" size="large" onBlur={this.handleConfirmBlur} />)}
                         </FormItem>       
                         <FormItem>
                             <Button type="primary" 

@@ -178,15 +178,17 @@ class NewPoll extends Component {
                     <Form onSubmit={this.handleSubmit} className="create-poll-form">
                         <FormItem validateStatus={this.state.question.validateStatus}
                             help={this.state.question.errorMsg} className="poll-form-row">
-                        <TextArea 
-                            placeholder="Enter your question"
-                            style = {{ fontSize: '16px' }} 
-                            autosize={{ minRows: 3, maxRows: 6 }} 
-                            name = "question"
-                            value = {this.state.question.text}
-                            onChange = {this.handleQuestionChange} />
+                            <TextArea 
+                                placeholder="Enter your question"
+                                style = {{ fontSize: '16px' }} 
+                                autosize={{ minRows: 3, maxRows: 6 }} 
+                                name = "question"
+                                value = {this.state.question.text}
+                                onChange = {this.handleQuestionChange} />
                         </FormItem>
+
                         {choiceViews}
+                        
                         <FormItem className="poll-form-row">
                             <Button type="dashed" onClick={this.addChoice} disabled={this.state.choices.length === MAX_CHOICES}>
                                 <Icon type="plus" /> Add a choice

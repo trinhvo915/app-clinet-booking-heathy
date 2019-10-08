@@ -26,15 +26,20 @@ class AppHeader extends Component {
           menuItems = [
             <Menu.Item key="/">
               <Link to="/">
-                <Icon type="home" className="nav-icon" />
+                <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
               </Link>
             </Menu.Item>,
             <Menu.Item key="/poll/new">
-            <Link to="/poll/new">
-              <img src={pollIcon} alt="poll" className="poll-icon" />
-            </Link>
-          </Menu.Item>,
-          <Menu.Item key="/profile" className="profile-menu">
+              <Link to="/poll/new">
+                <img style={{ fontSize: '20px', color: '#08c' }} src={pollIcon} alt="poll" className="poll-icon" />
+              </Link>
+            </Menu.Item>,
+            <Menu.Item key="/register/doctor">
+              <Link to="/register/doctor">
+                <Icon style={{ fontSize: '20px', color: '#08c' }} type="usergroup-add" />
+              </Link>
+            </Menu.Item>,
+            <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu 
                   currentUser={this.props.currentUser} 
                   handleMenuClick={this.handleMenuClick}/>
@@ -97,7 +102,7 @@ function ProfileDropdownMenu(props) {
       trigger={['click']}
       getPopupContainer = { () => document.getElementsByClassName('profile-menu')[0]}>
       <a className="ant-dropdown-link">
-         <Icon type="user" className="nav-icon" style={{marginRight: 0}} /> <Icon type="down" />
+         <Icon type="user" className="nav-icon" style={{marginRight: 0},{ fontSize: '18px', color: '#08c' }} /> <Icon type="down" />
       </a>
     </Dropdown>
   );
