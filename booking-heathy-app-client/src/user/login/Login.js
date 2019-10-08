@@ -12,7 +12,7 @@ class Login extends Component {
         const AntWrappedLoginForm = Form.create()(LoginForm)
         return (
             <div className="login-container">
-                <h1 className="page-title">Login</h1>
+                <h1 className="page-title">Đăng Nhập</h1>
                 <div className="login-content">
                     <AntWrappedLoginForm onLogin={this.props.onLogin} />
                 </div>
@@ -39,13 +39,13 @@ class LoginForm extends Component {
                 }).catch(error => {
                     if(error.status === 401) {
                         notification.error({
-                            message: 'Polling App',
-                            description: 'Your Username or Password is incorrect. Please try again!'
+                            message: 'Booking Clinic',
+                            description: 'Tài khoản hoặc mật khẩu chưa chính xác. Hãy thử lại!'
                         });                    
                     } else {
                         notification.error({
-                            message: 'Polling App',
-                            description: error.message || 'Sorry! Something went wrong. Please try again!'
+                            message: 'Booking Clinic',
+                            description: error.message || 'Xin lỗi! Đăng nhập không thành công. Hãy thử lại!'
                         });                                            
                     }
                 });
@@ -59,7 +59,7 @@ class LoginForm extends Component {
             <Form onSubmit={this.handleSubmit} className="login-form">
                 <FormItem>
                     {getFieldDecorator('usernameOrEmail', {
-                        rules: [{ required: true, message: 'Please input your username or email!' }],
+                        rules: [{ required: true, message: 'Hãy nhập username or email!' }],
                     })(
                     <Input 
                         prefix={<Icon type="user" />}
@@ -70,7 +70,7 @@ class LoginForm extends Component {
                 </FormItem>
                 <FormItem>
                 {getFieldDecorator('password', {
-                    rules: [{ required: true, message: 'Please input your Password!' }],
+                    rules: [{ required: true, message: 'Hãy nhập mật khẩu !' }],
                 })(
                     <Input 
                         prefix={<Icon type="lock" />}
@@ -81,8 +81,8 @@ class LoginForm extends Component {
                 )}
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" htmlType="submit" size="large" className="login-form-button">Login</Button>
-                    Or <Link to="/signup">register now!</Link>
+                    <Button type="primary" htmlType="submit" size="large" className="login-form-button">Đăng nhập</Button>
+                    Or <Link to="/signup"><strong>Đăng ký!</strong></Link>
                 </FormItem>
             </Form>
         );

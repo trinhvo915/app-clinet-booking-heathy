@@ -63,7 +63,7 @@ class App extends Component {
     this.loadCurrentUser();
   }
 
-  handleLogout(redirectTo="/", notificationType="success", description="You're successfully logged out.") {
+  handleLogout(redirectTo="/", notificationType="success", description="Bạn đăng xuất thành công") {
     localStorage.removeItem(ACCESS_TOKEN);
 
     this.setState({
@@ -74,15 +74,15 @@ class App extends Component {
     this.props.history.push(redirectTo);
     
     notification[notificationType]({
-      message: 'Polling App',
+      message: 'Booking Clinic',
       description: description,
     });
   }
 
   handleLogin() {
     notification.success({
-      message: 'Polling App',
-      description: "You're successfully logged in.",
+      message: 'Booking Clinic',
+      description: "Bạn đăng nhập thành công !",
     });
     this.loadCurrentUser();
     this.props.history.push("/");
@@ -106,8 +106,14 @@ class App extends Component {
                       currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
                 </Route>
                 <Route path="/login" 
-                  render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
-                <Route path="/signup" component={Signup}></Route>
+                  render={(props) => <Login onLogin={this.handleLogin} {...props} />}>
+                </Route>
+
+                <Route path="/signup" 
+                  render={(props) => <Signup/>}
+                >
+
+                </Route>
                 <Route path="/users/:username" 
                   render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props}  />}>
                 </Route>
