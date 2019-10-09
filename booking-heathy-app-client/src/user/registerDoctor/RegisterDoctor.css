@@ -4,6 +4,10 @@
     margin-top: 10px;
 }
 
+.row-file {
+    margin-bottom: 2px;
+}
+
 .create-doctor-form-button {
     width: 100%;
 }
