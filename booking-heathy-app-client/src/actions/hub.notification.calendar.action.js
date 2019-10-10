@@ -1,0 +1,24 @@
+export const CONNECT_HUB_NOTICATION_CALENDAR = "[CONNECT_HUB_NOTICATION_CALENDAR] CONNECT_HUB_NOTICATION_CALENDAR";
+export const CONNECT_HUB_NOTICATION_CALENDAR_SUCCESS =
+  "[CONNECT_HUB_NOTICATION_CALENDAR_SUCCESS] CONNECT_HUB_NOTICATION_CALENDAR_SUCCESS";
+export const CONNECT_HUB_NOTICATION_CALENDAR_FAILED =
+  "[CONNECT_HUB_NOTICATION_CALENDAR_FAILED] CONNECT_HUB_NOTICATION_CALENDAR_FAILED";
+  
+export const connectHubNotificationCalendar = () => {
+  return {
+    type: CONNECT_HUB_NOTICATION_CALENDAR,
+  };
+};
+
+export const connectHubNotificationCalendarSuccess = payload => {
+  return {
+    type: CONNECT_HUB_NOTICATION_CALENDAR_SUCCESS,
+    payload
+  };
+};
+
+export const connectHubNotificationCalendarFailed = () => {
+  return {
+    type: CONNECT_HUB_NOTICATION_CALENDAR_FAILED
+  };
+};

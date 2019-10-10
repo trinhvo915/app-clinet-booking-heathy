@@ -49,7 +49,7 @@ class PollList extends Component {
         .then(response => {
             const polls = this.state.polls.slice();
             const currentVotes = this.state.currentVotes.slice();
-
+            console.log(polls.concat(response.content));
             this.setState({
                 polls: polls.concat(response.content),
                 page: response.page,
@@ -143,6 +143,7 @@ class PollList extends Component {
 
     render() {
         const pollViews = [];
+
         this.state.polls.forEach((poll, pollIndex) => {
             pollViews.push(<Poll 
                 key={poll.id} 

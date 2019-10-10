@@ -5,11 +5,15 @@
   "dependencies": {
     "antd": "^3.23.6",
     "moment": "^2.24.0",
-    "react": "^16.5.2",
-    "react-dom": "^16.5.2",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
+    "react-intl": "^3.3.2",
+    "react-redux": "^7.1.1",
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.5",
-    "reactstrap": "^8.0.1"
+    "reactstrap": "^8.0.1",
+    "redux": "^4.0.4",
+    "redux-saga": "^1.1.1"
   },
   "scripts": {
     "start": "react-app-rewired start",

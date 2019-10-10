@@ -117,3 +117,17 @@ export function getUserVotedPolls(username, page, size) {
         method: 'GET'
     });
 }
+
+export  function getFaculties() {
+    return request({
+        url: API_BASE_URL + "/faculties",
+        method: 'GET'
+    });
+}
+
+export  function getDegrees() {
+    return request({
+        url: API_BASE_URL + "/degrees",
+        method: 'GET'
+    });
+}

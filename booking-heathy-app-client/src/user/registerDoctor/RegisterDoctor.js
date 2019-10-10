@@ -8,7 +8,10 @@ import {
 } from '../../constants';
 import { DatePicker } from 'antd';
 import moment from 'moment';
-
+import { connect } from "react-redux";
+import {getFaculty} from  "../../actions/faculty.list.action";
+import { getFaculties } from "./../../util/APIUtils";
+import { getDegrees } from "./../../util/APIUtils";
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input
@@ -27,10 +30,12 @@ const genderData = [
         EN : "OTHER"
     }
 ] 
-export default class RegisterDoctor extends Component {
+
+class RegisterDoctor extends Component {
     constructor(props){
         super(props);
         this.state = {
+            idFacultyFist : "",
             fullName: {
                 value: ''
             },
@@ -56,14 +61,16 @@ export default class RegisterDoctor extends Component {
                 value : ''
             },
             degrees: [
-                {
-                    id : ''
-                }
+               
             ],
             faculties: [
-                {
-                    id : ''
-                }
+
+            ],
+            facultiesResponse: [
+
+            ],
+            degreesResponse : [
+
             ]
         }
     }
@@ -84,6 +91,7 @@ export default class RegisterDoctor extends Component {
             }
         });
     }
+    
 
     validateFullName = (fullName) =>{
         if(fullName.length < NAME_MIN_LENGTH){
@@ -180,7 +188,6 @@ export default class RegisterDoctor extends Component {
             value: value
           }
         });
-        console.log(this.state)
     };
 
     handleTokenChange = (event) =>{
@@ -204,10 +211,85 @@ export default class RegisterDoctor extends Component {
         this.setState({
             gender: gender
         });
-        console.log(this.state)
+    }
+
+    getDegreesAll(){
+        getDegrees().then(response =>{
+            const degreess = this.state.degreesResponse;
+
+            this.setState({
+                degreesResponse : degreess.concat(response.data.object),
+            })
+        })
+
+    }
+
+    getFacultiesAll (){
+        getFaculties().then(response =>{
+            const facultiess = this.state.facultiesResponse;
+            let idFirst = "";
+            response.data.object.map((value,key) =>{
+                if(key === 0){
+                    idFirst = value.id;
+                }
+            })
+
+            this.setState({
+                facultiesResponse : facultiess.concat(response.data.object),
+                idFacultyFist : idFirst
+            })
+        })
+    }
+
+    handleChangeFaculty = async (value) =>{
+        let arrayFaculty = [];
+
+        value.forEach(x =>{
+            arrayFaculty.push({"id" : x})
+        })
+        
+        await this.setState({
+            faculties :[]
+        })
+
+        const facultiess =  this.state.faculties.slice();
+
+        this.setState({
+            faculties :facultiess.concat(arrayFaculty)
+        })
+        
+    }
+    handleChangeDegrees = async (value) =>{
+        let arrayDegrees = [];
+
+        value.forEach(x =>{
+            arrayDegrees.push({"id" : x})
+        })
+        
+        await this.setState({
+            degrees :[]
+        })
+
+        const degreess =  this.state.degrees.slice();
+
+        this.setState({
+            degrees :degreess.concat(arrayDegrees)
+        })
+        
+    }
+
+    componentDidMount = () => {
+        this.getFacultiesAll();
+
+        this.getDegreesAll();
     }
 
     render() {
+        const {facultiesResponse} =  this.state;
+
+        const {degreesResponse} =  this.state;
+        console.log(this.state)
+
         return (
             <div className="new-doctor-container">
                 <h1 className="page-title">Đăng Ký Trở Thành Bác Sỹ</h1>
@@ -269,106 +351,45 @@ export default class RegisterDoctor extends Component {
 
                         <FormItem  className = "row-file"
                             label="Bằng cấp :"
-                            // validateStatus={this.state.fullName.validateStatus}
-                            // help={this.state.fullName.errorMsg}
                         >
                             <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
-                                placeholder="select one country"
-                                defaultValue={['china']}
-                                // onChange={handleChange}
+                                placeholder="Chọn Bằng cấp !"
+                                onChange={this.handleChangeFaculty}
+                                onDeselect = {this.handleDeselect}
                                 optionLabelProp="label"
                             >
-                                <Option value="china" label="China">
-                                <span role="img" aria-label="China">
-                                    🇨🇳
-                                </span>
-                                China (中国)
-                                </Option>
-                                <Option value="usa" label="USA">
-                                <span role="img" aria-label="USA">
-                                    🇺🇸
-                                </span>
-                                USA (美国)
-                                </Option>
-                                <Option value="japan" label="Japan">
-                                <span role="img" aria-label="Japan">
-                                    🇯🇵
-                                </span>
-                                Japan (日本)
-                                </Option>
-                                <Option value="korea" label="Korea">
-                                <span role="img" aria-label="Korea">
-                                    🇰🇷
-                                </span>
-                                Korea (韩国)
-                                </Option>
+                                {
+                                    facultiesResponse.map((value,key) =>
+                                        <Option key = {key} value = {value.id} label= {value.name}>
+                                            {value.name} 
+                                        </Option>
+                                    )
+                                }
                             </Select>
                         </FormItem>
 
                         <FormItem  className = "row-file"
-                            label="Khoa :"
+                            label="Học Hàm - Học vị :"
                             // validateStatus={this.state.fullName.validateStatus}
                             // help={this.state.fullName.errorMsg}
                         >
                             <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
-                                placeholder="select one country"
-                                defaultValue={['china']}
-                                // onChange={handleChange}
+                                placeholder="Hãy Chọn !"
+                                // defaultValue={['usa']}
+                                onChange={this.handleChangeDegrees}
                                 optionLabelProp="label"
                             >
-                                <Option value="china" label="China">
-                                    <span role="img" aria-label="China">
-                                        🇨🇳
-                                    </span>
-                                    China (中国)
-                                </Option>
-                                <Option value="usa" label="USA">
-                                    <span role="img" aria-label="USA">
-                                        🇺🇸
-                                    </span>
-                                    USA (美国)
-                                </Option>
-                                <Option value="japan" label="Japan">
-                                    <span role="img" aria-label="Japan">
-                                        🇯🇵
-                                    </span>
-                                    Japan (日本)
-                                </Option>
-                                <Option value="korea" label="Korea">
-                                    <span role="img" aria-label="Korea">
-                                        🇰🇷
-                                    </span>
-                                    Korea (韩国)
-                                </Option>
-                                <Option value="chinaád" label="China">
-                                    <span role="img" aria-label="China">
-                                        🇨🇳
-                                    </span>
-                                    China (中国)
-                                </Option>
-                                <Option value="usaád" label="USA">
-                                    <span role="img" aria-label="USA">
-                                        🇺🇸
-                                    </span>
-                                    USA (美国)
-                                </Option>
-                                <Option value="japanádf" label="Japan">
-                                    <span role="img" aria-label="Japan">
-                                        🇯🇵
-                                    </span>
-                                    Japan (日本)
-                                </Option>
-                                <Option value="koreaádf" label="Korea">
-                                    <span role="img" aria-label="Korea">
-                                        🇰🇷
-                                    </span>
-                                    Korea (韩国)
-                                </Option>
-                                
+                                {
+                                    degreesResponse.map((value,key) =>
+                                        <Option key = {key} value = {value.id} label= {value.name}>
+                                            {value.name} 
+                                        </Option>
+                                    )
+                                }
                             </Select>
                         </FormItem>
 
@@ -435,3 +456,12 @@ export default class RegisterDoctor extends Component {
         )
     }
 }
+
+export default connect(
+    state => ({
+        facultyList: state.facultyList
+    }),
+    {
+        getFaculty,
+    }
+)(RegisterDoctor);
