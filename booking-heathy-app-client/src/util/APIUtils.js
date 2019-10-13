@@ -131,3 +131,11 @@ export  function getDegrees() {
         method: 'GET'
     });
 }
+
+export function registerDoctor(registerRequest) {
+    return request({
+        url: API_BASE_URL + "/user/doctor",
+        method: 'PUT',
+        body: JSON.stringify(registerRequest)
+    });
+}

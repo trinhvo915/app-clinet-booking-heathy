@@ -9,9 +9,13 @@ import {
 import { DatePicker } from 'antd';
 import moment from 'moment';
 import { connect } from "react-redux";
+import {
+    Redirect
+  } from "react-router-dom";
 import {getFaculty} from  "../../actions/faculty.list.action";
 import { getFaculties } from "./../../util/APIUtils";
 import { getDegrees } from "./../../util/APIUtils";
+import { registerDoctor } from "./../../util/APIUtils";
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input
@@ -75,8 +79,48 @@ class RegisterDoctor extends Component {
         }
     }
 
-    handleSubmit(event) {
-        // event.preventDefault();
+    async handleSubmit(event) {
+
+        const doctorRegister = {
+            about: this.state.about.value,
+            address: this.state.address.value,
+            birthday: this.state.birthday.value,
+            degrees: this.state.degrees,
+            email : this.state.email.value,
+            faculties : this.state.faculties,
+            fullName : this.state.fullName.value,
+            gender : this.state.gender.value,
+            mobile : this.state.mobile.value,
+            tokenCode : this.state.tokenCode.value
+        };
+
+        registerDoctor(doctorRegister)
+        .then(response =>{
+            console.log("response : "+response.data)
+           if(response.success === true){
+                console.log("response : "+response.data)
+                notification.success({
+                    message: 'Booking Clinic',
+                    description: "Thank you! Bạn đã đăng ký thành công. Hãy tạo phòng khám để tạo lịch khám !!",
+                });  
+                this.props.history.push("/register/doctor");
+               
+           }else if(response.success === false){
+               
+                notification.error({
+                    message: 'Booking Clinic',
+                    description: response.data.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
+                });
+                this.props.history.push("/register/doctor");
+           }
+        }).catch(error =>{
+            notification.error({
+                message: 'Booking Clinic',
+                description: error.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
+            });
+            this.props.history.push("/register/doctor");
+        })
+
     }
 
     handleInputChange(event, validationFun) {
@@ -91,7 +135,20 @@ class RegisterDoctor extends Component {
             }
         });
     }
-    
+
+    validateTokenCode = (tokenCode) =>{
+        if(tokenCode.length === 0){
+            return {
+                validationStatus: 'error',
+                errorMsg: `Bạn cần nhập mã code do quản trị cung cấp!!`
+            }
+        }else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+              };            
+        }
+    }
 
     validateFullName = (fullName) =>{
         if(fullName.length < NAME_MIN_LENGTH){
@@ -145,6 +202,20 @@ class RegisterDoctor extends Component {
         }
     }
 
+    validateAbout = (about) =>{
+        if(about.length === 0){
+            return {
+                validationStatus: 'error',
+                errorMsg: `Bạn cần nhập thông tin cơ bản !!`
+            }
+        }else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+              };            
+        }
+    }
+
     validateEmail = (email) => {
         if(!email) {
             return {
@@ -169,18 +240,10 @@ class RegisterDoctor extends Component {
         }
 
         return {
-            validateStatus: null,
-            errorMsg: null
-        }
+            validateStatus: 'success',
+            errorMsg: null,
+        };
     }
-
-    // disabledStartDate = birthday => {
-    //     const { value } = this.state.birthday;
-    //     if (!value) {
-    //       return false;
-    //     }
-    //     return value.valueOf() <= value.valueOf();
-    // };
     
     onChangeforDate = (field, value) => {
         this.setState({
@@ -190,19 +253,7 @@ class RegisterDoctor extends Component {
         });
     };
 
-    handleTokenChange = (event) =>{
-        const target = event.target;
-        const inputName = target.name;        
-        const inputValue = target.value;
-        this.setState({
-            [inputName] : {
-                value: inputValue
-            }
-        });
-    }
-
     onChangeDate = (value) =>{
-        // console.log(" sfasd " + value._i);
         this.onChangeforDate('birthday', value);
     }
 
@@ -259,6 +310,7 @@ class RegisterDoctor extends Component {
         })
         
     }
+
     handleChangeDegrees = async (value) =>{
         let arrayDegrees = [];
 
@@ -278,10 +330,31 @@ class RegisterDoctor extends Component {
         
     }
 
-    componentDidMount = () => {
+    componentDidMount = async ()  => {
         this.getFacultiesAll();
 
         this.getDegreesAll();
+
+        await this.setState({
+            birthday : moment( moment().format(dateFormat)._i)
+        })
+
+    }
+
+    isFormInvalid = ()=> {
+        var checkArray = false;
+        if(this.state.degrees.length !== 0 && this.state.faculties.length !==0){
+            checkArray = true;
+        }
+        return !(
+            this.state.fullName.validateStatus === 'success'&&
+            this.state.address.validateStatus === 'success'&&
+            this.state.email.validateStatus === 'success'&&
+            this.state.mobile.validateStatus === 'success'&&
+            this.state.tokenCode.validateStatus === 'success'&&
+            this.state.about.validateStatus === 'success' &&
+            checkArray
+        );
     }
 
     render() {
@@ -294,7 +367,7 @@ class RegisterDoctor extends Component {
             <div className="new-doctor-container">
                 <h1 className="page-title">Đăng Ký Trở Thành Bác Sỹ</h1>
                 <div className="new-poll-content">
-                    <Form onSubmit={this.handleSubmit} className="create-doctor-form">
+                    <Form onSubmit={() =>this.handleSubmit()} className="create-doctor-form">
                         <FormItem  className = "row-file"
                             label="Họ Và Tên :"
                             validateStatus={this.state.fullName.validateStatus}
@@ -310,9 +383,11 @@ class RegisterDoctor extends Component {
 
                         <Row>
                             <Col span={12}>
-                                <FormItem className = "row-file"  label="Ngày sinh">
+                                <FormItem 
+                                    className = "row-file"  
+                                    label="Ngày sinh">
                                     <DatePicker 
-                                        // disabledDate={this.disabledStartDate}
+                                        defaultValue = {moment( moment().format(dateFormat)._i)}
                                         format={dateFormat}
                                         value={ this.state.birthday.value ? this.state.birthday.value : moment( moment().format(dateFormat)._i)}
                                         onChange={this.onChangeDate}
@@ -338,6 +413,7 @@ class RegisterDoctor extends Component {
                         </Row>
 
                         <FormItem  className = "row-file"
+                            validateStatus={this.state.tokenCode.validateStatus}
                             label=" Mã code để được xác nhân :"
                             >
                             <Input 
@@ -346,16 +422,16 @@ class RegisterDoctor extends Component {
                                 autoComplete="off"
                                 placeholder="Hãy nhập mã code do admin cung cấp cho bạn !"
                                 value={this.state.tokenCode.value} 
-                                onChange={(event) => this.handleTokenChange(event)} />    
+                                onChange={(event) => this.handleInputChange(event,this.validateTokenCode)} />    
                         </FormItem>
 
                         <FormItem  className = "row-file"
-                            label="Bằng cấp :"
+                            label="Khoa :"
                         >
                             <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
-                                placeholder="Chọn Bằng cấp !"
+                                placeholder="Chọn Khoa bạn làm việc !"
                                 onChange={this.handleChangeFaculty}
                                 onDeselect = {this.handleDeselect}
                                 optionLabelProp="label"
@@ -372,8 +448,6 @@ class RegisterDoctor extends Component {
 
                         <FormItem  className = "row-file"
                             label="Học Hàm - Học vị :"
-                            // validateStatus={this.state.fullName.validateStatus}
-                            // help={this.state.fullName.errorMsg}
                         >
                             <Select
                                 mode="multiple"
@@ -441,13 +515,14 @@ class RegisterDoctor extends Component {
                                 autosize={{ minRows: 3, maxRows: 6 }} 
                                 name = "about"
                                 value = {this.state.about.value}
-                                onChange = {this.handleTokenChange} />
+                                onChange = {(event) => this.handleInputChange(event, this.validateAbout)} />
                         </FormItem>
 
                         <FormItem>
                             <Button type="primary" 
                                 htmlType="submit" 
                                 size="large" 
+                                disabled={this.isFormInvalid()}
                                 className="signup-form-button">Đăng ký</Button>
                         </FormItem>
                     </Form>
