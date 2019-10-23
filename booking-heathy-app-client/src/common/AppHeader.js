@@ -4,6 +4,7 @@ import {
     withRouter
 } from 'react-router-dom';
 import './AppHeader.css';
+import { Badge } from 'antd';
 import pollIcon from '../poll.svg';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 import { getUserByRoleName } from './../util/APIUtils';
@@ -67,11 +68,6 @@ class AppHeader extends Component {
                 </div>
               </Link>
             </Menu.Item>,
-            <Menu.Item key="/poll/new">
-              <Link to="/poll/new">
-                <img style={{ fontSize: '20px', color: '#08c' }} src={pollIcon} alt="poll" className="poll-icon" />
-              </Link>
-            </Menu.Item>,
             
             <Menu.Item key="/register/clinic">
               <Link to="/register/clinic">
@@ -81,10 +77,19 @@ class AppHeader extends Component {
                   </div>
               </Link>
             </Menu.Item>,
+
+            <Menu.Item key="/poll/new">
+              <Link to="/poll/new">
+                <Badge count={99}>
+                  <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
+                </Badge>
+              </Link>
+            </Menu.Item>,
+
             <Menu.Item key="/profile" className="profile-menu">
-                <ProfileDropdownMenu 
-                  currentUser={this.props.currentUser} 
-                  handleMenuClick={this.handleMenuClick}/>
+              <ProfileDropdownMenu 
+                currentUser={this.props.currentUser} 
+                handleMenuClick={this.handleMenuClick}/>
             </Menu.Item>
           ]; 
         }else if(this.props.currentUser && nameRole === 0){
@@ -97,11 +102,7 @@ class AppHeader extends Component {
                 </div>
               </Link>
             </Menu.Item>,
-            <Menu.Item key="/poll/new">
-              <Link to="/poll/new">
-                <img style={{ fontSize: '20px', color: '#08c' }} src={pollIcon} alt="poll" className="poll-icon" />
-              </Link>
-            </Menu.Item>,
+
             <Menu.Item key="/register/doctor">
               <Link to="/register/doctor">
                 <div className="tooltip">
@@ -110,6 +111,15 @@ class AppHeader extends Component {
                 </div>
               </Link>
             </Menu.Item>,
+
+            <Menu.Item key="/poll/new">
+              <Link to="/poll/new">
+                <Badge count={99}>
+                  <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
+                </Badge>
+              </Link>
+            </Menu.Item>,
+
             <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu 
                   currentUser={this.props.currentUser} 
