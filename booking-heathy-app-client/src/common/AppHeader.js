@@ -82,11 +82,11 @@ class AppHeader extends Component {
               </Link>
             </Menu.Item>,
 
-            <Menu.Item key="/poll/new">
+            <Menu.Item onClick={this.setCount}  key="/poll/new">
               <Link to="/poll/new">
-                <Badge count={99}>
-                  <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-                </Badge>
+                  <Badge count={this.state.count}>
+                    <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
+                  </Badge>
               </Link>
             </Menu.Item>,
 
