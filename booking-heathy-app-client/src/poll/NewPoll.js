@@ -63,7 +63,11 @@ class NewPoll extends Component {
 
         createPoll(pollData)
         .then(response => {
-            this.props.history.push("/");
+            notification.success({
+                message: 'Booking Clinic',
+                description: "Bạn đăng nhập thành công !",
+              });
+            this.props.history.push("/login");
         }).catch(error => {
             if(error.status === 401) {
                 this.props.handleLogout('/login', 'error', 'You have been logged out. Please login create poll.');    

@@ -96,7 +96,6 @@ class RegisterDoctor extends Component {
 
         registerDoctor(doctorRegister)
         .then(response =>{
-            console.log("response : "+response.data)
            if(response.success === true){
                 console.log("response : "+response.data)
                 notification.success({
@@ -361,7 +360,7 @@ class RegisterDoctor extends Component {
         const {facultiesResponse} =  this.state;
 
         const {degreesResponse} =  this.state;
-
+        
         return (
             <div className="new-doctor-container">
                 <h1 className="page-title">Đăng Ký Trở Thành Bác Sỹ</h1>

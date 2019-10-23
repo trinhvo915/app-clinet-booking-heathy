@@ -17,7 +17,7 @@ class Signup extends Component {
     render() {
         const AntWrappedSignupForm = Form.create()(SignupForm)
         return (
-            <AntWrappedSignupForm />
+            <AntWrappedSignupForm history = {this.props.history}/>
         );
     }
 }
@@ -27,24 +27,10 @@ class SignupForm extends Component {
         super(props);
         this.state = {
             confirmDirty: false,
-            
+            value : ""
         }
-        // this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
-
-    // handleInputChange(event) {
-    //     const target = event.target;
-    //     const inputName = target.name;        
-    //     const inputValue = target.value;
-
-    //     console.log(inputValue)
-    //     this.setState({
-    //         [inputName] : {
-    //             value: inputValue,
-    //         }
-    //     });
-    // }
 
     handleSubmit(event) {
         event.preventDefault();
@@ -54,26 +40,21 @@ class SignupForm extends Component {
                 const signupRequest = Object.assign({}, values);
                 signup(signupRequest)
                 .then(response =>{
-                    notification.success({
-                        message: 'Booking Clinic',
-                        description: "Thank you! Bạn đã đăng ký thành công. Hãy đăng nhập để tiếp tục!",
-                    }); 
-                }).catch(error =>{
-                    if(error.data){
-                        console.log("data"+error.data)
+                    
+                    if(response.success === true){
+                        notification.success({
+                            message: 'Booking Clinic',
+                            description: "Bạn đăng ký tài khoản thành công!",
+                        });
+                        
+                        this.props.history.push("/login");
+                    }else{
                         notification.error({
                             message: 'Booking Clinic',
-                            description: error.data.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
+                            description: response.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
                         });
                     }
-                    if(error.errors){
-                        console.log("data" + error.errors)
-                        notification.error({
-                            message: 'Booking Clinic',
-                            description: error.errors.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
-                        });
-                    }
-                });
+                })
             }
         });
     }
