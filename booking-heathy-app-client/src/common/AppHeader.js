@@ -4,7 +4,7 @@ import {
     withRouter
 } from 'react-router-dom';
 import './AppHeader.css';
-import { Badge,Button } from 'antd';
+import { Badge } from 'antd';
 // import pollIcon from '../poll.svg';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 import { getUserByRoleName } from './../util/APIUtils';
@@ -116,16 +116,11 @@ class AppHeader extends Component {
               </Link>
             </Menu.Item>,
 
-            <Menu.Item key="/poll/new">
+            <Menu.Item onClick={this.setCount}  key="/poll/new">
               <Link to="/poll/new">
-                <Button onClick={this.setCount} style={{ border: 'none', width: '0px', 'margin-right': '18px'}} >
                   <Badge count={this.state.count}>
                     <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
                   </Badge>
-                </Button>
-                {/* <Badge count={this.state.count}>
-                  <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-                </Badge> */}
               </Link>
             </Menu.Item>,
 
