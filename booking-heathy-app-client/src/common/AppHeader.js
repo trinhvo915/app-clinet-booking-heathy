@@ -6,11 +6,16 @@ import {
 import './AppHeader.css';
 import pollIcon from '../poll.svg';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
+import { getUserByRoleName } from './../util/APIUtils';
 const Header = Layout.Header;
     
 class AppHeader extends Component {
     constructor(props) {
         super(props);   
+        this.state = {
+          userAndRole : {},
+          roleNames : [],
+        }
         this.handleMenuClick = this.handleMenuClick.bind(this);   
     }
 
@@ -20,13 +25,76 @@ class AppHeader extends Component {
       }
     }
 
+    getRole =  () =>{
+      if(this.props.currentUser) {
+          getUserByRoleName(this.props.currentUser.id)
+          .then(response =>{
+              let userAndRole = Object.assign({}, this.state.userAndRole);
+              userAndRole = response;
+
+              let arrayRole = [];
+              userAndRole.roles.forEach(x =>{
+                if(x.name === 'EXPERT'){
+                  arrayRole.push(x.name)
+                }
+              })
+              const roleNames =  this.state.roleNames.slice();
+             
+              this.setState({
+                userAndRole,
+                roleNames :roleNames.concat(arrayRole)
+              })
+
+          })
+      }
+    }
+    
+    async componentDidMount(){
+      this.getRole();
+    }
+
     render() {
+      console.log(this.state.roleNames )
         let menuItems;
-        if(this.props.currentUser) {
+        let nameRole  = this.state.roleNames.length;
+        if(this.props.currentUser && nameRole === 1) {
           menuItems = [
             <Menu.Item key="/">
               <Link to="/">
-                <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
+                <div className="tooltip">
+                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
+                    <span className="tooltiptext">Trang Chủ</span>
+                </div>
+              </Link>
+            </Menu.Item>,
+            <Menu.Item key="/poll/new">
+              <Link to="/poll/new">
+                <img style={{ fontSize: '20px', color: '#08c' }} src={pollIcon} alt="poll" className="poll-icon" />
+              </Link>
+            </Menu.Item>,
+            
+            <Menu.Item key="/register/clinic">
+              <Link to="/register/clinic">
+                  <div className="tooltip">
+                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="plus-square" />
+                    <span className="tooltiptext">Tạo Phòng Khám</span>
+                  </div>
+              </Link>
+            </Menu.Item>,
+            <Menu.Item key="/profile" className="profile-menu">
+                <ProfileDropdownMenu 
+                  currentUser={this.props.currentUser} 
+                  handleMenuClick={this.handleMenuClick}/>
+            </Menu.Item>
+          ]; 
+        }else if(this.props.currentUser && nameRole === 0){
+          menuItems = [
+            <Menu.Item key="/">
+              <Link to="/">
+                <div className="tooltip">
+                  <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
+                  <span className="tooltiptext">Trang Chủ</span>
+                </div>
               </Link>
             </Menu.Item>,
             <Menu.Item key="/poll/new">
@@ -36,7 +104,10 @@ class AppHeader extends Component {
             </Menu.Item>,
             <Menu.Item key="/register/doctor">
               <Link to="/register/doctor">
-                <Icon style={{ fontSize: '20px', color: '#08c' }} type="usergroup-add" />
+                <div className="tooltip">
+                  <Icon style={{ fontSize: '20px', color: '#08c' }} type="usergroup-add" />
+                    <span className="tooltiptext">Đăng ký Bác Sỹ</span>
+                </div>
               </Link>
             </Menu.Item>,
             <Menu.Item key="/profile" className="profile-menu">
@@ -45,7 +116,7 @@ class AppHeader extends Component {
                   handleMenuClick={this.handleMenuClick}/>
             </Menu.Item>
           ]; 
-        } else {
+        }else {
           menuItems = [
             <Menu.Item key="/login">
               <Link to="/login"><strong>Đăng nhập</strong></Link>

@@ -9,9 +9,9 @@ import {
 import { DatePicker } from 'antd';
 import moment from 'moment';
 import { connect } from "react-redux";
-import {
-    Redirect
-  } from "react-router-dom";
+// import {
+//     Redirect
+//   } from "react-router-dom";
 import {getFaculty} from  "../../actions/faculty.list.action";
 import { getFaculties } from "./../../util/APIUtils";
 import { getDegrees } from "./../../util/APIUtils";
@@ -361,7 +361,6 @@ class RegisterDoctor extends Component {
         const {facultiesResponse} =  this.state;
 
         const {degreesResponse} =  this.state;
-        console.log(this.state)
 
         return (
             <div className="new-doctor-container">

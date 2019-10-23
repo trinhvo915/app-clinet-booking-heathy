@@ -139,3 +139,10 @@ export function registerDoctor(registerRequest) {
         body: JSON.stringify(registerRequest)
     });
 }
+
+export  function getUserByRoleName(id_User) {
+    return request({
+        url: API_BASE_URL + "/user/role/" + id_User,
+        method: 'GET'
+    });
+}

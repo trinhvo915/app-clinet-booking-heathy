@@ -84,3 +84,24 @@
     margin: 0 -15px;
   }
 }  
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  color: #1890ff;
+  text-align: center;
+  position: absolute;
+  z-index: 1;
+}
+
+.app-menu .ant-menu-item:hover .tooltip .tooltiptext {
+  visibility: visible;
+  top: 43px;
+  left: 0%;
+}
+
+.tooltiptext {
+  height: 21px;
+  font-size: 12px;
+  text-shadow: 1px 1px #1890ff;
+
+}
