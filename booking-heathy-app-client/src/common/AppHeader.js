@@ -4,8 +4,8 @@ import {
     withRouter
 } from 'react-router-dom';
 import './AppHeader.css';
-import { Badge } from 'antd';
-import pollIcon from '../poll.svg';
+import { Badge,Button } from 'antd';
+// import pollIcon from '../poll.svg';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 import { getUserByRoleName } from './../util/APIUtils';
 const Header = Layout.Header;
@@ -16,6 +16,7 @@ class AppHeader extends Component {
         this.state = {
           userAndRole : {},
           roleNames : [],
+          count: 10,
         }
         this.handleMenuClick = this.handleMenuClick.bind(this);   
     }
@@ -49,13 +50,16 @@ class AppHeader extends Component {
           })
       }
     }
-    
+    setCount = () =>{
+      let  count = 0;
+      this.setState({ count });
+    }
+
     async componentDidMount(){
       this.getRole();
     }
 
     render() {
-      console.log(this.state.roleNames )
         let menuItems;
         let nameRole  = this.state.roleNames.length;
         if(this.props.currentUser && nameRole === 1) {
@@ -114,9 +118,14 @@ class AppHeader extends Component {
 
             <Menu.Item key="/poll/new">
               <Link to="/poll/new">
-                <Badge count={99}>
+                <Button onClick={this.setCount} style={{ border: 'none', width: '0px', 'margin-right': '18px'}} >
+                  <Badge count={this.state.count}>
+                    <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
+                  </Badge>
+                </Button>
+                {/* <Badge count={this.state.count}>
                   <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-                </Badge>
+                </Badge> */}
               </Link>
             </Menu.Item>,
 
