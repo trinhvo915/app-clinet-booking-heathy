@@ -11,7 +11,6 @@ import moment from 'moment';
 import { getFaculties } from "./../../util/APIUtils";
 import { getDegrees } from "./../../util/APIUtils";
 import { registerDoctor } from "./../../util/APIUtils";
-import { getCurrentUser } from './../../util/APIUtils';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input

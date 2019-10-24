@@ -7,7 +7,6 @@ import { Button, Icon, notification } from 'antd';
 import { POLL_LIST_SIZE } from '../constants';
 import { withRouter } from 'react-router-dom';
 import './PollList.css';
-import InfiniteScroll from 'react-infinite-scroller';
 
 class PollList extends Component {
     constructor(props) {
@@ -156,19 +155,8 @@ class PollList extends Component {
         });
         const loader = <div className="loader">Loading ...</div>;
         return (
-            
-            <div className="polls-container">
-                <InfiniteScroll
-                    pageStart={0}
-                    // loadMore={this.loadItems.bind(this)}
-                    hasMore={this.state.hasMoreItems}
-                    loader={loader}>
-
-                    <div className="tracks">
-                        {pollViews}
-                    </div>
-                </InfiniteScroll>
-
+            <div>
+                {pollViews}
                 
                 {
                     !this.state.isLoading && this.state.polls.length === 0 ? (

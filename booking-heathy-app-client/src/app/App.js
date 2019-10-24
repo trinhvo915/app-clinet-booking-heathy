@@ -14,6 +14,7 @@ import NewPoll from '../poll/NewPoll';
 import Login from '../user/login/Login';
 import Signup from '../user/signup/Signup';
 import Profile from '../user/profile/Profile';
+import NewClinic from '../clinic/newClinic/NewClinic';
 import RegisterDoctor from '../user/registerDoctor/RegisterDoctor';
 import AppHeader from '../common/AppHeader';
 import NotFound from '../common/NotFound';
@@ -119,6 +120,8 @@ class App extends Component {
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
                 
                 <PrivateRoute  authenticated={this.state.isAuthenticated} path="/register/doctor" component={RegisterDoctor} handleLogout={this.handleLogout}/>
+
+                <PrivateRoute  authenticated={this.state.isAuthenticated} path="/register/clinic" component={NewClinic} handleLogout={this.handleLogout}/>
 
                 <Route component={NotFound}></Route>
               </Switch>

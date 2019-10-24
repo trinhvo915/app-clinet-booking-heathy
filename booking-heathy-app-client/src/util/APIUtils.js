@@ -146,3 +146,11 @@ export  function getUserByRoleName(id_User) {
         method: 'GET'
     });
 }
+
+export function registerClinic(clinic) {
+    return request({
+        url: API_BASE_URL + "/clinic",
+        method: 'POST',
+        body: JSON.stringify(clinic)
+    });
+}
