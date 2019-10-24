@@ -27,8 +27,7 @@ function* getFacultyListss() {
           EN : "OTHER"
       }
   ] 
-    // const payload = yield call(faculties);
-    // console.log("kakaka"+payload)
+
     yield put(getFacultySuccess(genderData));
   } catch (error) {
     yield put(getFacultyFailed());

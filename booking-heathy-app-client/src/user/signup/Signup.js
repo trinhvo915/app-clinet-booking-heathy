@@ -40,7 +40,6 @@ class SignupForm extends Component {
                 const signupRequest = Object.assign({}, values);
                 signup(signupRequest)
                 .then(response =>{
-                    
                     if(response.success === true){
                         notification.success({
                             message: 'Booking Clinic',
@@ -48,13 +47,13 @@ class SignupForm extends Component {
                         });
                         
                         this.props.history.push("/login");
-                    }else{
-                        notification.error({
-                            message: 'Booking Clinic',
-                            description: response.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
-                        });
                     }
-                })
+                }).catch(error => {
+                    notification.error({
+                        message: 'Booking Clinic',
+                        description: error.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
+                    });                    
+                });
             }
         });
     }

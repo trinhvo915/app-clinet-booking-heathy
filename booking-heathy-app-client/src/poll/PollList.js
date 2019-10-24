@@ -7,12 +7,14 @@ import { Button, Icon, notification } from 'antd';
 import { POLL_LIST_SIZE } from '../constants';
 import { withRouter } from 'react-router-dom';
 import './PollList.css';
+import InfiniteScroll from 'react-infinite-scroller';
 
 class PollList extends Component {
     constructor(props) {
         super(props);
         this.state = {
             polls: [],
+            hasMoreItems: true,
             page: 0,
             size: 10,
             totalElements: 0,
@@ -152,10 +154,22 @@ class PollList extends Component {
                 handleVoteChange={(event) => this.handleVoteChange(event, pollIndex)}
                 handleVoteSubmit={(event) => this.handleVoteSubmit(event, pollIndex)} />)            
         });
-
+        const loader = <div className="loader">Loading ...</div>;
         return (
+            
             <div className="polls-container">
-                {pollViews}
+                <InfiniteScroll
+                    pageStart={0}
+                    // loadMore={this.loadItems.bind(this)}
+                    hasMore={this.state.hasMoreItems}
+                    loader={loader}>
+
+                    <div className="tracks">
+                        {pollViews}
+                    </div>
+                </InfiniteScroll>
+
+                
                 {
                     !this.state.isLoading && this.state.polls.length === 0 ? (
                         <div className="no-polls-found">

@@ -3,19 +3,15 @@ import './RegisterDoctor.css';
 import { Form, Input,Row, Button, Select, Col, notification } from 'antd';
 import { 
     NAME_MIN_LENGTH, NAME_MAX_LENGTH, 
-    EMAIL_MAX_LENGTH,ADDRESS_MAX_LENGTH,
+    ADDRESS_MAX_LENGTH,
     MOBILE_MIN_LENGTH,MOBILE_MAX_LENGTH
 } from '../../constants';
 import { DatePicker } from 'antd';
 import moment from 'moment';
-import { connect } from "react-redux";
-// import {
-//     Redirect
-//   } from "react-router-dom";
-import {getFaculty} from  "../../actions/faculty.list.action";
 import { getFaculties } from "./../../util/APIUtils";
 import { getDegrees } from "./../../util/APIUtils";
 import { registerDoctor } from "./../../util/APIUtils";
+import { getCurrentUser } from './../../util/APIUtils';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input
@@ -49,9 +45,9 @@ class RegisterDoctor extends Component {
             birthday: {
                 value: ''
             },
-            email: {
-                value: ''
-            },
+            // email: {
+            //     value: ''
+            // },
             mobile: {
                 value: ''
             },
@@ -75,18 +71,20 @@ class RegisterDoctor extends Component {
             ],
             degreesResponse : [
 
-            ]
-        }
+            ],
+        };
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    async handleSubmit(event) {
-
+    handleSubmit(event) {
+        event.preventDefault();
+        
         const doctorRegister = {
             about: this.state.about.value,
             address: this.state.address.value,
             birthday: this.state.birthday.value,
             degrees: this.state.degrees,
-            email : this.state.email.value,
+            // email : this.state.email.value,
             faculties : this.state.faculties,
             fullName : this.state.fullName.value,
             gender : this.state.gender.value,
@@ -94,30 +92,21 @@ class RegisterDoctor extends Component {
             tokenCode : this.state.tokenCode.value
         };
 
-        registerDoctor(doctorRegister)
+        registerDoctor(doctorRegister,this.state.idcurrentUser)
         .then(response =>{
            if(response.success === true){
-                console.log("response : "+response.data)
                 notification.success({
                     message: 'Booking Clinic',
                     description: "Thank you! Bạn đã đăng ký thành công. Hãy tạo phòng khám để tạo lịch khám !!",
                 });  
-                this.props.history.push("/register/doctor");
-               
-           }else if(response.success === false){
-               
-                notification.error({
-                    message: 'Booking Clinic',
-                    description: response.data.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
-                });
-                this.props.history.push("/register/doctor");
+
+                this.props.history.push("/poll/new");
            }
         }).catch(error =>{
             notification.error({
                 message: 'Booking Clinic',
                 description: error.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
             });
-            this.props.history.push("/register/doctor");
         })
 
     }
@@ -215,34 +204,34 @@ class RegisterDoctor extends Component {
         }
     }
 
-    validateEmail = (email) => {
-        if(!email) {
-            return {
-                validateStatus: 'error',
-                errorMsg: 'Hãy nhập E-mail !'                
-            }
-        }
+    // validateEmail = (email) => {
+    //     if(!email) {
+    //         return {
+    //             validateStatus: 'error',
+    //             errorMsg: 'Hãy nhập E-mail !'                
+    //         }
+    //     }
 
-        const EMAIL_REGEX = RegExp('[^@ ]+@[^@ ]+\\.[^@ ]+');
-        if(!EMAIL_REGEX.test(email)) {
-            return {
-                validateStatus: 'error',
-                errorMsg: 'Lỗi định dạng E-mail !'
-            }
-        }
+    //     const EMAIL_REGEX = RegExp('[^@ ]+@[^@ ]+\\.[^@ ]+');
+    //     if(!EMAIL_REGEX.test(email)) {
+    //         return {
+    //             validateStatus: 'error',
+    //             errorMsg: 'Lỗi định dạng E-mail !'
+    //         }
+    //     }
 
-        if(email.length > EMAIL_MAX_LENGTH) {
-            return {
-                validateStatus: 'error',
-                errorMsg: `Email quá lớn !. Bạn cần nhập nhỏ hơn( ${EMAIL_MAX_LENGTH} ) ký tự! !`
-            }
-        }
+    //     if(email.length > EMAIL_MAX_LENGTH) {
+    //         return {
+    //             validateStatus: 'error',
+    //             errorMsg: `Email quá lớn !. Bạn cần nhập nhỏ hơn( ${EMAIL_MAX_LENGTH} ) ký tự! !`
+    //         }
+    //     }
 
-        return {
-            validateStatus: 'success',
-            errorMsg: null,
-        };
-    }
+    //     return {
+    //         validateStatus: 'success',
+    //         errorMsg: null,
+    //     };
+    // }
     
     onChangeforDate = (field, value) => {
         this.setState({
@@ -337,7 +326,6 @@ class RegisterDoctor extends Component {
         await this.setState({
             birthday : moment( moment().format(dateFormat)._i)
         })
-
     }
 
     isFormInvalid = ()=> {
@@ -348,7 +336,7 @@ class RegisterDoctor extends Component {
         return !(
             this.state.fullName.validateStatus === 'success'&&
             this.state.address.validateStatus === 'success'&&
-            this.state.email.validateStatus === 'success'&&
+            // this.state.email.validateStatus === 'success'&&
             this.state.mobile.validateStatus === 'success'&&
             this.state.tokenCode.validateStatus === 'success'&&
             this.state.about.validateStatus === 'success' &&
@@ -360,12 +348,11 @@ class RegisterDoctor extends Component {
         const {facultiesResponse} =  this.state;
 
         const {degreesResponse} =  this.state;
-        
         return (
             <div className="new-doctor-container">
                 <h1 className="page-title">Đăng Ký Trở Thành Bác Sỹ</h1>
                 <div className="new-poll-content">
-                    <Form onSubmit={() =>this.handleSubmit()} className="create-doctor-form">
+                    <Form onSubmit={this.handleSubmit} className="create-doctor-form">
                         <FormItem  className = "row-file"
                             label="Họ Và Tên :"
                             validateStatus={this.state.fullName.validateStatus}
@@ -491,7 +478,7 @@ class RegisterDoctor extends Component {
                                 onChange={(event) => this.handleInputChange(event, this.validateMobile)} />    
                         </FormItem>
 
-                        <FormItem className = "row-file"
+                        {/* <FormItem className = "row-file"
                             label="Email :"
                             hasFeedback
                             validateStatus={this.state.email.validateStatus}
@@ -504,7 +491,7 @@ class RegisterDoctor extends Component {
                                 placeholder="Hãy nhập email của bạn !"
                                 value={this.state.email.value} 
                                 onChange={(event) => this.handleInputChange(event, this.validateEmail)} />    
-                        </FormItem>
+                        </FormItem> */}
                         
                         <FormItem  label="About :">
                             <TextArea 
@@ -529,12 +516,4 @@ class RegisterDoctor extends Component {
         )
     }
 }
-
-export default connect(
-    state => ({
-        facultyList: state.facultyList
-    }),
-    {
-        getFaculty,
-    }
-)(RegisterDoctor);
+export default RegisterDoctor;

@@ -27,6 +27,7 @@ class App extends Component {
     super(props);
     this.state = {
       currentUser: null,
+      idcurrentUser : '',
       isAuthenticated: false,
       isLoading: false
     }
@@ -117,7 +118,7 @@ class App extends Component {
 
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
                 
-                <PrivateRoute exact authenticated={this.state.isAuthenticated} path="/register/doctor" component={RegisterDoctor}/>
+                <PrivateRoute  authenticated={this.state.isAuthenticated} path="/register/doctor" component={RegisterDoctor} handleLogout={this.handleLogout}/>
 
                 <Route component={NotFound}></Route>
               </Switch>

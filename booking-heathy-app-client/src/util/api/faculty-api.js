@@ -24,7 +24,6 @@ const request = (options) => {
 };
 
 export default function getFaculty() {
-    console.log("request")
     return request({
         url: API_BASE_URL + "/faculties",
         method: 'GET'
