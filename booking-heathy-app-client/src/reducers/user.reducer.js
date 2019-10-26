@@ -1,29 +1,29 @@
 import {
-    GET_JOB_LIST,
-    GET_JOB_LIST_FAILED,
-    GET_JOB_LIST_SUCCESS
-  } from "../actions/job.list.action";
+    GET_USER,
+    GET_USER_SUCCESS,
+    GET_USER_FAILED
+  } from "../actions/get.user.action";
   
   const initialState = {
-    jobList: {},
+    user: {},
     loading: false,
     failed: false
   };
-  
-  export function jobListReducer(state = initialState, action) {
+
+  export function userReducer(state = initialState, action) {
     switch (action.type) {
-      case GET_JOB_LIST:
+      case GET_USER:
         return Object.assign({}, state, {
           loading: true,
           failed: false
         });
-      case GET_JOB_LIST_SUCCESS:
+      case GET_USER_SUCCESS:
         return Object.assign({}, state, {
-          jobList: action.payload,
+          user: action.payload,
           loading: false,
           failed: false
         });
-      case GET_JOB_LIST_FAILED:
+      case GET_USER_FAILED:
         return Object.assign({}, state, {
           loading: false,
           failed: true

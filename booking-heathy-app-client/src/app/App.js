@@ -30,12 +30,14 @@ class App extends Component {
       currentUser: null,
       idcurrentUser : '',
       isAuthenticated: false,
-      isLoading: false
+      isLoading: false,
+      loadTrue :  true,
+      loadFalse : false,
     }
     this.handleLogout = this.handleLogout.bind(this);
     this.loadCurrentUser = this.loadCurrentUser.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
-
+    this.changerLoadHeard = this.changerLoadHeard.bind(this);
     notification.config({
       placement: 'topRight',
       top: 70,
@@ -90,6 +92,14 @@ class App extends Component {
     this.props.history.push("/");
   }
 
+  changerLoadHeard() {
+    console.log("user")
+    this.setState({
+      loadTrue : false ,
+      loadFalse : true,
+    })
+  }
+
   render() {
     if(this.state.isLoading) {
       return <LoadingIndicator />
@@ -119,7 +129,7 @@ class App extends Component {
 
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
                 
-                <PrivateRoute  authenticated={this.state.isAuthenticated} path="/register/doctor" component={RegisterDoctor} handleLogout={this.handleLogout}/>
+                <PrivateRoute onchangerLoadHeard = {this.changerLoadHeard}  authenticated={this.state.isAuthenticated} path="/register/doctor" component={RegisterDoctor} handleLogout={this.handleLogout}/>
 
                 <PrivateRoute  authenticated={this.state.isAuthenticated} path="/register/clinic" component={NewClinic} handleLogout={this.handleLogout}/>
 

@@ -11,6 +11,8 @@ import moment from 'moment';
 import { getFaculties } from "./../../util/APIUtils";
 import { getDegrees } from "./../../util/APIUtils";
 import { registerDoctor } from "./../../util/APIUtils";
+import { connect } from "react-redux";
+import { getUser } from "../../actions/get.user.action";
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input
@@ -72,7 +74,16 @@ class RegisterDoctor extends Component {
 
             ],
         };
+        // this.changerLoadHeard = this.changerLoadHeard.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.getRedux = this.getRedux.bind(this);
+    }
+    // changerLoadHeard(){
+    //     this.props.onchangerLoadHeard();
+    // }
+
+    getRedux(){
+        this.props.getUser();
     }
 
     handleSubmit(event) {
@@ -90,26 +101,28 @@ class RegisterDoctor extends Component {
             mobile : this.state.mobile.value,
             tokenCode : this.state.tokenCode.value
         };
-
+        
         registerDoctor(doctorRegister,this.state.idcurrentUser)
         .then(response =>{
-           if(response.success === true){
+            if(response.success === true){
+            //    this.changerLoadHeard();
+               this.getRedux();
                 notification.success({
                     message: 'Booking Clinic',
                     description: "Thank you! Bạn đã đăng ký thành công. Hãy tạo phòng khám để tạo lịch khám !!",
                 });  
-
-                this.props.history.push("/poll/new");
-           }
+                
+                this.props.history.push("/register/clinic");
+            }
         }).catch(error =>{
             notification.error({
                 message: 'Booking Clinic',
                 description: error.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
             });
         })
-
+      
     }
-
+    
     handleInputChange(event, validationFun) {
         const target = event.target;
         const inputName = target.name;        
@@ -515,4 +528,15 @@ class RegisterDoctor extends Component {
         )
     }
 }
-export default RegisterDoctor;
+const mapStateToProps = (state) => {
+    return {
+        user: state.user,
+    }
+  }
+  
+  export default connect(
+    mapStateToProps,
+    {
+      getUser
+    }
+)(RegisterDoctor);

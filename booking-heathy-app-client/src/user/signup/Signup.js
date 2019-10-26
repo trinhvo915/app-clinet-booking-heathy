@@ -9,7 +9,7 @@ import {
     PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH,
     MOBILE_MIN_LENGTH,MOBILE_MAX_LENGTH
 } from '../../constants';
-
+import { connect } from "react-redux";
 import { Form, Input, Button, notification } from 'antd';
 const FormItem = Form.Item;
 

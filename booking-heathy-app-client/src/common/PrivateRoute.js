@@ -5,13 +5,13 @@ import {
   } from "react-router-dom";
   
   
-const PrivateRoute = ({ component: Component, authenticated, ...rest }) => (
+const PrivateRoute = ({ component: Component, authenticated, onchangerLoadHeard, ...rest }) => (
     <Route
       {...rest}
       render={
         props =>
           authenticated ? (
-            <Component  {...props} />
+            <Component onchangerLoadHeard = {onchangerLoadHeard}  {...props} />
           ) : (
             <Redirect
               to={{

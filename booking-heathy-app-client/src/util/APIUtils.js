@@ -13,14 +13,14 @@ const request = (options) => {
     options = Object.assign({}, defaults, options);
 
     return fetch(options.url, options)
-    .then(response => 
-        response.json().then(json => {
-            if(!response.ok) {
-                return Promise.reject(json);
-            }
-            return json;
-        })
-    );
+        .then(response => response.json()
+        .then(data => {
+                if(!response.ok) {
+                    return Promise.reject(data);
+                }
+                return data;
+            })
+        );
 };
 
 export function getAllPolls(page, size) {
@@ -152,5 +152,12 @@ export function registerClinic(clinic) {
         url: API_BASE_URL + "/clinic",
         method: 'POST',
         body: JSON.stringify(clinic)
+    });
+}
+
+export function getUserApi(id) {
+    return request({
+        url: API_BASE_URL + "/user/" + id,
+        method: 'GET'
     });
 }

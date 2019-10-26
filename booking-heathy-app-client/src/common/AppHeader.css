@@ -39,7 +39,9 @@
   }
 
   .profile-dropdown-menu {
-    min-width: 180px;
+    /* width: 50px; */
+    word-wrap: break-word;
+    width: 180px;
   }
 
   .profile-menu .user-full-name-info {
@@ -58,6 +60,8 @@
   }
 
   .dropdown-item a {
+    color: #0f4f8a;
+   
     padding: 10px 12px;
     margin: -10px -12px;
   }
@@ -104,4 +108,8 @@
   font-size: 12px;
   text-shadow: 1px 1px #1890ff;
 
+}
+
+.undefined-item {
+  word-wrap: break-word;
 }

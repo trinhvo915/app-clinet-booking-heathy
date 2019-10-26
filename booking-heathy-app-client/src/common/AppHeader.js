@@ -5,19 +5,19 @@ import {
 } from 'react-router-dom';
 import './AppHeader.css';
 import { Badge } from 'antd';
+import { connect } from "react-redux";
 // import pollIcon from '../poll.svg';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
-import { getUserByRoleName } from './../util/APIUtils';
+import { getUser } from "./../actions/get.user.action";
 const Header = Layout.Header;
     
 class AppHeader extends Component {
     constructor(props) {
         super(props);   
         this.state = {
-          userAndRole : {},
-          roleNames : [],
           count: 10,
         }
+
         this.handleMenuClick = this.handleMenuClick.bind(this);   
     }
 
@@ -27,42 +27,28 @@ class AppHeader extends Component {
       }
     }
 
-    getRole =  () =>{
-      if(this.props.currentUser) {
-          getUserByRoleName(this.props.currentUser.id)
-          .then(response =>{
-              let userAndRole = Object.assign({}, this.state.userAndRole);
-              userAndRole = response;
-
-              let arrayRole = [];
-              userAndRole.roles.forEach(x =>{
-                if(x.name === 'EXPERT'){
-                  arrayRole.push(x.name)
-                }
-              })
-              const roleNames =  this.state.roleNames.slice();
-             
-              this.setState({
-                userAndRole,
-                roleNames :roleNames.concat(arrayRole)
-              })
-
-          })
-      }
-    }
     setCount = () =>{
       let  count = 0;
       this.setState({ count });
     }
 
-    async componentDidMount(){
-      this.getRole();
+    getUserCheck = async () =>{
+      if(this.props.currentUser) {
+        await this.props.getUser();
+      }
     }
 
+   
+    componentDidMount = async () => {
+      await this.getUserCheck();
+    };
+
     render() {
+      const { user } = this.props.user;
+      // console.log(this.props.loadFalse)
+      // console.log(user)
         let menuItems;
-        let nameRole  = this.state.roleNames.length;
-        if(this.props.currentUser && nameRole === 1) {
+        if(this.props.currentUser && user.check === "USER_EXPERT" ) {
           menuItems = [
             <Menu.Item key="/">
               <Link to="/">
@@ -96,7 +82,39 @@ class AppHeader extends Component {
                 handleMenuClick={this.handleMenuClick}/>
             </Menu.Item>
           ]; 
-        }else if(this.props.currentUser && nameRole === 0){
+        }else if(this.props.currentUser && user.check === "USER_CLINIC") {
+          menuItems = [
+            <Menu.Item key="/">
+              <Link to="/">
+                <div className="tooltip">
+                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
+                    <span className="tooltiptext">Trang Chủ</span>
+                </div>
+              </Link>
+            </Menu.Item>,
+            
+            <Menu.Item key="/ddddd" className="clinic-menu">
+                <Clinics 
+                  user = {user}
+                  currentUser={this.props.currentUser} 
+                />
+            </Menu.Item>,
+
+            <Menu.Item onClick={this.setCount}  key="/poll/new">
+              <Link to="/poll/new">
+                  <Badge count={this.state.count}>
+                    <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
+                  </Badge>
+              </Link>
+            </Menu.Item>,
+
+            <Menu.Item key="/profile" className="profile-menu">
+              <ProfileDropdownMenu 
+                currentUser={this.props.currentUser} 
+                handleMenuClick={this.handleMenuClick}/>
+            </Menu.Item>
+          ]; 
+        }else if(this.props.currentUser && user.check === "USER"){
           menuItems = [
             <Menu.Item key="/">
               <Link to="/">
@@ -140,7 +158,6 @@ class AppHeader extends Component {
             </Menu.Item>                  
           ];
         }
-
         return (
             <Header className="app-header">
             <div className="container">
@@ -193,5 +210,48 @@ function ProfileDropdownMenu(props) {
   );
 }
 
+function Clinics (props) {
+  const dropdownMenu = (
+    <Menu className="profile-dropdown-menu">
+      {
+        props.user && props.user.clinic.map((key ,x) => {
+          return (
+            <div key = {key}>
+              <Menu.Item key="profile" className="dropdown-item">
+                <Link style = {{'word-wrap' :'break-word'}} to={`/users/${props.currentUser.username}`}>{x.name}</Link>
+              </Menu.Item>
+              <Menu.Divider />
+            </div>
+          )
+        })
+      }
+    </Menu>
+  );
 
-export default withRouter(AppHeader);
+  return (
+    <Dropdown 
+      overlay={dropdownMenu} 
+      trigger={['click']}
+      getPopupContainer = { () => document.getElementsByClassName('clinic-menu')[0]}>
+      <a className="ant-dropdown-link">
+        <div className="tooltip">
+          <Icon style={{ fontSize: '20px', color: '#08c' }} type="solution" />
+          <span className="tooltiptext">Phòng Khám</span>
+        </div>
+      </a>
+    </Dropdown>
+  );
+}
+
+const mapStateToProps = (state) => {
+  return {
+      user: state.user,
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  {
+    getUser
+  }
+)(withRouter(AppHeader));

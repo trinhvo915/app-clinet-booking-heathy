@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import './NewClinic.css';
-import { Form, Input,Row, Button, Select, Col, notification } from 'antd';
+import { Form, Input, Button, Select, notification } from 'antd';
 import { 
     NAME_MIN_LENGTH, NAME_MAX_LENGTH, 
     ADDRESS_MAX_LENGTH,
 } from '../../constants';
+import { connect } from "react-redux";
+import { getUser } from "../../actions/get.user.action";
 import { getFaculties } from "./../../util/APIUtils";
 import { registerClinic } from "./../../util/APIUtils";
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class NewClinic extends Component {
+class NewClinic extends Component {
     constructor(props){
         super(props);
         this.state = {
@@ -31,7 +33,12 @@ export default class NewClinic extends Component {
             longitude : "",
         };
 
+        this.getRedux = this.getRedux.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    getRedux(){
+        this.props.getUser();
     }
 
     handleSubmit(event) {
@@ -40,16 +47,14 @@ export default class NewClinic extends Component {
         const clinic = {
             address: this.state.address.value,
             faculties : this.state.faculties,
-            fullName : this.state.name.value,
+            name : this.state.name.value,
             latitude : '108.3842789,14z',
             longitude : '15.6976317'
         };
-
-        console.log(clinic)
-
         registerClinic(clinic)
         .then(response =>{
            if(response.success === true){
+                this.getRedux();
                 notification.success({
                     message: 'Booking Clinic',
                     description: "Thank you! Bạn đã đăng ký thành công.",
@@ -58,7 +63,6 @@ export default class NewClinic extends Component {
                 this.props.history.push("/");
            }
         }).catch(error =>{
-            console.log(error);
             notification.error({
                 message: 'Booking Clinic',
                 description: error.message || 'Xin lỗi bạn ! Đăng ký thất bại !'
@@ -96,8 +100,6 @@ export default class NewClinic extends Component {
                 ...validationFun(inputValue)
             }
         });
-
-        console.log(this.state)
     }
 
     getFacultiesAll (){
@@ -236,3 +238,15 @@ export default class NewClinic extends Component {
         )
     }
 }
+const mapStateToProps = (state) => {
+    return {
+        user: state.user,
+    }
+  }
+  
+  export default connect(
+    mapStateToProps,
+    {
+      getUser
+    }
+)(NewClinic);

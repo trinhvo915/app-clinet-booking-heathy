@@ -1,8 +1,8 @@
 import { all, fork } from "redux-saga/effects";
-// import { watchProfileSagasAsync } from "./profile.saga";
+import { watchUserAsync } from "./user.saga";
 
 export default function* sagas() {
   yield all([
-    // fork(watchProfileSagasAsync)
+    fork(watchUserAsync)
   ]);
 }
