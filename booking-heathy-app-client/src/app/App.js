@@ -143,6 +143,9 @@ class App extends Component {
               </Switch>
             </div>
           </Content>
+          <div className = "footer">
+
+          </div>
         </Layout>
     );
   }
