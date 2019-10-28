@@ -9,7 +9,7 @@ import {
 import { getCurrentUser } from '../util/APIUtils';
 import { ACCESS_TOKEN } from '../constants';
 
-import PollList from '../poll/PollList';
+// import PollList from '../poll/PollList';
 import NewPoll from '../poll/NewPoll';
 import Login from '../user/login/Login';
 import Signup from '../user/signup/Signup';
@@ -20,7 +20,9 @@ import AppHeader from '../common/AppHeader';
 import NotFound from '../common/NotFound';
 import LoadingIndicator from '../common/LoadingIndicator';
 import PrivateRoute from '../common/PrivateRoute';
+import ClinicList from '../clinic/clinicList/ClinicList';
 import { Layout, notification } from 'antd';
+import 'bootstrap/dist/css/bootstrap.min.css';
 const { Content } = Layout;
 
 class App extends Component {
@@ -106,15 +108,19 @@ class App extends Component {
     }
     return (
         <Layout className="app-container">
-          <AppHeader isAuthenticated={this.state.isAuthenticated} 
+          <AppHeader  isAuthenticated={this.state.isAuthenticated} 
             currentUser={this.state.currentUser} 
             onLogout={this.handleLogout} />
 
           <Content className="app-content">
-            <div className="container">
+            <div className="container-app">
               <Switch>      
-                <Route exact path="/" 
+                {/* <Route exact path="/" 
                   render={(props) => <PollList isAuthenticated={this.state.isAuthenticated} 
+                      currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
+                </Route> */}
+                <Route exact path="/" 
+                  render={(props) => <ClinicList isAuthenticated={this.state.isAuthenticated} 
                       currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
                 </Route>
                 <Route path="/login" 

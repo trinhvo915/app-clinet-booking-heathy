@@ -45,14 +45,13 @@ class AppHeader extends Component {
 
     render() {
       const { user } = this.props.user;
-      // console.log(this.props.loadFalse)
-      // console.log(user)
+
         let menuItems;
         if(this.props.currentUser && user.check === "USER_EXPERT" ) {
           menuItems = [
             <Menu.Item key="/">
               <Link to="/">
-                <div className="tooltip">
+                <div className="tooltip-icon">
                     <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
                     <span className="tooltiptext">Trang Chủ</span>
                 </div>
@@ -61,7 +60,7 @@ class AppHeader extends Component {
             
             <Menu.Item key="/register/clinic">
               <Link to="/register/clinic">
-                  <div className="tooltip">
+                  <div className="tooltip-icon">
                     <Icon style={{ fontSize: '20px', color: '#08c' }} type="plus-square" />
                     <span className="tooltiptext">Tạo Phòng Khám</span>
                   </div>
@@ -86,7 +85,7 @@ class AppHeader extends Component {
           menuItems = [
             <Menu.Item key="/">
               <Link to="/">
-                <div className="tooltip">
+                <div className="tooltip-icon">
                     <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
                     <span className="tooltiptext">Trang Chủ</span>
                 </div>
@@ -127,7 +126,7 @@ class AppHeader extends Component {
 
             <Menu.Item key="/register/doctor">
               <Link to="/register/doctor">
-                <div className="tooltip">
+                <div className="tooltip-icon">
                   <Icon style={{ fontSize: '20px', color: '#08c' }} type="usergroup-add" />
                     <span className="tooltiptext">Đăng ký Bác Sỹ</span>
                 </div>
@@ -234,7 +233,7 @@ function Clinics (props) {
       trigger={['click']}
       getPopupContainer = { () => document.getElementsByClassName('clinic-menu')[0]}>
       <a className="ant-dropdown-link">
-        <div className="tooltip">
+        <div className="tooltip-icon">
           <Icon style={{ fontSize: '20px', color: '#08c' }} type="solution" />
           <span className="tooltiptext">Phòng Khám</span>
         </div>

@@ -153,7 +153,6 @@ class PollList extends Component {
                 handleVoteChange={(event) => this.handleVoteChange(event, pollIndex)}
                 handleVoteSubmit={(event) => this.handleVoteSubmit(event, pollIndex)} />)            
         });
-        const loader = <div className="loader">Loading ...</div>;
         return (
             <div>
                 {pollViews}

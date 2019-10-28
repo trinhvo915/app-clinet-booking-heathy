@@ -1,4 +1,14 @@
 .app-content {
   margin-top: 64px;   
-  /* background-image: url("../image/img_login.png");   */
 }
+.container-app {
+  padding: 0.1em 4em 1em 4em;
+  height: 350px;
+}
+
+@media (max-width: 768px) {
+  .container-app {
+    padding: 0.1em 0.18em 1em 0.18em;
+    /* background-image: url("../image/img_login.png");   */
+  }
+} 

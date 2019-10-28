@@ -4,9 +4,9 @@
   
   .app-title a {
     text-decoration: none;
-    line-height: 64px;
     font-size: 21px;
     display: inline-block;
+    margin-top: -10px;
   }
   
   .app-title a:hover {
@@ -23,6 +23,8 @@
   
   .app-menu {
     float: right;
+    height: 66px;
+    margin-top: -5px;
   }
   
   .app-menu > li {
@@ -80,16 +82,16 @@
   }
 
   .app-menu > li {
-    padding: 0 15px;
+    padding: 0 8px;
   }
 
   .app-menu > li > a {
-    padding: 0 15px;
+    padding: 0 14px;
     margin: 0 -15px;
   }
 }  
 
-.tooltip .tooltiptext {
+.tooltip-icon .tooltiptext {
   visibility: hidden;
   color: #1890ff;
   text-align: center;
@@ -97,7 +99,7 @@
   z-index: 1;
 }
 
-.app-menu .ant-menu-item:hover .tooltip .tooltiptext {
+.app-menu .ant-menu-item:hover .tooltip-icon .tooltiptext {
   visibility: visible;
   top: 43px;
   left: 0%;
