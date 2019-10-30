@@ -38,7 +38,6 @@ class AppHeader extends Component {
       }
     }
 
-   
     componentDidMount = async () => {
       await this.getUserCheck();
     };

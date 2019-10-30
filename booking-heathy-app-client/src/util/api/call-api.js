@@ -35,3 +35,14 @@ export async function  getUserApi() {
 
 	return user;
 }
+
+export async function  getDoctorListApi() {
+	let data = {};
+	
+	await callAPI("doctor/all",'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}

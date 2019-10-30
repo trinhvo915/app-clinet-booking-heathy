@@ -6,64 +6,27 @@ import './ClinicList.css';
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-
-const data = [
-    {
-      title: 'Title 1',
-    },
-    {
-      title: 'Title 2',
-    },
-    {
-      title: 'Title 3',
-    },
-    {
-      title: 'Title 4',
-    },
-    {
-      title: 'Title 1',
-    },
-    {
-      title: 'Title 2',
-    },
-    {
-      title: 'Title 3',
-    },
-    {
-      title: 'Title 4',
-    },
-     {
-        title: 'Title 1',
-      },
-      {
-        title: 'Title 2',
-      },
-      {
-        title: 'Title 3',
-      },
-      {
-        title: 'Title 4',
-      },
-      {
-        title: 'Title 1',
-      },
-      {
-        title: 'Title 2',
-      },
-      {
-        title: 'Title 3',
-      },
-  ];
+import { connect } from "react-redux";
+import { getDoctorList } from "../../actions/doctor.list.action";
 
 class ClinicList extends Component {
     constructor(props) {
         super(props);
         this.play = this.play.bind(this);
-      }
-      play() {
+    }
+
+    play() {
         this.slider.slickPlay();
-      }
-   
+    }
+
+    getDoctorList = async () =>{
+        await this.props.getDoctorList();
+    }
+
+    componentDidMount = async () => {
+        await this.getDoctorList();
+    };
+
     render() {
         var settings = {
             dots: true,
@@ -100,7 +63,9 @@ class ClinicList extends Component {
                 }
               }
             ]
-          };
+        };
+        const {doctors} = this.props.doctors;
+        console.log(doctors)
 
         return (
             <div className = "container-clinic">
@@ -456,7 +421,7 @@ class ClinicList extends Component {
                     </CardText>
                      <List
                         grid={{ gutter: 8, xs: 4}}
-                        dataSource={data}
+                        dataSource={doctors.object}
                         pagination={{
                             onChange: page => {
                             //   console.log(page);
@@ -472,23 +437,36 @@ class ClinicList extends Component {
                                     <CardBody>
                                         <div className = "text-doctor">
                                             <CardText className = "text-name-doctor">
-                                                PGs.Ts. Nguyễn Thị Hoài An  Thị Hoài An 
+                                                {
+                                                    item.degrees.map(value =>
+                                                        value.name +" "
+                                                    )
+                                                }
+                                                {item.fullName}
                                             </CardText>
                                             <CardText className = "text-faculty">
-                                                TAI MŨI HỌNG - NHI - TAI MŨI HỌNG - NHI -TAI MŨI HỌNG - NHI
+                                                {
+                                                    item.faculties.map(value =>
+                                                        value.name + " - "
+                                                    )
+                                                }
                                             </CardText>
                                         </div>
                                         <hr className = "line-line"></hr>
                                         <div className = "text-clinic">
                                             <CardText className = "text-name-clinic">
-                                                Phòng khám Vietlife MRI Trần Bình Trọng 
+                                               {
+                                                   item.clinic.name
+                                               }
                                             </CardText>
                                             <div>
                                                 <div className = "icon-address">
                                                     <Icon style={{color: '#08c' }} className = "icon-address" type="environment" />
                                                 </div>
                                                 <CardText className = "text-address">
-                                                    Xã Bình Tú huyện Thăng Bình tỉnh Quảng Nam
+                                                    {
+                                                    item.clinic.address
+                                                    }
                                                 </CardText>
                                             </div>
                                         </div>
@@ -795,4 +773,16 @@ class ClinicList extends Component {
         )
     }
 }
-export default ClinicList;
+
+const mapStateToProps = (state) => {
+    return {
+        doctors: state.doctors,
+    }
+  }
+  
+export default connect(
+    mapStateToProps,
+    {
+        getDoctorList
+    }
+  )(ClinicList);

@@ -6,8 +6,6 @@ import {
 } from "../actions/get.user.action";
 import { getUserApi } from '../util/api/call-api';
 
-// import * as APIs from "../util/api/call-api"; 
-
 function* getUser(action) {
   try {
     const payload = yield call(
