@@ -46,3 +46,21 @@ export async function  getDoctorListApi() {
 		})
 	return data;
 }
+
+export async function  postImagePerson(image) {
+	
+	let formdata= new FormData();
+	formdata.append("file",image);
+	formdata.append("attachmentType","ĐẠI DIỆN")
+	
+	await callAPI("user/uploadFile",'POST',formdata)
+}
+
+export async function  postImageClinic(image) {
+	
+	let formdata= new FormData();
+	formdata.append("files",image);
+	formdata.append("attachmentType","CLINIC")
+	
+	await callAPI("user/uploadMultipleFiles",'POST',formdata)
+}

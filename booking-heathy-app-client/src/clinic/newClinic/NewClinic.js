@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import './NewClinic.css';
-import { Form, Input, Button, Select, notification } from 'antd';
+import { Form, Input, Button, Select, notification, Upload, Icon, Modal} from 'antd';
 import { 
     NAME_MIN_LENGTH, NAME_MAX_LENGTH, 
     ADDRESS_MAX_LENGTH,
@@ -9,8 +9,18 @@ import { connect } from "react-redux";
 import { getUser } from "../../actions/get.user.action";
 import { getFaculties } from "./../../util/APIUtils";
 import { registerClinic } from "./../../util/APIUtils";
+import { postImagePerson } from '../../util/api/call-api';
 const Option = Select.Option;
 const FormItem = Form.Item;
+
+function getBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+}
 
 class NewClinic extends Component {
     constructor(props){
@@ -31,6 +41,12 @@ class NewClinic extends Component {
             ],
             latitude : "",
             longitude : "",
+            previewVisible: false,
+            previewImage: '',
+            fileList: [
+              
+            ],
+
         };
 
         this.getRedux = this.getRedux.bind(this);
@@ -51,6 +67,11 @@ class NewClinic extends Component {
             latitude : '108.3842789,14z',
             longitude : '15.6976317'
         };
+
+        this.state.fileList.forEach(x=>{
+            postImagePerson(x.originFileObj)
+        });
+
         registerClinic(clinic)
         .then(response =>{
            if(response.success === true){
@@ -164,12 +185,38 @@ class NewClinic extends Component {
         return !(
             this.state.name.validateStatus === 'success'&&
             this.state.address.validateStatus === 'success'&&
-            checkArray
+            checkArray && this.state.fileList
         );
     }
 
+    handleCancel = () => this.setState({ previewVisible: false });
+
+    handlePreview = async file => {
+      if (!file.url && !file.preview) {
+        file.preview = await getBase64(file.originFileObj);
+      }
+  
+      this.setState({
+        previewImage: file.url || file.preview,
+        previewVisible: true,
+      });
+    };
+  
+    handleChange = ({ fileList }) => {
+        this.setState({ 
+            fileList,
+        })
+    };
+
     render() {
         const {facultiesResponse} =  this.state;
+        const { previewVisible, previewImage, fileList } = this.state;
+        const uploadButton = (
+            <div>
+                <Icon type="plus" />
+                <div className="ant-upload-text">Upload</div>
+            </div>
+        );
         console.log(this.state)
         return (
             
@@ -190,6 +237,24 @@ class NewClinic extends Component {
                                 onChange={(event) => this.handleInputChange(event, this.validatename)} />    
                         </FormItem>
 
+                        <FormItem  className = "row-file"
+                            label="Ảnh phòng khám :"
+                        >
+                            <div className="clearfix">
+                                <Upload
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    listType="picture-card"
+                                    fileList={fileList}
+                                    onPreview={this.handlePreview}
+                                    onChange={this.handleChange}
+                                >
+                                    {fileList.length >= 8 ? null : uploadButton}
+                                </Upload>
+                                <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+                                    <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                                </Modal>
+                            </div>
+                        </FormItem>
 
                         <FormItem  className = "row-file"
                             label="Khoa khám Bệnh :"

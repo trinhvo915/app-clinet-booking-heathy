@@ -8,3 +8,7 @@
 .login-form-button {
     width: 100%;
 }
+.page-signin {
+    margin-top: -35px;
+    margin-bottom: 30px;
+}

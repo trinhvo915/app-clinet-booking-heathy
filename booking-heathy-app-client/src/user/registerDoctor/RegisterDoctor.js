@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import './RegisterDoctor.css';
-import { Form, Input,Row, Button, Select, Col, notification } from 'antd';
+import { Form, Input,Row, Button, Select, Col, notification, Upload, Icon, message } from 'antd';
 import { 
     NAME_MIN_LENGTH, NAME_MAX_LENGTH, 
     ADDRESS_MAX_LENGTH,
@@ -13,10 +13,13 @@ import { getDegrees } from "./../../util/APIUtils";
 import { registerDoctor } from "./../../util/APIUtils";
 import { connect } from "react-redux";
 import { getUser } from "../../actions/get.user.action";
+import {CardText} from 'reactstrap';
+import { postImagePerson } from '../../util/api/call-api';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input
 const dateFormat = 'DD/MM/YYYY';
+
 const genderData = [
     {   
         VN : "NAM",
@@ -31,6 +34,24 @@ const genderData = [
         EN : "OTHER"
     }
 ] 
+
+function getBase64(img, callback) {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result));
+    reader.readAsDataURL(img);
+}
+
+function beforeUpload(file) {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+}
 
 class RegisterDoctor extends Component {
     constructor(props){
@@ -73,14 +94,12 @@ class RegisterDoctor extends Component {
             degreesResponse : [
 
             ],
+            loading: false,
         };
-        // this.changerLoadHeard = this.changerLoadHeard.bind(this);
+
         this.handleSubmit = this.handleSubmit.bind(this);
         this.getRedux = this.getRedux.bind(this);
     }
-    // changerLoadHeard(){
-    //     this.props.onchangerLoadHeard();
-    // }
 
     getRedux(){
         this.props.getUser();
@@ -101,7 +120,7 @@ class RegisterDoctor extends Component {
             mobile : this.state.mobile.value,
             tokenCode : this.state.tokenCode.value
         };
-        
+        postImagePerson(this.state.image);
         registerDoctor(doctorRegister,this.state.idcurrentUser)
         .then(response =>{
             if(response.success === true){
@@ -352,17 +371,47 @@ class RegisterDoctor extends Component {
             this.state.mobile.validateStatus === 'success'&&
             this.state.tokenCode.validateStatus === 'success'&&
             this.state.about.validateStatus === 'success' &&
-            checkArray
+            checkArray && this.state.imageUrl
         );
     }
 
+    handleChangeImge = info => {
+        if (info.file.status === 'uploading') {
+          this.setState({ loading: true });
+          return;
+        }
+        if (info.file.status === 'done') {
+            if (info.file.status === 'done') {
+                // Get this url from response in real world.
+                getBase64(info.file.originFileObj, imageUrl =>
+                  this.setState({
+                    imageUrl,
+                    loading: false,
+                  }),
+                );
+            }
+            this.setState({
+                image : info.file.originFileObj,
+                loading: false,
+            });
+        }
+    };
+
     render() {
+        const { imageUrl } = this.state;
         const {facultiesResponse} =  this.state;
 
         const {degreesResponse} =  this.state;
+
+        const uploadButton = (
+            <div>
+              <Icon type={this.state.loading ? 'loading' : 'plus'} />
+              <div className="ant-upload-text">Upload</div>
+            </div>
+        );
         return (
             <div className="new-doctor-container">
-                <h1 className="page-title">Đăng Ký Trở Thành Bác Sỹ</h1>
+                <span className="page-title">Đăng Ký Trở Thành Bác Sỹ</span>
                 <div className="new-poll-content">
                     <Form onSubmit={this.handleSubmit} className="create-doctor-form">
                         <FormItem  className = "row-file"
@@ -379,9 +428,8 @@ class RegisterDoctor extends Component {
                         </FormItem>
 
                         <Row>
-                            <Col span={12}>
+                            <Col span={12}  className = "row-birthday">
                                 <FormItem 
-                                    className = "row-file"  
                                     label="Ngày sinh">
                                     <DatePicker 
                                         defaultValue = {moment( moment().format(dateFormat)._i)}
@@ -391,8 +439,8 @@ class RegisterDoctor extends Component {
                                     />
                                 </FormItem>
                             </Col>
-                            <Col span={12}>
-                                <FormItem  className = "row-file" label="Giới tính">
+                            <Col span={12} className = "row-sex">
+                                <FormItem   label="Giới tính">
                                     <Select 
                                         name="gender"
                                         defaultValue="MALE" 
@@ -408,7 +456,48 @@ class RegisterDoctor extends Component {
                                 </FormItem>
                             </Col>
                         </Row>
-
+                        <Row>
+                            <Col span={12}>
+                                <FormItem  className = "row-file"
+                                label="Học Hàm - Học vị :"
+                                >
+                                    <Select
+                                        mode="multiple"
+                                        style={{ width: '100%' }}
+                                        placeholder="Hãy Chọn !"
+                                        // defaultValue={['usa']}
+                                        onChange={this.handleChangeDegrees}
+                                        optionLabelProp="label"
+                                    >
+                                        {
+                                            degreesResponse.map((value,key) =>
+                                                <Option key = {key} value = {value.id} label= {value.name}>
+                                                    {value.name} 
+                                                </Option>
+                                            )
+                                        }
+                                    </Select>
+                                </FormItem>
+                            </Col>
+                            <Col span={12}>
+                                <div className ="image-upload">
+                                    <CardText>Ảnh đại diện</CardText>
+                                    <Upload
+                                        name="avatar"
+                                        listType="picture-card"
+                                        className="avatar-uploader"
+                                        showUploadList={false}
+                                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                        beforeUpload={beforeUpload}
+                                        onChange={this.handleChangeImge}
+                                    >
+                                        {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+                                    </Upload>
+                                </div>
+                                
+                            </Col>
+                        </Row>
+                        
                         <FormItem  className = "row-file"
                             validateStatus={this.state.tokenCode.validateStatus}
                             label=" Mã code để được xác nhân :"
@@ -443,27 +532,7 @@ class RegisterDoctor extends Component {
                             </Select>
                         </FormItem>
 
-                        <FormItem  className = "row-file"
-                            label="Học Hàm - Học vị :"
-                        >
-                            <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Hãy Chọn !"
-                                // defaultValue={['usa']}
-                                onChange={this.handleChangeDegrees}
-                                optionLabelProp="label"
-                            >
-                                {
-                                    degreesResponse.map((value,key) =>
-                                        <Option key = {key} value = {value.id} label= {value.name}>
-                                            {value.name} 
-                                        </Option>
-                                    )
-                                }
-                            </Select>
-                        </FormItem>
-
+                        
                         <FormItem  className = "row-file"
                             label="Địa chỉ :"
                             validateStatus={this.state.address.validateStatus}

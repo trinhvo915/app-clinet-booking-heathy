@@ -4,7 +4,6 @@ import {
     getDoctorListSuccess,
     getDoctorListFailed
 } from "../actions/doctor.list.action";
-
 import { getDoctorListApi } from '../util/api/call-api';
 
 function* getDoctorList(action) {

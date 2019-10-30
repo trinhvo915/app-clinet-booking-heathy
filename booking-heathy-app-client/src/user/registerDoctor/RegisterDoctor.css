@@ -7,7 +7,13 @@
 .row-file {
     margin-bottom: 2px;
 }
-
+.image-upload {
+    margin-left: 30px;
+}
+.page-title {
+    font-size: 20px;
+    font-weight: bold;
+}
 .create-doctor-form-button {
     width: 100%;
 }
@@ -20,3 +26,16 @@
     background-color: #1890ff;
     border-color: #1890ff;
 }
+
+
+@media (max-width: 768px) {
+    .image-upload {
+        margin-left: 0px;
+    }
+} 
+
+@media (max-width : 1024px ) {
+    .image-upload {
+        margin-left: 0px;
+    }
+} 
