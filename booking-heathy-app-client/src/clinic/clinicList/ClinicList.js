@@ -9,6 +9,15 @@ import Slider from "react-slick";
 import { connect } from "react-redux";
 import { getDoctorList } from "../../actions/doctor.list.action";
 
+function getBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+}
+
 class ClinicList extends Component {
     constructor(props) {
         super(props);
@@ -65,7 +74,7 @@ class ClinicList extends Component {
             ]
         };
         const {doctors} = this.props.doctors;
-        console.log(doctors)
+        console.log(doctors.object)
 
         return (
             <div className = "container-clinic">
@@ -433,7 +442,7 @@ class ClinicList extends Component {
                         <List.Item>
                             <Link className = "link-a" style = {{textDecoration: 'none'}}  to="/poll/new">
                                 <Card >
-                                    <CardImg variant="top" src={"https://scontent.fsgn2-1.fna.fbcdn.net/v/t1.0-9/72230486_2385505438432891_7454734594902851584_n.jpg?_nc_cat=105&_nc_oc=AQm8sWtHaE-l8FAHErimAlRcJnNjJFIQd7WOh1qnoaCUOrk-num3OR6Vhg3W9GF5WRo&_nc_ht=scontent.fsgn2-1.fna&oh=5061e82249b540db611e9e5f8bc9ab59&oe=5E57A337"} />
+                                    <CardImg variant="top" src={"data:image/jpeg;base64,"+item.attachment.data} />
                                     <CardBody>
                                         <div className = "text-doctor">
                                             <CardText className = "text-name-doctor">
@@ -456,7 +465,7 @@ class ClinicList extends Component {
                                         <div className = "text-clinic">
                                             <CardText className = "text-name-clinic">
                                                {
-                                                   item.clinic.name
+                                                   item.clinicResponse.name
                                                }
                                             </CardText>
                                             <div>
@@ -465,7 +474,7 @@ class ClinicList extends Component {
                                                 </div>
                                                 <CardText className = "text-address">
                                                     {
-                                                    item.clinic.address
+                                                        item.clinicResponse.address
                                                     }
                                                 </CardText>
                                             </div>

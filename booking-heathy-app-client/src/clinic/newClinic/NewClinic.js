@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import { getUser } from "../../actions/get.user.action";
 import { getFaculties } from "./../../util/APIUtils";
 import { registerClinic } from "./../../util/APIUtils";
-import { postImagePerson } from '../../util/api/call-api';
+import { postImageClinic } from '../../util/api/call-api';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
@@ -69,7 +69,7 @@ class NewClinic extends Component {
         };
 
         this.state.fileList.forEach(x=>{
-            postImagePerson(x.originFileObj)
+            postImageClinic(x.originFileObj)
         });
 
         registerClinic(clinic)
@@ -195,11 +195,12 @@ class NewClinic extends Component {
       if (!file.url && !file.preview) {
         file.preview = await getBase64(file.originFileObj);
       }
-  
-      this.setState({
+      
+      await this.setState({
         previewImage: file.url || file.preview,
         previewVisible: true,
       });
+      console.log(this.state)
     };
   
     handleChange = ({ fileList }) => {
@@ -217,7 +218,7 @@ class NewClinic extends Component {
                 <div className="ant-upload-text">Upload</div>
             </div>
         );
-        console.log(this.state)
+        // console.log(this.state)
         return (
             
             <div className="new-doctor-container">

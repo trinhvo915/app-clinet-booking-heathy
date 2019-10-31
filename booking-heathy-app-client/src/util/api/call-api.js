@@ -51,7 +51,7 @@ export async function  postImagePerson(image) {
 	
 	let formdata= new FormData();
 	formdata.append("file",image);
-	formdata.append("attachmentType","ĐẠI DIỆN")
+	formdata.append("attachmentType","DAIDIEN")
 	
 	await callAPI("user/uploadFile",'POST',formdata)
 }
@@ -59,8 +59,8 @@ export async function  postImagePerson(image) {
 export async function  postImageClinic(image) {
 	
 	let formdata= new FormData();
-	formdata.append("files",image);
+	formdata.append("file",image);
 	formdata.append("attachmentType","CLINIC")
 	
-	await callAPI("user/uploadMultipleFiles",'POST',formdata)
+	await callAPI("user/uploadFile",'POST',formdata)
 }
