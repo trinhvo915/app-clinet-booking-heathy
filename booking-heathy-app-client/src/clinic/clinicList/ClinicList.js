@@ -74,7 +74,6 @@ class ClinicList extends Component {
             ]
         };
         const {doctors} = this.props.doctors;
-        console.log(doctors.object)
 
         return (
             <div className = "container-clinic">
@@ -82,71 +81,6 @@ class ClinicList extends Component {
                    
                 </div>
 
-                {/* <div className = "clinic-top">
-                     Bác sĩ nổi bật
-                    <Row className = "row-card">
-                        <Col className ="col-card">
-                            <Card className = "card">
-                                <div >
-                                    <CardImg  variant="top" src={"https://scontent.fsgn2-1.fna.fbcdn.net/v/t1.0-9/72230486_2385505438432891_7454734594902851584_n.jpg?_nc_cat=105&_nc_oc=AQm8sWtHaE-l8FAHErimAlRcJnNjJFIQd7WOh1qnoaCUOrk-num3OR6Vhg3W9GF5WRo&_nc_ht=scontent.fsgn2-1.fna&oh=5061e82249b540db611e9e5f8bc9ab59&oe=5E57A337"} />
-                                </div>
-                                <CardBody>
-                                    <CardTitle>Card Title</CardTitle>
-                                    <CardText>
-                                    Some quick example text to build on the card title and make up the bulk of
-                                    the card's content.
-                                    </CardText>
-                                    <Button variant="primary">Go somewhere</Button>
-                                </CardBody>
-                            </Card>
-                        </Col>
-                        <Col className ="col-card">
-                            <Card>
-                                <div>
-                                    <CardImg variant="top" src={"https://scontent.fsgn2-1.fna.fbcdn.net/v/t1.0-9/72230486_2385505438432891_7454734594902851584_n.jpg?_nc_cat=105&_nc_oc=AQm8sWtHaE-l8FAHErimAlRcJnNjJFIQd7WOh1qnoaCUOrk-num3OR6Vhg3W9GF5WRo&_nc_ht=scontent.fsgn2-1.fna&oh=5061e82249b540db611e9e5f8bc9ab59&oe=5E57A337"} />
-                                </div>
-                                <CardBody>
-                                    <CardTitle>Card Title</CardTitle>
-                                    <CardText>
-                                    Some quick example text to build on the card title and make up the bulk of
-                                    the card's content.
-                                    </CardText>
-                                    <Button variant="primary">Go somewhere</Button>
-                                </CardBody>
-                            </Card>
-                        </Col>
-                        <Col className ="col-card">
-                            <Card >
-                                <div>
-                                    <CardImg variant="top" src={"https://scontent.fsgn2-1.fna.fbcdn.net/v/t1.0-9/72230486_2385505438432891_7454734594902851584_n.jpg?_nc_cat=105&_nc_oc=AQm8sWtHaE-l8FAHErimAlRcJnNjJFIQd7WOh1qnoaCUOrk-num3OR6Vhg3W9GF5WRo&_nc_ht=scontent.fsgn2-1.fna&oh=5061e82249b540db611e9e5f8bc9ab59&oe=5E57A337"} />
-                                </div>
-                                <CardBody >
-                                    <CardTitle>Card Title</CardTitle>
-                                    <CardText>
-                                    Some quick example text to build on the card title and make up the bulk of
-                                    the card's content.
-                                    </CardText>
-                                    <Button variant="primary">Go somewhere</Button>
-                                </CardBody>
-                            </Card>
-                        </Col>
-                        <Col className ="col-card">
-                            <Card >
-                                <div>
-                                    <CardImg variant="top" src={"https://scontent.fsgn2-1.fna.fbcdn.net/v/t1.0-9/72230486_2385505438432891_7454734594902851584_n.jpg?_nc_cat=105&_nc_oc=AQm8sWtHaE-l8FAHErimAlRcJnNjJFIQd7WOh1qnoaCUOrk-num3OR6Vhg3W9GF5WRo&_nc_ht=scontent.fsgn2-1.fna&oh=5061e82249b540db611e9e5f8bc9ab59&oe=5E57A337"} />
-                                </div>
-                                <CardBody>
-                                    <CardTitle>Card Title</CardTitle>
-                                    <CardText>
-                                    Some quick example text to build on the card title and make up the bulk of
-                                    the card's content.
-                                    </CardText>
-                                    <Button variant="primary">Go somewhere</Button>
-                                </CardBody>
-                            </Card>
-                        </Col>
-                    </Row>
-                </div> */}
                 <div className = "clinic-all">
                     <CardText className = "title-title">
                         Bác sĩ nổi bật
@@ -484,15 +418,15 @@ class ClinicList extends Component {
                                     <div className = "show-revew">
                                         <div className = "show-revew-border">
                                             <CardText>Lượt Bình Luận</CardText>
-                                            <CardText className = "show-count" >1024</CardText>
+                                            <CardText className = "show-count" >{item.countComment}</CardText>
                                         </div>
                                         <div className = "show-revew-border">
                                             <CardText>Lượt Đặt Khám</CardText>
-                                            <CardText className = "show-count" >1024</CardText>
+                                            <CardText className = "show-count" >{item.countBooking}</CardText>
                                         </div>
                                         <div className = "show-revew-border">
-                                            <span>Đánh giá</span>
-                                            <Rate  disabled className = "show-rate" allowHalf defaultValue={2.5} />
+                                            <span>Lượt Đánh giá</span>
+                                            <Rate  disabled className = "show-rate" allowHalf defaultValue={item.countRate} />
                                         </div>
                                     </div>
                                 </Card>

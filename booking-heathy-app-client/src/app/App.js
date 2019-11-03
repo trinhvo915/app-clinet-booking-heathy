@@ -23,6 +23,7 @@ import PrivateRoute from '../common/PrivateRoute';
 import ClinicList from '../clinic/clinicList/ClinicList';
 import { Layout, notification } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Clinic from '../clinic/clinicList/Clinic';
 const { Content } = Layout;
 
 class App extends Component {
@@ -131,6 +132,11 @@ class App extends Component {
                 
                 <Route path="/users/:username" 
                   render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props}  />}>
+                </Route>
+
+                <Route exact path="/clinic" 
+                  render={(props) => <Clinic isAuthenticated={this.state.isAuthenticated} 
+                      currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
                 </Route>
 
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>

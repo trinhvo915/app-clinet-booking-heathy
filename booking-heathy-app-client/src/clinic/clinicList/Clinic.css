@@ -1,0 +1,48 @@
+.main-clinic {
+    position: relative;
+}
+.clinic-left {
+    background: chartreuse;
+    position: fixed;
+    width: 25%;
+    height: 600px;
+}
+
+.clinic-right {
+    position: absolute;
+    background: #eaeaeb;
+    height: 1000px;
+    width: 75%;
+    right: 0px;
+    top: 0px;
+}
+.img-clinic {
+    height: 350px;
+    object-fit: cover;
+    background-size: cover;
+    width: 100%;
+    border-radius: calc(.25rem - 1px);
+}
+
+.clinic-image {
+    border: -1px solid #e4d3a1;
+    border-radius: 3px;
+}
+/* 
+@media (max-width: 768px) {
+   .clinic-left {
+        background: chartreuse;
+        position: static;
+        width: 25%;
+        height: 500px;
+    }
+
+    .clinic-right {
+        position: static;
+        background: coral;
+        height: 1000px;
+        width: 75%;
+        right: 0px;
+        top: 0px;
+    }
+}  */
