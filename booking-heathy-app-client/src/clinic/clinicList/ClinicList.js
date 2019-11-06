@@ -9,14 +9,14 @@ import Slider from "react-slick";
 import { connect } from "react-redux";
 import { getDoctorList } from "../../actions/doctor.list.action";
 
-function getBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
-}
+// function getBase64(file) {
+//     return new Promise((resolve, reject) => {
+//       const reader = new FileReader();
+//       reader.readAsDataURL(file);
+//       reader.onload = () => resolve(reader.result);
+//       reader.onerror = error => reject(error);
+//     });
+// }
 
 class ClinicList extends Component {
     constructor(props) {
@@ -374,7 +374,7 @@ class ClinicList extends Component {
                         }}
                         renderItem={item => (
                         <List.Item>
-                            <Link className = "link-a" style = {{textDecoration: 'none'}}  to="/poll/new">
+                            <Link className = "link-a" style = {{textDecoration: 'none'}}  to={`/clinic/${item.id}/${item.clinicResponse.id}`}>
                                 <Card >
                                     <CardImg variant="top" src={"data:image/jpeg;base64,"+item.attachment.data} />
                                     <CardBody>

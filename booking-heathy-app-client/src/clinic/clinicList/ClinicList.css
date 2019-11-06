@@ -181,9 +181,6 @@
     .ant-rate-star:not(:last-child) {
         margin-right: 2px;
     }
-    .card:hover{
-        background: #f7f6ee;
-    }
     .text-name-doctor {
         height: 20px;
      }
@@ -237,10 +234,6 @@
         margin-right: 2px;
         font-size: 18px;
     }
-    .card:hover{
-        background: #f7f6ee;
-    }
-
     .text-name-doctor {
         height: 20px;
      }
