@@ -81,9 +81,6 @@
     display: none;
     height: 100px;
 }
-.menu-clinic-hori {
-    display: none;
-}
 
 .doctor-clinic {
     display: table;
@@ -202,6 +199,71 @@
 .show-revew-body {
     background: #fff;
 }
+.conten-commnet-modal {
+    height: 280px;
+}
+.modal-img-commnet {
+    float: left;
+    width: 11%;
+    height: 52px;
+}
+.modal-area-commnet {
+    float: left;
+    width: 72%;
+}
+.btn-dang-commnet {
+    float: left;
+    width: 15%;
+}
+.img-commnet-image {
+    width: 90%;
+    height: 96%;
+    object-fit: cover;
+    border-radius: 106%;
+    background-size: cover;
+}
+.written-commnet{
+    display: table;
+    margin-bottom: 6px;
+}
+.text-commnet-modal {
+    background: #f2f3f5;
+    border-radius: 12px;
+    text-align: justify;
+}
+.conten-commnet-text {
+    margin-left: 12px;
+    float: left;
+    width: 85%;
+}
+.item-content-commnet {
+    display: table;
+    margin-top: 2px;
+}
+.date-booking {
+    margin-left: 10px;
+}
+.item-form-booing {
+    border-radius: 1px;
+    border: 1px solid #e4d3a1;
+    width: 100%;
+    display: table;
+}
+.lable-day {
+    width: 20%;
+    float: left;
+}
+.input-date {
+    float: left;
+}
+.distance-form {
+    margin-top: 5px;
+}
+.time-input{
+    margin-left: 117px;
+    width: 185px;
+}
+
 @media (max-width: 768px) {
     
    .clinic-left {
@@ -212,7 +274,6 @@
     }
     .clinic-right {
         position: static;
-        background: coral;
         height: 1000px;
         width: 100%;
     }
@@ -266,13 +327,7 @@
     .menu-clinic {
         display: none;
     }
-    .menu-clinic-hori {
-        display: block;
-    }
-    .abc {
-        height: 55px;
-        background: olive;
-    }
+
     .doctor {
         width: 100%;
     }
@@ -283,6 +338,24 @@
 
     .ant-col {
         width: auto;
+    }
+
+    .img-commnet-image {
+        width: 125%;
+        height: 95%;
+        -o-object-fit: cover;
+        object-fit: cover;
+        border-radius: 106%;
+        background-size: cover;
+    }
+    .modal-area-commnet {
+        margin-left: 12px;
+        float: left;
+        width: 67%;
+    }
+    .time-input{
+        margin-left: 50px;
+        width: 110px;
     }
 } 
 .btn-left{
@@ -298,5 +371,23 @@
         font-size: 14px;
         line-height: 1.5;
         word-wrap: break-word;
+    }
+    .img-commnet-image {
+        width: 120%;
+        height: 95%;
+        -o-object-fit: cover;
+        object-fit: cover;
+        border-radius: 106%;
+        background-size: cover;
+    }
+    .modal-area-commnet {
+        margin-left: 12px;
+        margin-right: 2px;
+        float: left;
+        width: 68%;
+    }
+    .time-input{
+        margin-left: 50px;
+        width: 110px;
     }
  }  

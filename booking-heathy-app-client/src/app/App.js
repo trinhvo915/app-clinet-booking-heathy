@@ -134,14 +134,14 @@ class App extends Component {
                   render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props}  />}>
                 </Route>
 
-                {/* <Route exact path="/clinic/:id_doctor/:id_clinic" 
-                  render={(props) => <Clinic isAuthenticated={this.state.isAuthenticated} 
-                      currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
-                </Route> */}
-                <Route exact path="/clinic" 
+                <Route exact path="/clinic/:id_doctor/:id_clinic" 
                   render={(props) => <Clinic isAuthenticated={this.state.isAuthenticated} 
                       currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
                 </Route>
+                {/* <Route exact path="/clinic" 
+                  render={(props) => <Clinic isAuthenticated={this.state.isAuthenticated} 
+                      currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
+                </Route> */}
 
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
                 
