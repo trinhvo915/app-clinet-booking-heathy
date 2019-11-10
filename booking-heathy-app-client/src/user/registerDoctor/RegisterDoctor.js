@@ -121,7 +121,7 @@ class RegisterDoctor extends Component {
             tokenCode : this.state.tokenCode.value
         };
         postImagePerson(this.state.image);
-        registerDoctor(doctorRegister,this.state.idcurrentUser)
+        registerDoctor(doctorRegister)
         .then(response =>{
             if(response.success === true){
             //    this.changerLoadHeard();

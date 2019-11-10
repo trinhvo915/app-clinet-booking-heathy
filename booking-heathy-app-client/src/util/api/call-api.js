@@ -36,6 +36,17 @@ export async function  getUserApi() {
 	return user;
 }
 
+export async function  getDoctorsOfClinicApi(params) {
+	let data = {};
+	
+	await callAPI("doctor/all-clinic/"+params.idDoctor+"/"+params.idClinic,'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  getDoctorListApi() {
 	let data = {};
 	

@@ -9,15 +9,6 @@ import Slider from "react-slick";
 import { connect } from "react-redux";
 import { getDoctorList } from "../../actions/doctor.list.action";
 
-// function getBase64(file) {
-//     return new Promise((resolve, reject) => {
-//       const reader = new FileReader();
-//       reader.readAsDataURL(file);
-//       reader.onload = () => resolve(reader.result);
-//       reader.onerror = error => reject(error);
-//     });
-// }
-
 class ClinicList extends Component {
     constructor(props) {
         super(props);
