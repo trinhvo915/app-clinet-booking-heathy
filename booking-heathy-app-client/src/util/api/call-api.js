@@ -75,3 +75,15 @@ export async function  postImageClinic(image) {
 	
 	await callAPI("user/uploadFile",'POST',formdata)
 }
+
+export async function  addCommnetForDoctor(commnet) {
+	
+	let data = {};
+	await callAPI("comments",'POST',commnet)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data.object;
+		})
+	console.log(data)
+	return data;
+}

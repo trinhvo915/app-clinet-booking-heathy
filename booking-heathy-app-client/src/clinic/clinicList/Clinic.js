@@ -8,10 +8,11 @@ import moment from 'moment';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 import LoadingIndicator from '../../common/LoadingIndicator';
-import { DatePicker, TimePicker, Row, Col, Form, Input, Button, Icon, Carousel, Rate, Layout, Tabs, Modal, Select, List, Radio } from 'antd';
+import { DatePicker, TimePicker, Row,notification, Col, Form, Input, Button, Icon, Carousel, Rate, Layout, Tabs, Modal, Select, List, Radio } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
+import { addCommnetForDoctor } from './../../util/api/call-api';
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Option } = Select;
@@ -23,6 +24,10 @@ class Clinic extends Component {
         super(props);
         this.state = {
             size: 'large',
+            contentCommnet: {
+                value: ""
+            },
+            visiblecontentCommnet: false,
             doctor: {},
             layout1: 1,
             layout2: 0,
@@ -68,10 +73,39 @@ class Clinic extends Component {
 
         this.loadClinicDoctors = this.loadClinicDoctors.bind(this);
         this.showModalCommnet = this.showModalCommnet.bind(this);
+        this.onChangeTextArea = this.onChangeTextArea.bind(this);
+        this.addCommnet = this.addCommnet.bind(this);
     }
 
     handleSubmitCreateBooking() {
 
+    }
+
+    validateContentCommet = (comment) => {
+        if (comment.length === 0) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Bạn cần nhập thông tin cơ bản !!`
+            }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+            };
+        }
+    }
+
+    handleInputChange(event, validationFun) {
+        const target = event.target;
+        const inputName = target.name;
+        const inputValue = target.value;
+        this.setState({
+            [inputName]: {
+                value: inputValue,
+                ...validationFun(inputValue)
+            },
+            visiblecontentCommnet: true,
+        });
     }
 
     onChangeDistanceEverning(value) {
@@ -87,7 +121,6 @@ class Clinic extends Component {
     }
 
     disabledDateBooking = dayBooking => {
-        // console.log("date : " + dayBooking.valueOf())
         if (!dayBooking) {
             return false;
         }
@@ -99,6 +132,11 @@ class Clinic extends Component {
             [field]: value,
         });
     };
+
+    onChangeTextArea = value => {
+        console.log(value)
+        this.onChangeDay('contentCommnet', value);
+    }
 
     onChangeDayBooking = value => {
         this.onChangeDay('dateBooking', value);
@@ -139,10 +177,46 @@ class Clinic extends Component {
         });
     };
 
+    addCommnet() {
+        if(this.props.user.user && this.props.user.user.status != 401){
+            
+            let comment = {
+                content : this.state.contentCommnet.value,
+                clinic : {
+                    id : this.props.clinic.clinic.object.id
+                },
+                expert : {
+                    id : this.state.doctor.id
+                }
+            }
+            
+            let data = addCommnetForDoctor(comment)
+            console.log(data)
+
+            const idClininc = this.props.match.params.id_clinic;
+            const idDoctor = this.props.match.params.id_doctor;
+            let paramsClininc = {
+                idClinic: idClininc,
+                idDoctor: idDoctor
+            }
+            this.loadClinicDoctors(paramsClininc);
+        }else {
+            notification.error({
+                message: 'Booking Clinic',
+                description: 'Xin lỗi bạn ! Bạn chưa đăng nhập !'
+            });
+        }
+
+    };
+
     handleCancelCommnet = e => {
         this.setState({
             visibleCommnet: false,
-            doctor: {}
+            doctor: {},
+            contentCommnet: {
+                value: ""
+            },
+            visiblecontentCommnet : false,
         });
     };
 
@@ -260,14 +334,33 @@ class Clinic extends Component {
                                                     <hr />
                                                     <div className="written-commnet">
                                                         <div className="modal-img-commnet">
-                                                            <CardImg className="img-commnet-image" variant="top" src={this.props.user.user.attachmentPerson ? "data:image/jpeg;base64," + this.props.user.user.attachmentPerson.data : null} />
+                                                            <CardImg className="img-commnet-image" variant="top" src={this.props.user.user.attachmentPerson ? "data:image/jpeg;base64," + this.props.user.user.attachmentPerson.data : "https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} />
                                                         </div>
                                                         <div className="modal-area-commnet">
-                                                            <TextArea className="text-area-commnet" placeholder="Viết bình luận ..." autosize={{ minRows: 2, maxRows: 3 }} />
+                                                            <TextArea className="text-area-commnet" placeholder="Viết bình luận ..."
+                                                                autosize={{ minRows: 2, maxRows: 3 }}
+                                                                name='contentCommnet'
+                                                                value={this.state.contentCommnet.value}
+                                                                onChange={(event) => this.handleInputChange(event, this.validateContentCommet)} />
                                                         </div>
-                                                        <div className="btn-dang-commnet">
-                                                            <Button className="btn-dang" type="primary" ghost>Đăng</Button>
-                                                        </div>
+                                                        {
+                                                        (this.state.visiblecontentCommnet ===true) ? (
+                                                                <div className="btn-dang-commnet">
+                                                                    <Button className="btn-dang"
+                                                                        onClick={() => this.addCommnet()}
+                                                                        type="primary"
+                                                                    >Đăng</Button>
+                                                                </div>
+                                                            ) : (
+                                                                    <div className="btn-dang-commnet">
+                                                                        <Button className="btn-dang"
+                                                                            type="primary"
+                                                                            disabled
+                                                                        >Đăng</Button>
+                                                                    </div>
+                                                                )
+                                                        }
+
                                                     </div>
                                                 </TabPane>
                                                 <TabPane className="modal-btn-ra" tab="Đặt Lịch" key="2">
@@ -523,7 +616,7 @@ class Clinic extends Component {
                                                     <div className="btn-taolich">
                                                         <Button onClick={this.showModalCreateSecheduce} className="btn-taolich" type="primary" ghost>Tạo Lịch</Button>
                                                     </div>
-                                                ) : null
+                                                ) : ""
                                             }
 
                                             <div className="btn-taolich">
@@ -657,6 +750,8 @@ class Clinic extends Component {
         const { size } = this.state;
         const { object } = this.props.clinic.clinic;
         // const {user} = this.props.user;
+
+        console.log(this.state)
 
         if (this.state.isLoading) {
             return <LoadingIndicator />;

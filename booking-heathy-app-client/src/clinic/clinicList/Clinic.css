@@ -199,7 +199,9 @@
 .show-revew-body {
     background: #fff;
 }
-
+.btn-dang:hover {
+    background: #1890ff;
+}
 .modal-img-commnet {
     float: left;
     width: 11%;
