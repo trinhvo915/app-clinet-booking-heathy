@@ -77,13 +77,21 @@ export async function  postImageClinic(image) {
 }
 
 export async function  addCommnetForDoctor(commnet) {
-	
 	let data = {};
 	await callAPI("comments",'POST',commnet)
 		.then(response =>{
 			data = Object.assign({}, data);
 			data =  response.data.data.object;
 		})
-	console.log(data)
+	return data;
+}
+
+export async function  addRateForDoctor(rate) {
+	let data = {};
+	await callAPI("rates",'POST',rate)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data.object;
+		})
 	return data;
 }

@@ -202,6 +202,10 @@
 .btn-dang:hover {
     background: #1890ff;
 }
+.show-hide-rate {
+    height: 100px;
+    width: 100%;
+}
 .modal-img-commnet {
     float: left;
     width: 11%;

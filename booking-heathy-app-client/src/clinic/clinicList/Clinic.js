@@ -8,11 +8,12 @@ import moment from 'moment';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 import LoadingIndicator from '../../common/LoadingIndicator';
-import { DatePicker, TimePicker, Row,notification, Col, Form, Input, Button, Icon, Carousel, Rate, Layout, Tabs, Modal, Select, List, Radio } from 'antd';
+import { DatePicker, TimePicker, Row, notification, Col, Form, Input, Button, Icon, Carousel, Rate, Layout, Tabs, Modal, Select, List, Radio } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
 import { addCommnetForDoctor } from './../../util/api/call-api';
+import { addRateForDoctor } from './../../util/api/call-api';
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Option } = Select;
@@ -27,11 +28,14 @@ class Clinic extends Component {
             contentCommnet: {
                 value: ""
             },
+            userResponceClinics : [],
+            rateValue: 0,
             visiblecontentCommnet: false,
             doctor: {},
             layout1: 1,
             layout2: 0,
             layout3: 0,
+            stateViewLayout: 0,
             size: 'large',
             dateBooking: moment(moment().format('YYYY-MM-DD')._i),
 
@@ -75,37 +79,30 @@ class Clinic extends Component {
         this.showModalCommnet = this.showModalCommnet.bind(this);
         this.onChangeTextArea = this.onChangeTextArea.bind(this);
         this.addCommnet = this.addCommnet.bind(this);
+        this.handleChangeRate = this.handleChangeRate.bind(this);
     }
 
     handleSubmitCreateBooking() {
 
     }
 
-    validateContentCommet = (comment) => {
-        if (comment.length === 0) {
-            return {
-                validationStatus: 'error',
-                errorMsg: `Bạn cần nhập thông tin cơ bản !!`
-            }
-        } else {
-            return {
-                validateStatus: 'success',
-                errorMsg: null,
-            };
-        }
-    }
-
-    handleInputChange(event, validationFun) {
+    handleInputChange(event) {
         const target = event.target;
         const inputName = target.name;
         const inputValue = target.value;
-        this.setState({
-            [inputName]: {
-                value: inputValue,
-                ...validationFun(inputValue)
-            },
-            visiblecontentCommnet: true,
-        });
+        if (inputValue !== "") {
+            this.setState({
+                [inputName]: {
+                    value: inputValue,
+                },
+                visiblecontentCommnet: true,
+            });
+        } else {
+            this.setState({
+                visiblecontentCommnet: false,
+            })
+        }
+
     }
 
     onChangeDistanceEverning(value) {
@@ -134,7 +131,6 @@ class Clinic extends Component {
     };
 
     onChangeTextArea = value => {
-        console.log(value)
         this.onChangeDay('contentCommnet', value);
     }
 
@@ -177,22 +173,37 @@ class Clinic extends Component {
         });
     };
 
-    addCommnet() {
-        if(this.props.user.user && this.props.user.user.status != 401){
-            
-            let comment = {
-                content : this.state.contentCommnet.value,
-                clinic : {
-                    id : this.props.clinic.clinic.object.id
-                },
-                expert : {
-                    id : this.state.doctor.id
-                }
-            }
-            
-            let data = addCommnetForDoctor(comment)
-            console.log(data)
+    handleChangeRate(value, doctor) {
 
+        let numberStar = "";
+
+        if (value === 1) {
+            numberStar = "ONE"
+        } else if (value === 2) {
+            numberStar = "TWO"
+        } else if (value === 3) {
+            numberStar = "THREE"
+        } else if (value === 4) {
+            numberStar = "FOUR"
+        } else if (value === 5) {
+            numberStar = "FIVE"
+        }
+        let rate = {
+            numberStar: numberStar,
+            clinic: {
+                id: this.props.clinic.clinic.object.id
+            },
+            expert: {
+                id: doctor.id
+            }
+        }
+
+        this.setState({
+            rateValue: value,
+            stateViewLayout: 1,
+        })
+
+        addRateForDoctor(rate).then(Response => {
             const idClininc = this.props.match.params.id_clinic;
             const idDoctor = this.props.match.params.id_doctor;
             let paramsClininc = {
@@ -200,7 +211,42 @@ class Clinic extends Component {
                 idDoctor: idDoctor
             }
             this.loadClinicDoctors(paramsClininc);
-        }else {
+        })
+        console.log(rate)
+    }
+
+    addCommnet() {
+        if (this.props.user.user && this.props.user.user.status !== 401) {
+
+            let comment = {
+                content: this.state.contentCommnet.value,
+                clinic: {
+                    id: this.props.clinic.clinic.object.id
+                },
+                expert: {
+                    id: this.state.doctor.id
+                }
+            }
+
+            addCommnetForDoctor(comment).then(Response => {
+                this.setState({
+                    contentCommnet: {
+                        value: ""
+                    },
+                    visiblecontentCommnet: false,
+                    doctor: Response
+                })
+
+                const idClininc = this.props.match.params.id_clinic;
+                const idDoctor = this.props.match.params.id_doctor;
+                let paramsClininc = {
+                    idClinic: idClininc,
+                    idDoctor: idDoctor
+                }
+                this.loadClinicDoctors(paramsClininc);
+
+            })
+        } else {
             notification.error({
                 message: 'Booking Clinic',
                 description: 'Xin lỗi bạn ! Bạn chưa đăng nhập !'
@@ -216,8 +262,8 @@ class Clinic extends Component {
             contentCommnet: {
                 value: ""
             },
-            visiblecontentCommnet : false,
-        });
+            visiblecontentCommnet: false,
+        })
     };
 
     showModalCreateSecheduce = () => {
@@ -241,23 +287,45 @@ class Clinic extends Component {
         });
     };
 
-    loadClinicDoctors(paramsClininc) {
-        this.props.getDoctorOfClinicList(paramsClininc);
+    async loadClinicDoctors(paramsClininc) {
+        await this.props.getDoctorOfClinicList(paramsClininc);
+        await this.props.clinic.clinic.object && this.setState({
+            userResponceClinics : this.props.clinic.clinic.object.userResponceClinics
+        })
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const idClininc = this.props.match.params.id_clinic;
         const idDoctor = this.props.match.params.id_doctor;
         let paramsClininc = {
             idClinic: idClininc,
             idDoctor: idDoctor
         }
-        this.loadClinicDoctors(paramsClininc);
+        await this.loadClinicDoctors(paramsClininc);
+
+        await this.props.clinic.clinic.object &&  console.log(this.props.clinic.clinic.object.userResponceClinics)
+        
+        // await this.props.clinic.clinic.object.userResponceClinics && this.props.clinic.clinic.object.userResponceClinics.map(value =>{
+
+        // })
         this.props.getUser();
     }
 
+    // componentDidUpdate(nextProps) {
+    //     if (this.props.match.params.id_clinic !== nextProps.match.params.id_clinic) {
+
+    //         const idClininc = nextProps.match.params.id_clinic;
+    //         const idDoctor = nextProps.match.params.id_doctor;
+    //         let paramsClininc = {
+    //             idClinic: idClininc,
+    //             idDoctor: idDoctor
+    //         }
+    //         this.loadClinicDoctors(paramsClininc);
+    //     }
+    // }
+
     showContent() {
-        if (this.state.layout1 === 1 && this.state.layout2 === 0 && this.state.layout3 === 0) {
+        if (this.state.layout1 === 1 && this.state.layout2 === 0 && this.state.layout3 === 0 || this.state.stateViewLayout === 1) {
             return (
                 <div>
                     <div className="commnet-modal">
@@ -341,10 +409,10 @@ class Clinic extends Component {
                                                                 autosize={{ minRows: 2, maxRows: 3 }}
                                                                 name='contentCommnet'
                                                                 value={this.state.contentCommnet.value}
-                                                                onChange={(event) => this.handleInputChange(event, this.validateContentCommet)} />
+                                                                onChange={(event) => this.handleInputChange(event)} />
                                                         </div>
                                                         {
-                                                        (this.state.visiblecontentCommnet ===true) ? (
+                                                            (this.state.visiblecontentCommnet === true) ? (
                                                                 <div className="btn-dang-commnet">
                                                                     <Button className="btn-dang"
                                                                         onClick={() => this.addCommnet()}
@@ -605,14 +673,14 @@ class Clinic extends Component {
                     </div>
 
                     {
-                        this.props.clinic.clinic.object.userResponceClinics.map((value, key) => (
+                        this.props.clinic.clinic.object.userResponceClinics.map((doctor, key) => (
                             <div key={key} className="doctor-clinic">
                                 <div className="doctor">
                                     <div className="logo-infor">
                                         <div className="logo">
-                                            <CardImg className="img-clinic-image" variant="top" src={"data:image/jpeg;base64," + value.attachmentPerson.data} />
+                                            <CardImg className="img-clinic-image" variant="top" src={"data:image/jpeg;base64," + doctor.attachmentPerson.data} />
                                             {
-                                                value.id === this.props.user.user.id ? (
+                                                doctor.id === this.props.user.user.id ? (
                                                     <div className="btn-taolich">
                                                         <Button onClick={this.showModalCreateSecheduce} className="btn-taolich" type="primary" ghost>Tạo Lịch</Button>
                                                     </div>
@@ -621,23 +689,23 @@ class Clinic extends Component {
 
                                             <div className="btn-taolich">
                                                 <span style={{ color: '#5ab0ff' }}>Lượt đánh giá</span>
-                                                <Rate disabled className="show-rate" allowHalf defaultValue={value.countRate} />
+                                                <Rate disabled className="show-rate" allowHalf defaultValue={doctor.countRate} />
                                             </div>
                                         </div>
                                         <div className="infor">
                                             <CardText className="logo-name-clinic">
                                                 {
-                                                    value.degrees.map(value =>
+                                                    doctor.degrees.map(value =>
                                                         value.name + " "
                                                     )
                                                 }
                                                 {
-                                                    value.fullName
+                                                    doctor.fullName
                                                 }
                                             </CardText>
                                             <CardText className="infor-name-clinic" >
                                                 {
-                                                    value.about
+                                                    doctor.about
                                                 }
                                             </CardText>
                                             <div className="address-logo">
@@ -646,7 +714,7 @@ class Clinic extends Component {
                                                 </div>
                                                 <CardText className="text-address">
                                                     {
-                                                        value.address
+                                                        doctor.address
                                                     }
                                                 </CardText>
                                             </div>
@@ -657,11 +725,11 @@ class Clinic extends Component {
                                                 </div>
 
                                                 <div className="rate-logo-rate">
-                                                    <Rate defaultValue={0} />
+                                                    <Rate onChange={(value) => this.handleChangeRate(value, doctor)} value={this.state.rateValue} />
                                                 </div>
 
                                                 <div className="comment">
-                                                    <Button onClick={() => this.showModalCommnet(value)} type="primary" ghost>Bình luận</Button>
+                                                    <Button onClick={() => this.showModalCommnet(doctor)} type="primary" ghost>Bình luận</Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -690,7 +758,7 @@ class Clinic extends Component {
                                     <div className="btn-list">
                                         <List
                                             grid={{ gutter: 8, xs: 4 }}
-                                            dataSource={value.bookingExperts}
+                                            dataSource={doctor.bookingExperts}
                                             renderItem={item => (
                                                 <List.Item className="item-btn" style={{ 'marginTop': '-15px' }}>
                                                     <Button style={{ width: "105px" }} className="btn-taolich" type="primary" ghost>{item.timeBooking}</Button>
@@ -724,6 +792,7 @@ class Clinic extends Component {
             )
         }
     }
+
     onChange1() {
         this.setState({
             layout1: 1,
@@ -749,10 +818,11 @@ class Clinic extends Component {
     render() {
         const { size } = this.state;
         const { object } = this.props.clinic.clinic;
+
         // const {user} = this.props.user;
+        console.log(object)
 
         console.log(this.state)
-
         if (this.state.isLoading) {
             return <LoadingIndicator />;
         }
@@ -771,6 +841,7 @@ class Clinic extends Component {
                 {
                     object ? (
                         <div className="main-clinic">
+
                             <div className="clinic-left">
                                 <div className="logo-clinic">
                                     <CardImg className="logo-clinic-image" variant="top" src={"https://scontent.fsgn2-2.fna.fbcdn.net/v/t1.0-9/61161283_2321475054806859_331553702676529152_n.jpg?_nc_cat=100&_nc_oc=AQmBqpb1drO4571bAv--cTorIP66LzZsIePccs_31_sohEG2SFx4Iyrg89-ZLCShm1w&_nc_ht=scontent.fsgn2-2.fna&oh=48e8c12558670da5f74940b239caad1f&oe=5E19B8E4"} />
@@ -797,6 +868,7 @@ class Clinic extends Component {
                                 </div>
 
                                 <div className="menu-clinic">
+
                                     <Radio.Group value={size} onChange={this.handleSizeChange}>
                                         <Radio.Button className="btn-left" onClick={this.onChange1} value="large">Bác sỹ  </Radio.Button>
                                         <br />
@@ -827,6 +899,21 @@ class Clinic extends Component {
                             <Content>
                                 <div className="clinic-right">
                                     <div className="clinic-image">
+                                        <div className="show-hide-rate">
+                                            {
+                                                object.userResponceClinics.forEach(element => {
+                                                    console.log(element)
+                                                    element.rateResponses.map((value, key) => (
+                                                        <span  className="show-hide-rate" key={key}>
+                                                            {
+                                                                value.numberStar
+                                                            }
+                                                        </span>
+                                                    ))
+                                                })
+
+                                            }
+                                        </div>
                                         <Carousel autoplay>
                                             {
                                                 object.photoClinics.map((value, key) => (
@@ -838,6 +925,7 @@ class Clinic extends Component {
 
                                         </Carousel>
                                     </div>
+
                                     <div className="main-content">
                                         {
                                             this.showContent()
