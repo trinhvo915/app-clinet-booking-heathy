@@ -14,6 +14,8 @@ import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action
 import { getUser } from "../../actions/get.user.action";
 import { addCommnetForDoctor } from './../../util/api/call-api';
 import { addRateForDoctor } from './../../util/api/call-api';
+import { getDoctorsOfClinicApi } from './../../util/api/call-api';
+
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Option } = Select;
@@ -28,6 +30,7 @@ class Clinic extends Component {
             contentCommnet: {
                 value: ""
             },
+            clinics :{},
             userResponceClinics : [],
             rateValue: 0,
             visiblecontentCommnet: false,
@@ -191,7 +194,7 @@ class Clinic extends Component {
         let rate = {
             numberStar: numberStar,
             clinic: {
-                id: this.props.clinic.clinic.object.id
+                id: this.state.clinics.id
             },
             expert: {
                 id: doctor.id
@@ -204,6 +207,10 @@ class Clinic extends Component {
         })
 
         addRateForDoctor(rate).then(Response => {
+            this.setState({
+                userResponceClinics : Response.userResponceClinics,
+            })
+    
             const idClininc = this.props.match.params.id_clinic;
             const idDoctor = this.props.match.params.id_doctor;
             let paramsClininc = {
@@ -212,7 +219,6 @@ class Clinic extends Component {
             }
             this.loadClinicDoctors(paramsClininc);
         })
-        console.log(rate)
     }
 
     addCommnet() {
@@ -221,7 +227,7 @@ class Clinic extends Component {
             let comment = {
                 content: this.state.contentCommnet.value,
                 clinic: {
-                    id: this.props.clinic.clinic.object.id
+                    id: this.state.clinics.id
                 },
                 expert: {
                     id: this.state.doctor.id
@@ -288,10 +294,16 @@ class Clinic extends Component {
     };
 
     async loadClinicDoctors(paramsClininc) {
-        await this.props.getDoctorOfClinicList(paramsClininc);
-        await this.props.clinic.clinic.object && this.setState({
-            userResponceClinics : this.props.clinic.clinic.object.userResponceClinics
+
+        getDoctorsOfClinicApi(paramsClininc).then(Response=>{
+            console.log(Response.object)
+            this.setState({
+                clinics : Response.object,
+                userResponceClinics : Response.object.userResponceClinics
+            })
         })
+
+        // await this.props.getDoctorOfClinicList(paramsClininc);
     }
 
     async componentDidMount() {
@@ -303,26 +315,8 @@ class Clinic extends Component {
         }
         await this.loadClinicDoctors(paramsClininc);
 
-        await this.props.clinic.clinic.object &&  console.log(this.props.clinic.clinic.object.userResponceClinics)
-        
-        // await this.props.clinic.clinic.object.userResponceClinics && this.props.clinic.clinic.object.userResponceClinics.map(value =>{
-
-        // })
         this.props.getUser();
     }
-
-    // componentDidUpdate(nextProps) {
-    //     if (this.props.match.params.id_clinic !== nextProps.match.params.id_clinic) {
-
-    //         const idClininc = nextProps.match.params.id_clinic;
-    //         const idDoctor = nextProps.match.params.id_doctor;
-    //         let paramsClininc = {
-    //             idClinic: idClininc,
-    //             idDoctor: idDoctor
-    //         }
-    //         this.loadClinicDoctors(paramsClininc);
-    //     }
-    // }
 
     showContent() {
         if (this.state.layout1 === 1 && this.state.layout2 === 0 && this.state.layout3 === 0 || this.state.stateViewLayout === 1) {
@@ -363,7 +357,7 @@ class Clinic extends Component {
                                             <div className="text-clinic">
                                                 <CardText className="text-name-clinic">
                                                     {
-                                                        this.props.clinic.clinic.object.name
+                                                        this.state.clinics.name
                                                     }
                                                 </CardText>
                                                 <div>
@@ -372,7 +366,7 @@ class Clinic extends Component {
                                                     </div>
                                                     <CardText className="text-address">
                                                         {
-                                                            this.props.clinic.clinic.object.address
+                                                            this.state.clinics.address
                                                         }
                                                     </CardText>
                                                 </div>
@@ -673,7 +667,7 @@ class Clinic extends Component {
                     </div>
 
                     {
-                        this.props.clinic.clinic.object.userResponceClinics.map((doctor, key) => (
+                        this.state.userResponceClinics && this.state.userResponceClinics.map((doctor, key) => (
                             <div key={key} className="doctor-clinic">
                                 <div className="doctor">
                                     <div className="logo-infor">
@@ -817,10 +811,11 @@ class Clinic extends Component {
 
     render() {
         const { size } = this.state;
-        const { object } = this.props.clinic.clinic;
-
+        // const { object } = this.props.clinic.clinic;
+        const { clinics } = this.state;
+        const { userResponceClinics } = this.state;
         // const {user} = this.props.user;
-        console.log(object)
+        // console.log(object)
 
         console.log(this.state)
         if (this.state.isLoading) {
@@ -839,7 +834,7 @@ class Clinic extends Component {
 
             <Layout>
                 {
-                    object ? (
+                    clinics ? (
                         <div className="main-clinic">
 
                             <div className="clinic-left">
@@ -850,7 +845,7 @@ class Clinic extends Component {
                                 <div className="logo-clinic-name">
                                     <CardText className="name-clinic">
                                         {
-                                            object.name
+                                            clinics.name
                                         }
                                     </CardText>
 
@@ -862,7 +857,7 @@ class Clinic extends Component {
                                     </div>
                                     <CardText className="text-address">
                                         {
-                                            object.address
+                                            clinics.address
                                         }
                                     </CardText>
                                 </div>
@@ -899,36 +894,20 @@ class Clinic extends Component {
                             <Content>
                                 <div className="clinic-right">
                                     <div className="clinic-image">
-                                        <div className="show-hide-rate">
-                                            {
-                                                object.userResponceClinics.forEach(element => {
-                                                    console.log(element)
-                                                    element.rateResponses.map((value, key) => (
-                                                        <span  className="show-hide-rate" key={key}>
-                                                            {
-                                                                value.numberStar
-                                                            }
-                                                        </span>
-                                                    ))
-                                                })
-
-                                            }
-                                        </div>
                                         <Carousel autoplay>
                                             {
-                                                object.photoClinics.map((value, key) => (
+                                                clinics.photoClinics && clinics.photoClinics.map((value, key) => (
                                                     <div key={key}>
                                                         <CardImg className="img-clinic" variant="top" src={"data:image/jpeg;base64," + value.data} />
                                                     </div>
                                                 ))
                                             }
-
                                         </Carousel>
                                     </div>
 
                                     <div className="main-content">
                                         {
-                                            this.showContent()
+                                            userResponceClinics && this.showContent()
                                         }
                                     </div>
                                 </div>
