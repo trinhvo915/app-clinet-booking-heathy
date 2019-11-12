@@ -3,10 +3,12 @@ import { facultyListReducer } from "./faculty.list.reducer";
 import { userReducer } from "./user.reducer";
 import { doctorsReducer} from "./doctor.list.reducer";
 import {clinicReducer} from "./doctorsOfClinic.list.reducer";
-  
+import {commentReducer} from "./comment.list.reducer";
+
 export default combineReducers({
   facultyList : facultyListReducer,
   user : userReducer,
   doctors :doctorsReducer,
   clinic : clinicReducer,
+  comments : commentReducer
 });

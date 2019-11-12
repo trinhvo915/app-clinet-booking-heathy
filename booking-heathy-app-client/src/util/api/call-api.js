@@ -47,6 +47,26 @@ export async function  getDoctorsOfClinicApi(params) {
 	return data;
 }
 
+export async function  getListCommentDoctorApi(params) {
+	let data = {};
+	await callAPI("comments/doctor/"+params.idDoctor+"/"+params.idClinic,'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
+export async function  getRateDoctorApi(params) {
+	let data = {};
+	await callAPI("rates/doctor/"+params.idDoctor+"/"+params.idClinic,'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  getDoctorListApi() {
 	let data = {};
 	

@@ -15,6 +15,7 @@ import { getUser } from "../../actions/get.user.action";
 import { addCommnetForDoctor } from './../../util/api/call-api';
 import { addRateForDoctor } from './../../util/api/call-api';
 import { getDoctorsOfClinicApi } from './../../util/api/call-api';
+import DoctorClinic from './Doctor';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -30,8 +31,9 @@ class Clinic extends Component {
             contentCommnet: {
                 value: ""
             },
-            clinics :{},
-            userResponceClinics : [],
+            clinics: {},
+            userResponceClinics: [],
+            currentRates : [],
             rateValue: 0,
             visiblecontentCommnet: false,
             doctor: {},
@@ -58,7 +60,7 @@ class Clinic extends Component {
             visibleCreateSecheduce: false,
             isLoading: false
         };
-        this.showContent = this.showContent.bind(this);
+        // this.showContent = this.showContent.bind(this);
         this.onChange1 = this.onChange1.bind(this);
         this.onChange2 = this.onChange2.bind(this);
         this.onChange3 = this.onChange3.bind(this);
@@ -169,15 +171,13 @@ class Clinic extends Component {
         this.onChangeDay('endTimeEverning', timeString);
     }
 
-    showModalCommnet(doctor) {
+    showModalCommnet() {
         this.setState({
             visibleCommnet: true,
-            doctor: doctor
         });
     };
 
-    handleChangeRate(value, doctor) {
-
+    handleChangeRate(value, doctor, key) {
         let numberStar = "";
 
         if (value === 1) {
@@ -191,6 +191,14 @@ class Clinic extends Component {
         } else if (value === 5) {
             numberStar = "FIVE"
         }
+
+        const currentRates = this.state.currentRates.slice();
+        currentRates[key] = value;
+
+        this.setState({
+            currentRates: currentRates
+        });
+
         let rate = {
             numberStar: numberStar,
             clinic: {
@@ -201,23 +209,20 @@ class Clinic extends Component {
             }
         }
 
-        this.setState({
-            rateValue: value,
-            stateViewLayout: 1,
-        })
-
         addRateForDoctor(rate).then(Response => {
+
+            const userResponceClinics = this.state.userResponceClinics.slice();
+            userResponceClinics[key] = Response
             this.setState({
-                userResponceClinics : Response.userResponceClinics,
+                userResponceClinics: userResponceClinics,
             })
-    
-            const idClininc = this.props.match.params.id_clinic;
-            const idDoctor = this.props.match.params.id_doctor;
-            let paramsClininc = {
-                idClinic: idClininc,
-                idDoctor: idDoctor
-            }
-            this.loadClinicDoctors(paramsClininc);
+            // const idClininc = this.props.match.params.id_clinic;
+            // const idDoctor = this.props.match.params.id_doctor;
+            // let paramsClininc = {
+            //     idClinic: idClininc,
+            //     idDoctor: idDoctor
+            // }
+            // this.loadClinicDoctors(paramsClininc);
         })
     }
 
@@ -235,6 +240,8 @@ class Clinic extends Component {
             }
 
             addCommnetForDoctor(comment).then(Response => {
+                const userResponceClinics = this.state.userResponceClinics.slice();
+                // userResponceClinics[pollIndex] = response;
                 this.setState({
                     contentCommnet: {
                         value: ""
@@ -294,12 +301,13 @@ class Clinic extends Component {
     };
 
     async loadClinicDoctors(paramsClininc) {
-
-        getDoctorsOfClinicApi(paramsClininc).then(Response=>{
-            console.log(Response.object)
+        const userResponceClinics = this.state.userResponceClinics.slice();
+        const currentRates = this.state.currentRates.slice();
+        getDoctorsOfClinicApi(paramsClininc).then(Response => {
             this.setState({
-                clinics : Response.object,
-                userResponceClinics : Response.object.userResponceClinics
+                clinics: Response.object,
+                userResponceClinics: userResponceClinics.concat(Response.object.userResponceClinics),
+                currentRates :  currentRates.concat(Array(Response.object.userResponceClinics.length).fill(null)),
             })
         })
 
@@ -318,7 +326,7 @@ class Clinic extends Component {
         this.props.getUser();
     }
 
-    showContent() {
+    showContent(userResponceClinics) {
         if (this.state.layout1 === 1 && this.state.layout2 === 0 && this.state.layout3 === 0 || this.state.stateViewLayout === 1) {
             return (
                 <div>
@@ -667,7 +675,7 @@ class Clinic extends Component {
                     </div>
 
                     {
-                        this.state.userResponceClinics && this.state.userResponceClinics.map((doctor, key) => (
+                        userResponceClinics && userResponceClinics.map((doctor, key) => (
                             <div key={key} className="doctor-clinic">
                                 <div className="doctor">
                                     <div className="logo-infor">
@@ -719,7 +727,7 @@ class Clinic extends Component {
                                                 </div>
 
                                                 <div className="rate-logo-rate">
-                                                    <Rate onChange={(value) => this.handleChangeRate(value, doctor)} value={this.state.rateValue} />
+                                                    <Rate onChange={(value) => this.handleChangeRate(value, doctor, key)} value={this.state.rateValue} />
                                                 </div>
 
                                                 <div className="comment">
@@ -817,7 +825,6 @@ class Clinic extends Component {
         // const {user} = this.props.user;
         // console.log(object)
 
-        console.log(this.state)
         if (this.state.isLoading) {
             return <LoadingIndicator />;
         }
@@ -829,7 +836,21 @@ class Clinic extends Component {
         if (this.state.serverError) {
             return <ServerError />;
         }
+        const doctorViews = [];
 
+        this.state.userResponceClinics && this.state.userResponceClinics.forEach((doctor, key) => {
+            doctorViews.push(
+                <DoctorClinic
+                    key={key}
+                    doctor={this.state.userResponceClinics[key]}
+                    clinics={this.state.clinics}
+                    currentRate = {this.state.currentRates[key]}
+
+                    onChangeRate = {(value) => this.handleChangeRate(value, doctor, key)}
+                />
+            )
+        });
+        console.log(this.state)
         return (
 
             <Layout>
@@ -872,24 +893,6 @@ class Clinic extends Component {
                                         <Radio.Button className="btn-left" onClick={this.onChange3} value="small">Small</Radio.Button>
                                     </Radio.Group>
                                 </div>
-                                {/* <div className="menu-clinic-hori">
-                            <Menu
-                                mode="horizontal"
-                            >
-                                <Menu.Item key="/all-doctor-clinic">
-                                    <Link style={{ 'textDecoration': 'none' }} to="/all-doctor-clinic"> BÁC SỸ</Link>
-                                </Menu.Item>
-                                <Menu.Item key="/introlduce-clinic">
-                                    <Link style={{ 'textDecoration': 'none' }} to="/introlduce-clinic"> THÔNG TIN PHÒNG KHÁM </Link>
-                                </Menu.Item>
-                                <Menu.Item key="/equitment-clinic">
-                                    <Link style={{ 'textDecoration': 'none' }} to="/equitment-clinic"> TRANG THIẾT BỊ </Link>
-                                </Menu.Item>
-                                <Menu.Item key="/cost-clinic">
-                                    <Link style={{ 'textDecoration': 'none' }} to="/cost-clinic"> GIÁ KHÁM </Link>
-                                </Menu.Item>
-                            </Menu>
-                        </div> */}
                             </div>
                             <Content>
                                 <div className="clinic-right">
@@ -906,9 +909,22 @@ class Clinic extends Component {
                                     </div>
 
                                     <div className="main-content">
-                                        {
-                                            userResponceClinics && this.showContent()
-                                        }
+
+                                        <Tabs defaultActiveKey="1" tabPosition="top" style={{ height: 'auto' }}>
+                                            <TabPane tab="BÁC SỸ" key="1">
+                                                {doctorViews}
+                                            </TabPane>
+                                            <TabPane tab="THÔNG TIN PHÒNG KHÁM" key="2">
+                                                Thông Tin
+                                            </TabPane>
+                                            <TabPane tab="TRANG THIẾT BỊ" key="3">
+                                                TRANG THIẾT BỊ
+                                            </TabPane>
+                                            <TabPane tab="CHI TIẾT GIÁ" key="4">
+                                                GIÁ
+                                            </TabPane>
+                                        </Tabs>
+
                                     </div>
                                 </div>
                             </Content>
@@ -933,4 +949,4 @@ export default connect(
         getDoctorOfClinicList,
         getUser
     }
-)(withRouter(Clinic));
+)(Clinic);

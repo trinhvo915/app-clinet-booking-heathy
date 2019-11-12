@@ -31,6 +31,7 @@ class App extends Component {
     super(props);
     this.state = {
       currentUser: null,
+      currentRates: [],
       idcurrentUser : '',
       isAuthenticated: false,
       isLoading: false,
