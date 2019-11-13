@@ -3,7 +3,6 @@ import axios from 'axios';
 import { ACCESS_TOKEN } from '../../constants';
 
 const callAPI = async (endpoint, method = "GET", data) => {
-
     let token ;
     if(localStorage.getItem(ACCESS_TOKEN)) {
         token = localStorage.getItem(ACCESS_TOKEN);
@@ -37,9 +36,9 @@ export async function  getUserApi() {
 }
 
 export async function  getDoctorsOfClinicApi(params) {
-	let data = {};
 	
-	await callAPI("doctor/all-clinic/"+params.idDoctor+"/"+params.idClinic,'GET',null)
+	let data = {params};
+	await callAPI("doctor/all-clinic/"+params.idDoctor+"/"+params.idClinic+"/"+params.dateQurrey+"/"+params.dateCurrent,'GET',null)
 		.then(response =>{
 			data = Object.assign({}, data);
 			data =  response.data.data;
@@ -50,6 +49,16 @@ export async function  getDoctorsOfClinicApi(params) {
 export async function  getListCommentDoctorApi(params) {
 	let data = {};
 	await callAPI("comments/doctor/"+params.idDoctor+"/"+params.idClinic,'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
+export async function  getListDayBookingDoctorApi(params) {
+	let data = {};
+	await callAPI("doctor/dates-booking/"+params.idDoctor+"/"+params.idClinic,'GET',null)
 		.then(response =>{
 			data = Object.assign({}, data);
 			data =  response.data.data;
@@ -111,7 +120,17 @@ export async function  addRateForDoctor(rate) {
 	await callAPI("rates",'POST',rate)
 		.then(response =>{
 			data = Object.assign({}, data);
-			data =  response.data.data.object;
+			data =  response.data;
+		})
+	return data;
+}
+
+export async function  addLichForDoctor(lich) {
+	let data = {};
+	await callAPI("booking/create",'POST',lich)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data;
 		})
 	return data;
 }

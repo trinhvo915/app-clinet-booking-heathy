@@ -36,7 +36,6 @@ class NewPoll extends Component {
 
     addChoice(event) {
         const choices = this.state.choices.slice();   
-        console.log("kakakaka : "+choices)     
         this.setState({
             choices: choices.concat([{
                 text: ''

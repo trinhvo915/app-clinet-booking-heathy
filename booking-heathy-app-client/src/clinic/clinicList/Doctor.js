@@ -1,52 +1,64 @@
 import React, { Component } from 'react'
 import './Clinic.css';
-import {
-    withRouter,
-} from 'react-router-dom';
 import { Card, CardText, CardImg, CardBody } from 'reactstrap';
 import moment from 'moment';
-import NotFound from '../../common/NotFound';
-import ServerError from '../../common/ServerError';
-import LoadingIndicator from '../../common/LoadingIndicator';
-import { DatePicker, TimePicker, Row, notification, Col, Form, Input, Button, Icon, Carousel, Rate, Layout, Tabs, Modal, Select, List, Radio } from 'antd';
+import { DatePicker, TimePicker, Row, notification, Col, Form, Input, Button, Icon, Rate, Tabs, Modal, Select, List } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
-import { getCommentDoctorClinicList } from "../../actions/comment.list.action";
 import { addCommnetForDoctor } from './../../util/api/call-api';
-import { addRateForDoctor } from './../../util/api/call-api';
-import { getDoctorsOfClinicApi } from './../../util/api/call-api';
-import { getListCommentDoctorApi } from './../../util/api/call-api';
-import { getRateDoctorApi } from './../../util/api/call-api';
+import { addLichForDoctor } from './../../util/api/call-api';
+import { getListDayBookingDoctorApi } from './../../util/api/call-api';
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Option } = Select;
-const { Content } = Layout;
 const { TabPane } = Tabs;
 
 class DoctorClinic extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            comments : [],
-            rate : null,
             visibleCommnet: false,
             visibleCreateSecheduce: false,
             isLoading: false,
             contentCommnet: {
                 value: ""
             },
-            countRate : 0
+            commentsToRender: 7,
+            distanceEverning: "5",
+            distanceMorning: "5",
+            distanceAfternoon: "5",
+            startTimeMorning: "",
+            endTimeMorning: "",
+            startTimeAfternoon: "",
+            endTimeAfternoon: "",
+            startTimeEverning: "",
+            endTimeEverning: "",
+            dateBooking: moment(moment().format('YYYY-MM-DD')._i),
         };
+
+        this.onChangeDay = this.onChangeDay.bind(this);
+        this.onChangeDayBooking = this.onChangeDayBooking.bind(this);
+        this.disabledDateBooking = this.disabledDateBooking.bind(this);
+        this.onChangeTimeMorningStart = this.onChangeTimeMorningStart.bind(this);
+        this.onChangeTimeMorningEnd = this.onChangeTimeMorningEnd.bind(this);
+        this.onChangeDistanceMorning = this.onChangeDistanceMorning.bind(this);
+        this.handleSubmitCreateBooking = this.handleSubmitCreateBooking.bind(this);
+
+        this.onChangeDistanceAfternoon = this.onChangeDistanceAfternoon.bind(this);
+        this.onChangeTimeAfternoonEnd = this.onChangeTimeAfternoonEnd.bind(this);
+        this.onChangeTimeAfternoonStart = this.onChangeTimeAfternoonStart.bind(this);
+        this.onChangeTimeEverningStart = this.onChangeTimeEverningStart.bind(this);
+        this.onChangeTimeEverningEnd = this.onChangeTimeEverningEnd.bind(this);
+        this.onChangeDistanceEverning = this.onChangeDistanceEverning.bind(this);
+
         this.showModalCommnet = this.showModalCommnet.bind(this);
         this.addCommnet = this.addCommnet.bind(this);
     }
+
     componentDidUpdate(prevProps) {
         if (this.props.doctor.countRate !== prevProps.doctor.countRate) {
-            console.log(prevProps.doctor.countRate)
-            this.setState({
-                countRate : this.props.doctor.countRate
-            })
+
         }
     }
 
@@ -62,17 +74,20 @@ class DoctorClinic extends Component {
                     id: this.props.doctor.id
                 }
             }
-            const comments = this.state.comments.slice();
             addCommnetForDoctor(comment).then(Response => {
                 this.setState({
                     contentCommnet: {
                         value: ""
                     },
                     visiblecontentCommnet: false,
-                    comments:  comments.concat(Response)
                 })
+
+                this.props.paramsClininc && this.props.getDoctorOfClinicList(this.props.paramsClininc);
             })
         } else {
+            this.setState({
+                visiblecontentCommnet: false,
+            })
             notification.error({
                 message: 'Booking Clinic',
                 description: 'Xin lỗi bạn ! Bạn chưa đăng nhập !'
@@ -84,12 +99,27 @@ class DoctorClinic extends Component {
     handleCancelCommnet = e => {
         this.setState({
             visibleCommnet: false,
-            doctor: {},
             contentCommnet: {
                 value: ""
             },
+            commentsToRender: 7,
             visiblecontentCommnet: false,
         })
+    };
+
+    handleCancelCreateSecheduce = e => {
+        this.setState({
+            visibleCreateSecheduce: false,
+            distanceEverning: "5",
+            distanceMorning: "5",
+            distanceAfternoon: "5",
+            startTimeMorning: "",
+            endTimeMorning: "",
+            startTimeAfternoon: "",
+            endTimeAfternoon: "",
+            startTimeEverning: "",
+            endTimeEverning: "",
+        });
     };
 
     handleInputChange(event) {
@@ -111,41 +141,179 @@ class DoctorClinic extends Component {
 
     }
 
-    async loadCommentDoctors (paramsClininc){
-        // await getRateDoctorApi(paramsClininc).then(response =>{
-        //     this.setState({
-        //         rate : response.object,
-        //     })
-        // });
-        
-        getListCommentDoctorApi(paramsClininc).then(response =>{
-           
-            this.setState({
-                comments : response.object,
-            })
+    showModalCreateSecheduce = () => {
+        this.setState({
+            visibleCreateSecheduce: true,
         });
+    };
 
-       
+    onChangeDayBooking = value => {
+        this.onChangeDay('dateBooking', value);
+    };
 
-        await this.props.getCommentDoctorClinicList(paramsClininc)
-    }
-
-    async componentDidMount() {
-        const idClininc = this.props.clinics.id;
-        const idDoctor = this.props.doctor.id;
-        let paramsClininc = {
-            idClinic: idClininc,
-            idDoctor: idDoctor
+    disabledDateBooking = dayBooking => {
+        if (!dayBooking) {
+            return false;
         }
-        await this.loadCommentDoctors(paramsClininc);
-
-    }
+        return dayBooking.valueOf() <= moment(moment().format("YYYY-MM-DD")).valueOf();
+    };
 
     showModalCommnet() {
         this.setState({
             visibleCommnet: true,
         });
     };
+
+    handleSubmitCreateBooking() {
+
+        if ((this.state.startTimeMorning !== "" && this.state.endTimeMorning !== "") || (this.state.startTimeAfternoon !== "" && this.state.endTimeAfternoon !== "") || (this.state.endTimeEverning !== "" && this.state.endTimeEverning !== "")) {
+
+            let startTimeMorning = this.state.startTimeMorning !== "" ? this.state.startTimeMorning + " AM" : "";
+            let endTimeMorning = this.state.endTimeMorning !== "" ? this.state.endTimeMorning + " AM" : "";
+
+            let startTimeAfternoon = this.state.startTimeAfternoon !== "" ? this.state.startTimeAfternoon + " PM" : "";
+            let endTimeAfternoon = this.state.endTimeAfternoon !== "" ? this.state.endTimeAfternoon + " PM" : "";
+
+            let startTimeEverning = this.state.startTimeEverning !== "" ? this.state.startTimeEverning + " PM" : "";
+            let endTimeEverning = this.state.endTimeEverning !== "" ? this.state.endTimeEverning + " PM" : "";
+
+            let param = {
+                distanceAfternoon: this.state.distanceAfternoon,
+                distanceEverning: this.state.distanceEverning,
+                distanceMorning: this.state.distanceMorning,
+                startTimeMorning: startTimeMorning,
+                endTimeMorning: endTimeMorning,
+                startTimeAfternoon: startTimeAfternoon,
+                endTimeAfternoon: endTimeAfternoon,
+                startTimeEverning: startTimeEverning,
+                endTimeEverning: endTimeEverning,
+                idClinic: this.props.clinics.id,
+                idDoctor: this.props.user.user.id,
+                dateBooking: this.state.dateBooking
+            }
+
+            addLichForDoctor(param).then(response => {
+                if (response.success) {
+                    notification.success({
+                        message: 'Booking Clinic',
+                        description: response.message + "!"
+                    });
+
+                    this.setState({
+                        distanceEverning: "5",
+                        distanceMorning: "5",
+                        distanceAfternoon: "5",
+                        startTimeMorning: "",
+                        endTimeMorning: "",
+                        startTimeAfternoon: "",
+                        endTimeAfternoon: "",
+                        startTimeEverning: "",
+                        endTimeEverning: "",
+                    });
+
+                    // let idClininc = this.props.paramsClininc.idClinic;
+                    // let idDoctor = this.props.paramsClininc.idDoctor;
+                    // let dateQurrey = this.state.dateBooking;
+                    // let dateQurreyResponse = moment(dateQurrey).format('YYYY-MM-DD');
+                    // let paramsClinincResponse = {
+                    //     idClinic: idClininc,
+                    //     idDoctor: idDoctor,
+                    //     dateQurrey: dateQurreyResponse,
+                    //     dateCurrent : this.props.paramsClininc.dateCurrent
+                    // }
+                    this.props.paramsClininc && this.props.getDoctorOfClinicList(this.props.paramsClininc);
+                } else {
+                    notification.error({
+                        message: 'Booking Clinic',
+                        description: 'Tạo lịch thất bại !'
+                    });
+                }
+            })
+            this.setState({
+                visibleCreateSecheduce: true,
+            });
+        } else {
+            notification.error({
+                message: 'Booking Clinic',
+                description: 'Bạn chưa nhập đầy đủ trường !'
+            });
+        }
+    }
+
+    onChangeDistanceEverning(value) {
+        this.onChangeDay("distanceEverning", value);
+    }
+
+    onChangeDistanceMorning(value) {
+        this.onChangeDay("distanceMorning", value);
+    }
+
+    onChangeDistanceAfternoon(value) {
+        this.onChangeDay("distanceAfternoon", value);
+    }
+
+    disabledDateBooking = dayBooking => {
+        if (!dayBooking) {
+            return false;
+        }
+        return dayBooking.valueOf() <= moment(moment().format("YYYY-MM-DD")).valueOf();
+    };
+
+    onChangeDay = (field, value) => {
+        this.setState({
+            [field]: value,
+        });
+    };
+
+    onChangeDayBooking = value => {
+        this.onChangeDay('dateBooking', value);
+    };
+
+    onChangeTimeMorningStart(time, timeString) {
+        this.onChangeDay('startTimeMorning', timeString);
+    }
+
+    onChangeTimeAfternoonStart(time, timeString) {
+        this.onChangeDay('startTimeAfternoon', timeString);
+    }
+
+    onChangeTimeEverningStart(time, timeString) {
+        this.onChangeDay('startTimeEverning', timeString);
+    }
+
+    onChangeTimeMorningEnd(time, timeString) {
+        this.onChangeDay('endTimeMorning', timeString);
+    }
+
+    onChangeTimeAfternoonEnd(time, timeString) {
+        this.onChangeDay('endTimeAfternoon', timeString);
+    }
+
+    onChangeTimeEverningEnd(time, timeString) {
+        this.onChangeDay('endTimeEverning', timeString);
+    }
+
+    onChangecommentsToRender() {
+        this.setState({
+            commentsToRender: (this.state.commentsToRender + 7)
+        })
+    }
+
+    handleChangeSelectDate = (value,paramsClininc, clinics ) =>{
+        let idClininc = clinics.id;
+        let idDoctor = paramsClininc.idDoctor;
+        let dateQurrey = value.key;
+        let dateCurrent = moment(moment().format('YYYY-MM-DD'))._i;
+
+        let paramsClinincResponse = {
+            idClinic: idClininc,
+            idDoctor: idDoctor,
+            dateQurrey: dateQurrey,
+            dateCurrent : dateCurrent
+        }
+
+        this.props.paramsClininc && this.props.getDoctorOfClinicList(paramsClinincResponse);
+    }
 
     render() {
         console.log(this.state)
@@ -202,11 +370,12 @@ class DoctorClinic extends Component {
                                         </div>
                                     </CardBody>
                                     <div className="show-revew-btn">
+
                                         <Tabs defaultActiveKey="1" >
                                             <TabPane className="modal-btn-ra1" tab="Bình Luận" key="1">
                                                 <div className="conten-commnet-modal">
                                                     {
-                                                        this.state.comments ? this.state.comments.map((value, key) =>
+                                                        this.props.doctor.commentExperts ? this.props.doctor.commentExperts.slice(0, this.state.commentsToRender).map((value, key) =>
                                                             <div key={key} className="item-content-commnet">
                                                                 <div className="modal-img-commnet">
                                                                     <CardImg className="img-commnet-image" variant="top" src={"data:image/jpeg;base64," + value.attachment.data} />
@@ -220,6 +389,9 @@ class DoctorClinic extends Component {
                                                                 </div>
                                                             </div>
                                                         ) : null
+                                                    }
+                                                    {
+                                                        this.state.commentsToRender <= this.props.doctor.commentExperts.length ? <Button onClick={() => this.onChangecommentsToRender()} type="link" size="small">Xem thêm {this.props.doctor.commentExperts.length - this.state.commentsToRender >= 7 ? 7 : this.props.doctor.commentExperts.length - this.state.commentsToRender} bình luận</Button> : null
                                                     }
                                                 </div>
                                                 <hr />
@@ -256,10 +428,10 @@ class DoctorClinic extends Component {
                                             </TabPane>
                                             <TabPane className="modal-btn-ra" tab="Đặt Lịch" key="2">
                                                 Content of Tab Pane 2
-                                        </TabPane>
+                                            </TabPane>
                                             <TabPane className="modal-btn-ra" tab="Cá Nhân" key="3">
                                                 Content of Tab Pane 3
-                                        </TabPane>
+                                             </TabPane>
                                         </Tabs>
                                     </div>
                                 </Card>
@@ -268,236 +440,244 @@ class DoctorClinic extends Component {
                     </Modal>
                 </div>
 
-                {/* <div className="commnet-modal">
+                <div className="commnet-modal">
                     <Modal
                         style={{ top: 10 }}
                         footer={null}
                         visible={this.state.visibleCreateSecheduce}
                         onCancel={this.handleCancelCreateSecheduce}
                     >
-                        <Form onSubmit={this.handleSubmitCreateBooking} className="login-form">
-                            <FormItem className="row-file">
-                                <div>
-                                    <span>Ngày Đặt Lịch :</span>
-                                    <DatePicker
-                                        className="date-booking"
-                                        placeholder="Chọn ngày tạo lịch"
-                                        disabledDate={this.disabledStartDate}
-                                        format="YYYY-MM-DD"
-                                        defaultValue={moment(moment().format('YYYY-MM-DD')._i)}
-                                        disabledDate={this.disabledDateBooking}
-                                        value={this.state.dateBooking ? this.state.dateBooking : moment(moment().format('YYYY-MM-DD')._i)}
-                                        onChange={this.onChangeDayBooking}
-                                    />
-                                </div>
-                            </FormItem>
-                            <hr />
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <span>Thời gian buổi sáng</span>
-                                        <Row>
-                                            <Col span={6}>Thời gian bắt đầu : </Col>
-                                            <Col span={18}>
-                                                <TimePicker
-                                                    disabledHours={() => [1, 2, 3, 4, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0]}
-                                                    disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
-                                                        21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-                                                        43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
-                                                    className="time-input"
-                                                    format={"HH:mm"}
-                                                    onChange={this.onChangeTimeMorningStart} />
-                                            </Col>
-                                        </Row>
+                        <Tabs defaultActiveKey="1" >
+                            <TabPane className="modal-btn-ra1" tab="Đặt Lịch Theo Từng Ngày" key="1">
+                                {/* <Form onSubmit={() =>this.handleSubmitCreateBooking ()} className="login-form"> */}
+                                <FormItem className="row-file">
+                                    <div>
+                                        <span>Ngày Đặt Lịch :</span>
+                                        <DatePicker
+                                            className="date-booking"
+                                            placeholder="Chọn ngày tạo lịch"
+                                            disabledDate={this.disabledStartDate}
+                                            format="YYYY-MM-DD"
+                                            defaultValue={moment(moment().format('YYYY-MM-DD')._i)}
+                                            disabledDate={this.disabledDateBooking}
+                                            value={this.state.dateBooking ? this.state.dateBooking : moment(moment().format('YYYY-MM-DD')._i)}
+                                            onChange={this.onChangeDayBooking}
+                                        />
                                     </div>
-                                </div>
-                            </FormItem>
+                                </FormItem>
+                                <hr />
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <span>Thời gian buổi sáng</span>
+                                            <Row>
+                                                <Col span={6}>Thời gian bắt đầu : </Col>
+                                                <Col span={18}>
+                                                    <TimePicker
+                                                        disabledHours={() => [1, 2, 3, 4, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0]}
+                                                        disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
+                                                            21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+                                                            43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
+                                                        className="time-input"
+                                                        format={"HH:mm"}
+                                                        onChange={this.onChangeTimeMorningStart} />
+                                                </Col>
+                                            </Row>
+                                        </div>
+                                    </div>
+                                </FormItem>
 
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <Row>
-                                            <Col span={6}>Thời gian kết thúc:</Col>
-                                            <Col span={18}>
-                                                <TimePicker
-                                                    className="time-input"
-                                                    disabledHours={() => [1, 2, 3, 4, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0]}
-                                                    disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
-                                                        21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-                                                        43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
-                                                    format={"HH:mm"}
-                                                    onChange={this.onChangeTimeMorningEnd} />
-                                            </Col>
-                                        </Row>
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <Row>
+                                                <Col span={6}>Thời gian kết thúc:</Col>
+                                                <Col span={18}>
+                                                    <TimePicker
+                                                        className="time-input"
+                                                        disabledHours={() => [1, 2, 3, 4, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0]}
+                                                        disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
+                                                            21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+                                                            43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
+                                                        format={"HH:mm"}
+                                                        onChange={this.onChangeTimeMorningEnd} />
+                                                </Col>
+                                            </Row>
+                                        </div>
                                     </div>
-                                </div>
-                            </FormItem>
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <Row>
-                                            <Col span={12}>Khoảng cách thời gian đặt lịch : </Col>
-                                            <Col span={12}>
-                                                <Select
-                                                    defaultValue={5}
-                                                    className="distance-input"
-                                                    style={{ width: 180 }}
-                                                    placeholder="Chọn khoảng thời gian"
-                                                    onChange={this.onChangeDistanceMorning}
-                                                >
-                                                    <Option value="5">5</Option>
-                                                    <Option value="10">10</Option>
-                                                    <Option value="15">15</Option>
-                                                    <Option value="20">20</Option>
-                                                    <Option value="30">30</Option>
-                                                </Select>
-                                            </Col>
-                                        </Row>
+                                </FormItem>
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <Row>
+                                                <Col span={12}>Khoảng cách thời gian đặt lịch : </Col>
+                                                <Col span={12}>
+                                                    <Select
+                                                        defaultValue={5}
+                                                        className="distance-input"
+                                                        style={{ width: 180 }}
+                                                        placeholder="Chọn khoảng thời gian"
+                                                        onChange={this.onChangeDistanceMorning}
+                                                    >
+                                                        <Option value="5">5</Option>
+                                                        <Option value="10">10</Option>
+                                                        <Option value="15">15</Option>
+                                                        <Option value="20">20</Option>
+                                                        <Option value="30">30</Option>
+                                                    </Select>
+                                                </Col>
+                                            </Row>
+                                        </div>
                                     </div>
-                                </div>
-                            </FormItem>
-                            <hr />
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <span>Thời gian buổi chiều</span>
-                                        <Row>
-                                            <Col span={6}>Thời gian bắt đầu : </Col>
-                                            <Col span={18}>
-                                                <TimePicker
-                                                    className="time-input"
-                                                    disabledHours={() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 19, 20, 21, 22, 23, 0]}
-                                                    disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
-                                                        21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-                                                        43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
-                                                    format={"HH:mm"}
-                                                    onChange={this.onChangeTimeAfternoonStart} />
-                                            </Col>
-                                        </Row>
+                                </FormItem>
+                                <hr />
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <span>Thời gian buổi chiều</span>
+                                            <Row>
+                                                <Col span={6}>Thời gian bắt đầu : </Col>
+                                                <Col span={18}>
+                                                    <TimePicker
+                                                        className="time-input"
+                                                        disabledHours={() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 19, 20, 21, 22, 23, 0]}
+                                                        disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
+                                                            21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+                                                            43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
+                                                        format={"HH:mm"}
+                                                        onChange={this.onChangeTimeAfternoonStart} />
+                                                </Col>
+                                            </Row>
+                                        </div>
                                     </div>
-                                </div>
-                            </FormItem>
+                                </FormItem>
 
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <Row>
-                                            <Col span={6}>Thời gian kết thúc: </Col>
-                                            <Col span={18}>
-                                                <TimePicker
-                                                    format={"HH:mm"}
-                                                    disabledHours={() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 19, 20, 21, 22, 23, 0]}
-                                                    disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
-                                                        21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-                                                        43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
-                                                    className="time-input"
-                                                    onChange={this.onChangeTimeAfternoonEnd} />
-                                            </Col>
-                                        </Row>
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <Row>
+                                                <Col span={6}>Thời gian kết thúc: </Col>
+                                                <Col span={18}>
+                                                    <TimePicker
+                                                        format={"HH:mm"}
+                                                        disabledHours={() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 19, 20, 21, 22, 23, 0]}
+                                                        disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
+                                                            21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+                                                            43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
+                                                        className="time-input"
+                                                        onChange={this.onChangeTimeAfternoonEnd} />
+                                                </Col>
+                                            </Row>
+                                        </div>
                                     </div>
-                                </div>
-                            </FormItem>
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <Row>
-                                            <Col span={12}>Khoảng cách thời gian đặt lịch : </Col>
-                                            <Col span={12}>
-                                                <Select
-                                                    defaultValue={5}
-                                                    className="distance-input"
-                                                    style={{ width: 180 }}
-                                                    placeholder="Chọn khoảng thời gian"
-                                                    onChange={this.onChangeDistanceAfternoon}
-                                                >
-                                                    <Option value="5">5</Option>
-                                                    <Option value="10">10</Option>
-                                                    <Option value="15">15</Option>
-                                                    <Option value="20">20</Option>
-                                                    <Option value="30">30</Option>
-                                                </Select>
-                                            </Col>
-                                        </Row>
+                                </FormItem>
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <Row>
+                                                <Col span={12}>Khoảng cách thời gian đặt lịch : </Col>
+                                                <Col span={12}>
+                                                    <Select
+                                                        defaultValue={5}
+                                                        className="distance-input"
+                                                        style={{ width: 180 }}
+                                                        placeholder="Chọn khoảng thời gian"
+                                                        onChange={this.onChangeDistanceAfternoon}
+                                                    >
+                                                        <Option value="5">5</Option>
+                                                        <Option value="10">10</Option>
+                                                        <Option value="15">15</Option>
+                                                        <Option value="20">20</Option>
+                                                        <Option value="30">30</Option>
+                                                    </Select>
+                                                </Col>
+                                            </Row>
+                                        </div>
                                     </div>
-                                </div>
-                            </FormItem>
-                            <hr />
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <span>Thời gian buổi Tối</span>
-                                        <Row>
-                                            <Col span={6}>Thời gian bắt đầu : </Col>
-                                            <Col span={18}>
-                                                <TimePicker
-                                                    className="time-input"
-                                                    disabledHours={() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 0]}
-                                                    disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
-                                                        21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-                                                        43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
-                                                    format={"HH:mm"}
-                                                    onChange={this.onChangeTimeEverningStart} />
-                                            </Col>
-                                        </Row>
+                                </FormItem>
+                                <hr />
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <span>Thời gian buổi Tối</span>
+                                            <Row>
+                                                <Col span={6}>Thời gian bắt đầu : </Col>
+                                                <Col span={18}>
+                                                    <TimePicker
+                                                        className="time-input"
+                                                        disabledHours={() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 0]}
+                                                        disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
+                                                            21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+                                                            43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
+                                                        format={"HH:mm"}
+                                                        onChange={this.onChangeTimeEverningStart} />
+                                                </Col>
+                                            </Row>
+                                        </div>
                                     </div>
-                                </div>
-                            </FormItem>
+                                </FormItem>
 
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <Row>
-                                            <Col span={6}>Thời gian kết thúc:</Col>
-                                            <Col span={18}>
-                                                <TimePicker
-                                                    className="time-input"
-                                                    disabledHours={() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 0]}
-                                                    disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
-                                                        21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-                                                        43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
-                                                    format={"HH:mm"}
-                                                    onChange={this.onChangeTimeEverningEnd} />
-                                            </Col>
-                                        </Row>
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <Row>
+                                                <Col span={6}>Thời gian kết thúc:</Col>
+                                                <Col span={18}>
+                                                    <TimePicker
+                                                        className="time-input"
+                                                        disabledHours={() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 0]}
+                                                        disabledMinutes={() => [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
+                                                            21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+                                                            43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]}
+                                                        format={"HH:mm"}
+                                                        onChange={this.onChangeTimeEverningEnd} />
+                                                </Col>
+                                            </Row>
+                                        </div>
                                     </div>
-                                </div>
-                            </FormItem>
-                            <FormItem className="row-file">
-                                <div>
-                                    <div className="distance-form">
-                                        <Row>
-                                            <Col span={12}>Khoảng cách thời gian đặt lịch : </Col>
-                                            <Col span={12}>
-                                                <Select
-                                                    defaultValue={5}
-                                                    className="distance-input"
-                                                    style={{ width: 180 }}
-                                                    placeholder="Chọn khoảng thời gian"
-                                                    onChange={this.onChangeDistanceEverning}
-                                                >
-                                                    <Option value="5">5</Option>
-                                                    <Option value="10">10</Option>
-                                                    <Option value="15">15</Option>
-                                                    <Option value="20">20</Option>
-                                                    <Option value="30">30</Option>
-                                                </Select>
-                                            </Col>
-                                        </Row>
+                                </FormItem>
+                                <FormItem className="row-file">
+                                    <div>
+                                        <div className="distance-form">
+                                            <Row>
+                                                <Col span={12}>Khoảng cách thời gian đặt lịch : </Col>
+                                                <Col span={12}>
+                                                    <Select
+                                                        defaultValue={5}
+                                                        className="distance-input"
+                                                        style={{ width: 180 }}
+                                                        placeholder="Chọn khoảng thời gian"
+                                                        onChange={this.onChangeDistanceEverning}
+                                                    >
+                                                        <Option value="5">5</Option>
+                                                        <Option value="10">10</Option>
+                                                        <Option value="15">15</Option>
+                                                        <Option value="20">20</Option>
+                                                        <Option value="30">30</Option>
+                                                    </Select>
+                                                </Col>
+                                            </Row>
+                                        </div>
                                     </div>
-                                </div>
-                            </FormItem>
+                                </FormItem>
 
-                            <hr />
-                            <FormItem>
-                                <Button type="primary" htmlType="submit" size="large" className="login-form-button">Đăng nhập</Button>
-                            </FormItem>
-                        </Form>
+                                <hr />
+                                <FormItem>
+                                    <Button onClick={() => this.handleSubmitCreateBooking()} type="primary" size="large" className="login-form-button">Đăng nhập</Button>
+                                </FormItem>
+                                {/* </Form> */}
+                            </TabPane>
+
+                            <TabPane className="modal-btn-ra" tab="Đặt Lịch Nhiều Ngày" key="2">
+                                Content of Tab Pane 2
+                            </TabPane>
+                        </Tabs>
+
                     </Modal>
-                </div> */}
+                </div>
 
                 {
-
-                    <div  className="doctor-clinic">
+                    <div className="doctor-clinic">
                         <div className="doctor">
                             <div className="logo-infor">
                                 <div className="logo">
@@ -567,11 +747,15 @@ class DoctorClinic extends Component {
                                 <div className="select-day">
                                     <Select
                                         labelInValue
-                                        defaultValue={{ key: 'lucy' }}
+                                        defaultValue={{ key: this.props.doctor.dateBookingDoctors[0]+"" }}
                                         style={{ width: "190px" }}
+                                        onChange={(value) => this.handleChangeSelectDate(value,this.props.paramsClininc, this.props.clinics)}
                                     >
-                                        <Option value="jack">Jack dddck dddddd</Option>
-                                        <Option value="lucy">Jack ddddddJack</Option>
+                                        {
+                                            this.props.doctor.dateBookingDoctors ? this.props.doctor.dateBookingDoctors.map((value, key) =>
+                                                <Option value={this.props.doctor.dateBookingDoctors[key]+""}>{this.props.doctor.dateBookingDoctors[key]}</Option>
+                                            ) : null
+                                        }
                                     </Select>
                                 </div>
                             </div>
@@ -596,7 +780,6 @@ class DoctorClinic extends Component {
 
                         </div>
                     </div>
-
                 }
 
             </div>
@@ -607,7 +790,6 @@ class DoctorClinic extends Component {
 const mapStateToProps = (state) => {
     return {
         user: state.user,
-        comments : state.commnets
     }
 }
 
@@ -615,6 +797,6 @@ export default connect(
     mapStateToProps,
     {
         getUser,
-        getCommentDoctorClinicList
+        getDoctorOfClinicList
     }
 )(DoctorClinic);

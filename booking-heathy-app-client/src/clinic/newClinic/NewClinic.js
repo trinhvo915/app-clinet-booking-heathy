@@ -200,7 +200,6 @@ class NewClinic extends Component {
         previewImage: file.url || file.preview,
         previewVisible: true,
       });
-      console.log(this.state)
     };
   
     handleChange = ({ fileList }) => {
@@ -218,7 +217,6 @@ class NewClinic extends Component {
                 <div className="ant-upload-text">Upload</div>
             </div>
         );
-        // console.log(this.state)
         return (
             
             <div className="new-doctor-container">

@@ -5,7 +5,6 @@ export const GET_FACULTY_FAILED =
   "[GET_FACULTY] GET_FACULTY_FAILED";
 
 export const getFaculty = () => {
-  console.log("action");
   return {
     type: GET_FACULTY
   };

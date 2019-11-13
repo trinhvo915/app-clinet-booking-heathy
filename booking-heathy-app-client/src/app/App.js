@@ -97,7 +97,6 @@ class App extends Component {
   }
 
   changerLoadHeard() {
-    console.log("user")
     this.setState({
       loadTrue : false ,
       loadFalse : true,

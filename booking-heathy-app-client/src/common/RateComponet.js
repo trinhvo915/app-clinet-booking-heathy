@@ -7,8 +7,6 @@ export default class RateComponet extends Component {
     }
 
     handleChangeRate (value, doctor) {
-        console.log(doctor)
-        console.log(value)
         let numberStar = "";
 
         if(value === 1){
@@ -31,8 +29,6 @@ export default class RateComponet extends Component {
                 id : doctor.id
             }
         }
-
-        console.log(rate)
 
         this.setState({
             rateValue : value
