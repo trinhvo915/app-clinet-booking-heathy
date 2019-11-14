@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import './Clinic.css';
+import './Doctor.css';
 import { Card, CardText, CardImg, CardBody } from 'reactstrap';
 import moment from 'moment';
 import { DatePicker, TimePicker, Row, notification, Col, Form, Input, Button, Icon, Rate, Tabs, Modal, Select, List } from 'antd';
@@ -8,17 +9,39 @@ import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action
 import { getUser } from "../../actions/get.user.action";
 import { addCommnetForDoctor } from './../../util/api/call-api';
 import { addLichForDoctor } from './../../util/api/call-api';
-import { getListDayBookingDoctorApi } from './../../util/api/call-api';
+import { getDoctorList } from "../../actions/doctor.list.action";
+import {
+    NAME_MIN_LENGTH, NAME_MAX_LENGTH,
+    ADDRESS_MAX_LENGTH,
+    MOBILE_MIN_LENGTH, MOBILE_MAX_LENGTH,
+    EMAIL_MAX_LENGTH
+} from '../../constants';
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Option } = Select;
 const { TabPane } = Tabs;
+const dateFormat = 'DD/MM/YYYY';
+const genderData = [
+    {
+        VN: "NAM",
+        EN: 'MALE'
+    },
+    {
+        VN: "NŨ",
+        EN: 'FAMALE'
+    },
+    {
+        VN: "KHÁC",
+        EN: "OTHER"
+    }
+]
 
 class DoctorClinic extends Component {
     constructor(props) {
         super(props);
         this.state = {
             visibleCommnet: false,
+            visibleBooking: false,
             visibleCreateSecheduce: false,
             isLoading: false,
             contentCommnet: {
@@ -35,6 +58,31 @@ class DoctorClinic extends Component {
             startTimeEverning: "",
             endTimeEverning: "",
             dateBooking: moment(moment().format('YYYY-MM-DD')._i),
+
+            fullNameOwner: {
+                value: ''
+            },
+            emailBookingPerson: {
+                value: ''
+            },
+            mobileBookingPerson: {
+                value: ''
+            },
+            fullNamePerent: {
+                value: ''
+            },
+            birthdayPerent: {
+                value: moment(moment().format(dateFormat)._i)
+            },
+            genderPerent: {
+                value: 'MALE'
+            },
+            addressPerent: {
+                value: ''
+            },
+            aboutPerent: {
+                value: ''
+            },
         };
 
         this.onChangeDay = this.onChangeDay.bind(this);
@@ -81,7 +129,7 @@ class DoctorClinic extends Component {
                     },
                     visiblecontentCommnet: false,
                 })
-
+                this.props.getDoctorList()
                 this.props.paramsClininc && this.props.getDoctorOfClinicList(this.props.paramsClininc);
             })
         } else {
@@ -105,6 +153,42 @@ class DoctorClinic extends Component {
             commentsToRender: 7,
             visiblecontentCommnet: false,
         })
+    };
+
+    handleCancelBooking = e => {
+        this.setState({
+            bookingDoctor: {},
+            imageDoctor: "",
+            nameDoctor: "",
+            degreesDoctor: "",
+            nameClinic: "",
+            addressClinic: "",
+            visibleBooking: false,
+            fullNameOwner: {
+                value: ''
+            },
+            emailBookingPerson: {
+                value: ''
+            },
+            mobileBookingPerson: {
+                value: ''
+            },
+            fullNamePerent: {
+                value: ''
+            },
+            birthdayPerent: {
+                value: moment(moment().format(dateFormat)._i)
+            },
+            genderPerent: {
+                value: 'MALE'
+            },
+            addressPerent: {
+                value: ''
+            },
+            aboutPerent: {
+                value: ''
+            },
+        });
     };
 
     handleCancelCreateSecheduce = e => {
@@ -162,6 +246,26 @@ class DoctorClinic extends Component {
         this.setState({
             visibleCommnet: true,
         });
+    };
+
+    showModalBooking(booking, doctor, clinic) {
+        if (this.props.user.user && this.props.user.user.status !== 401) {
+            this.setState({
+                bookingDoctor: booking,
+                imageDoctor: doctor.attachmentPerson.data,
+                nameDoctor: doctor.fullName,
+                degreesDoctor: doctor.degrees,
+                nameClinic: clinic.name,
+                addressClinic: clinic.address,
+                visibleBooking: true,
+            });
+        } else {
+            notification.error({
+                message: 'Booking Clinic',
+                description: 'Xin lỗi bạn ! Bạn chưa đăng nhập !'
+            });
+        }
+
     };
 
     handleSubmitCreateBooking() {
@@ -299,7 +403,7 @@ class DoctorClinic extends Component {
         })
     }
 
-    handleChangeSelectDate = (value,paramsClininc, clinics ) =>{
+    handleChangeSelectDate = (value, paramsClininc, clinics) => {
         let idClininc = clinics.id;
         let idDoctor = paramsClininc.idDoctor;
         let dateQurrey = value.key;
@@ -309,10 +413,137 @@ class DoctorClinic extends Component {
             idClinic: idClininc,
             idDoctor: idDoctor,
             dateQurrey: dateQurrey,
-            dateCurrent : dateCurrent
+            dateCurrent: dateCurrent
         }
 
         this.props.paramsClininc && this.props.getDoctorOfClinicList(paramsClinincResponse);
+    }
+
+    handleInputChangeBooking(event, validationFun) {
+        const target = event.target;
+        const inputName = target.name;
+        const inputValue = target.value;
+
+        this.setState({
+            [inputName]: {
+                value: inputValue,
+                ...validationFun(inputValue)
+            }
+        });
+    }
+
+    validateFullNameOwner = (fullName) => {
+        if (fullName.length < NAME_MIN_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Họ và tên quá nhỏ !. Bạn cần nhập lớn hơn ( ${NAME_MIN_LENGTH} )  ký tự!!`
+            }
+        } else if (fullName.length > NAME_MAX_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Họ và tên quá lớn !. Bạn cần nhập nhỏ hơn ( ${NAME_MAX_LENGTH} )  ký tự!!`
+            }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+            };
+        }
+    }
+
+    validateEmail = (email) => {
+        if (!email) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Hãy nhập E-mail !'
+            }
+        }
+
+        const EMAIL_REGEX = RegExp('[^@ ]+@[^@ ]+\\.[^@ ]+');
+        if (!EMAIL_REGEX.test(email)) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Lỗi định dạng E-mail !'
+            }
+        }
+
+        if (email.length > EMAIL_MAX_LENGTH) {
+            return {
+                validateStatus: 'error',
+                errorMsg: `Email quá lớn !. Bạn cần nhập nhỏ hơn( ${EMAIL_MAX_LENGTH} ) ký tự! !`
+            }
+        }
+
+        return {
+            validateStatus: 'success',
+            errorMsg: null,
+        };
+    }
+
+    validateMobile = (mobile) => {
+        if (mobile.length < MOBILE_MIN_LENGTH) {
+            return {
+                validateStatus: 'error',
+                errorMsg: `"Số điện thoại quá nhỏ !. Bạn cần nhập lớn hơn ( "${MOBILE_MIN_LENGTH}" ) ký tự!"`
+            }
+        } else if (mobile.length > MOBILE_MAX_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Số điện thoại quá lớn !. Bạn cần nhập nhỏ hơn ( ${MOBILE_MAX_LENGTH} )  ký tự!!`
+            }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+            };
+        }
+    }
+
+    onChangeforDate = (field, value) => {
+        this.setState({
+            [field]: {
+                value: value
+            }
+        });
+    };
+
+    onChangeDate = (value) => {
+        this.onChangeforDate('birthday', value);
+    }
+
+    handleGenderPerent = (value) => {
+        const genderPerent = Object.assign(this.state.genderPerent, { value: value });
+        this.setState({
+            genderPerent: genderPerent
+        });
+    }
+
+    validateAddressPerent = (address) => {
+        if (address.length > ADDRESS_MAX_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Địa chỉ quá lớn !. Bạn cần nhập nhỏ hơn ( ${ADDRESS_MAX_LENGTH} )  ký tự!!`
+            }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+            };
+        }
+    }
+
+    validateAboutPerent = (about) => {
+        if (about.length === 0) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Bạn cần nhập thông tin cơ bản !!`
+            }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+            };
+        }
     }
 
     render() {
@@ -663,7 +894,7 @@ class DoctorClinic extends Component {
 
                                 <hr />
                                 <FormItem>
-                                    <Button onClick={() => this.handleSubmitCreateBooking()} type="primary" size="large" className="login-form-button">Đăng nhập</Button>
+                                    <Button onClick={() => this.handleSubmitCreateBooking()} type="primary" size="large" className="login-form-button">Tạo Lịch</Button>
                                 </FormItem>
                                 {/* </Form> */}
                             </TabPane>
@@ -676,6 +907,187 @@ class DoctorClinic extends Component {
                     </Modal>
                 </div>
 
+                <div className="model-booking">
+                    <Modal
+                        className="boking-modal"
+
+                        style={{ top: 5 }}
+                        footer={null}
+                        visible={this.state.visibleBooking}
+                        onCancel={this.handleCancelBooking}
+                    >
+                        <span className="title-booking">ĐẶT LỊCH KHÁM BỆNH</span>
+                        <hr className="line-line"></hr>
+
+                        <div className="content-booking">
+                            <div className="img-div-booking">
+                                {
+                                    this.state.imageDoctor ? (<CardImg className="img-clinic-image-booking" variant="top" src={"data:image/jpeg;base64," + this.state.imageDoctor} />) : ""
+                                }
+                            </div>
+
+                            <div className="inf-div-booking" >
+                                <CardText className="logo-name-clinic-doctor-booking">
+                                    {
+                                        this.state.degreesDoctor && this.state.degreesDoctor.map(value =>
+                                            value.name + " "
+                                        )
+                                    }
+                                    {
+                                        this.state.nameDoctor ? this.state.nameDoctor : ""
+                                    }
+                                </CardText>
+
+                                <CardText className="logo-name-clinic-addressClinic-booking">
+                                    {
+                                        this.state.nameClinic ? this.state.nameClinic : ""
+                                    }
+                                </CardText>
+
+                                <CardText className="address-clininc-booking">
+                                    Địa chỉ phòng khám : {this.state.addressClinic ? this.state.addressClinic : ""}
+                                </CardText>
+                            </div>
+
+                        </div>
+                        <hr className="line-line-distance"></hr>
+                        <span className="title-booking-person-booking">THÔNG TIN NGƯỜI ĐẶT LỊCH</span>
+                        <div className="content-booking-input">
+                            <FormItem className="row-file"
+                                label="Tên Người Đặt Khám :"
+                                validateStatus={this.state.fullNameOwner.validateStatus}
+                                help={this.state.fullNameOwner.errorMsg}>
+                                <Input
+                                    className="input-text"
+                                    size="large"
+                                    name="fullNameOwner"
+                                    autoComplete="off"
+                                    placeholder="Hãy nhập tên đầy đủ của người đặt khám !"
+                                    value={this.state.fullNameOwner.value}
+                                    onChange={(event) => this.handleInputChangeBooking(event, this.validateFullNameOwner)} />
+                            </FormItem>
+
+                            <FormItem className="row-file"
+                                label="Email Người Đặt Khám:"
+                                hasFeedback
+                                validateStatus={this.state.emailBookingPerson.validateStatus}
+                                help={this.state.emailBookingPerson.errorMsg}>
+                                <Input
+                                    size="large"
+                                    name="emailBookingPerson"
+                                    type="email"
+                                    autoComplete="off"
+                                    placeholder="Hãy nhập email của người đặt khám !"
+                                    value={this.state.emailBookingPerson.value}
+                                    onChange={(event) => this.handleInputChange(event, this.validateEmail)} />
+                            </FormItem>
+
+                            <FormItem className="row-file"
+                                label="Số điện thoại :"
+                                validateStatus={this.state.mobileBookingPerson.validateStatus}
+                                help={this.state.mobileBookingPerson.errorMsg}>
+                                <Input
+                                    size="large"
+                                    name="mobileBookingPerson"
+                                    autoComplete="off"
+                                    placeholder="Hãy nhập số điện thoại của người đặt khám !"
+                                    value={this.state.mobileBookingPerson.value}
+                                    onChange={(event) => this.handleInputChange(event, this.validateMobile)} />
+                            </FormItem>
+                        </div>
+
+                        <hr className="line-line-distance"></hr>
+                        <span className="title-booking-person-booking">THÔNG TIN NGƯỜI BỆNH</span>
+                        <div className="content-booking-input">
+                            <FormItem className="row-file"
+                                label="Tên Bện Nhân :"
+                                validateStatus={this.state.fullNamePerent.validateStatus}
+                                help={this.state.fullNamePerent.errorMsg}>
+                                <Input
+                                    className="input-text"
+                                    size="large"
+                                    name="fullNamePerent"
+                                    autoComplete="off"
+                                    placeholder="Hãy nhập tên đầy đủ của người đặt khám !"
+                                    value={this.state.fullNamePerent.value}
+                                    onChange={(event) => this.handleInputChangeBooking(event, this.validateFullNameOwner)} />
+                            </FormItem>
+
+                            <FormItem className="row-file"
+                                label="Địa chỉ :"
+                                validateStatus={this.state.addressPerent.validateStatus}
+                                help={this.state.addressPerent.errorMsg}>
+                                <Input
+                                    size="large"
+                                    name="addressPerent"
+                                    autoComplete="off"
+                                    placeholder="Hãy nhập địa chỉ của bạn bệnh nhân !"
+                                    value={this.state.addressPerent.value}
+                                    onChange={(event) => this.handleInputChange(event, this.validateAddressPerent)} />
+                            </FormItem>
+
+                            <Row>
+                                <Col span={12} >
+                                    <FormItem
+                                        label="Ngày sinh Bệnh Nhân : ">
+                                        <DatePicker
+                                            defaultValue={moment(moment().format(dateFormat)._i)}
+                                            format={dateFormat}
+                                            value={this.state.birthdayPerent.value ? this.state.birthdayPerent.value : moment(moment().format(dateFormat)._i)}
+                                            onChange={this.onChangeDate}
+                                        />
+                                    </FormItem>
+                                </Col>
+                                <Col span={12} >
+                                    <FormItem label="Giới tính Bệnh Nhân :">
+                                        <Select
+                                            name="genderPerent"
+                                            defaultValue="MALE"
+                                            onChange={this.handleGenderPerent}
+                                            value={this.state.genderPerent.value ? this.state.genderPerent.value : ""}
+                                        >
+                                            {
+                                                genderData.map(value =>
+                                                    <Option key={value.EN}>{value.VN}{"    "}</Option>
+                                                )
+                                            }
+                                        </Select>
+                                    </FormItem>
+                                </Col>
+                            </Row>
+
+                            <div className="address-booking">
+                                <FormItem className="row-file"
+                                    label="Địa chỉ :"
+                                    validateStatus={this.state.addressPerent.validateStatus}
+                                    help={this.state.addressPerent.errorMsg}>
+                                    <Input
+                                        size="large"
+                                        name="addressPerent"
+                                        autoComplete="off"
+                                        placeholder="Hãy nhập địa chỉ của bạn bệnh nhân !"
+                                        value={this.state.addressPerent.value}
+                                        onChange={(event) => this.handleInputChange(event, this.validateAddressPerent)} />
+                                </FormItem>
+                            </div>
+
+                            <FormItem
+                                label="Triệu Chứng Khám Bệnh : "
+                                validateStatus={this.state.aboutPerent.validateStatus}
+                                help={this.state.aboutPerent.errorMsg}>
+                                <TextArea
+                                    placeholder="Triệu chứng khám bệnh !"
+                                    style={{ fontSize: '16px' }}
+                                    autosize={{ minRows: 3, maxRows: 6 }}
+                                    name="aboutPerent"
+                                    value={this.state.aboutPerent.value}
+                                    onChange={(event) => this.handleInputChange(event, this.validateAboutPerent)} />
+                            </FormItem>
+                                
+                            <Button onClick={() => this.handleSubmitCreateBooking()} type="primary" size="large" className="login-form-button">Đặt Lịch</Button>
+                        </div>
+                    </Modal>
+                </div>
                 {
                     <div className="doctor-clinic">
                         <div className="doctor">
@@ -745,18 +1157,23 @@ class DoctorClinic extends Component {
                                     <span>ĐẶT LỊCH KHÁM BỆNH :</span>
                                 </div>
                                 <div className="select-day">
-                                    <Select
-                                        labelInValue
-                                        defaultValue={{ key: this.props.doctor.dateBookingDoctors[0]+"" }}
-                                        style={{ width: "190px" }}
-                                        onChange={(value) => this.handleChangeSelectDate(value,this.props.paramsClininc, this.props.clinics)}
-                                    >
-                                        {
-                                            this.props.doctor.dateBookingDoctors ? this.props.doctor.dateBookingDoctors.map((value, key) =>
-                                                <Option value={this.props.doctor.dateBookingDoctors[key]+""}>{this.props.doctor.dateBookingDoctors[key]}</Option>
-                                            ) : null
-                                        }
-                                    </Select>
+                                    {
+                                        this.props.doctor.dateBookingDoctors ? (
+                                            <Select
+                                                labelInValue
+                                                defaultValue={{ key: this.props.doctor.dateBookingDoctors[0] }}
+                                                style={{ width: "190px" }}
+                                                onChange={(value) => this.handleChangeSelectDate(value, this.props.paramsClininc, this.props.clinics)}
+                                            >
+                                                {console.log(this.props.doctor.dateBookingDoctors[0])}
+                                                {
+                                                    this.props.doctor.dateBookingDoctors ? this.props.doctor.dateBookingDoctors.map((value, key) =>
+                                                        <Option value={this.props.doctor.dateBookingDoctors[key]}>{value}</Option>
+                                                    ) : null
+                                                }
+                                            </Select>
+                                        ) : null
+                                    }
                                 </div>
                             </div>
 
@@ -768,10 +1185,18 @@ class DoctorClinic extends Component {
                                     dataSource={this.props.doctor.bookingExperts}
                                     renderItem={item => (
                                         <List.Item className="item-btn" style={{ 'marginTop': '-15px' }}>
-                                            <Button style={{ width: "105px" }} className="btn-taolich" type="primary" ghost>{item.timeBooking}</Button>
+                                            {
+                                                !item.isExit ? (
+                                                    <Button onClick={() => this.showModalBooking(item, this.props.doctor, this.props.clinics)} style={{ width: "105px" }} className="btn-taolich" type="primary" ghost>{item.timeBooking}</Button>
+                                                ) : (
+                                                        <Button disabled style={{ width: "105px" }} className="btn-taolich" type="primary" ghost>Đã đặt {item.timeBooking}</Button>
+                                                    )
+                                            }
+
                                         </List.Item>
                                     )}
                                 />
+
                             </div>
 
                             <div className="btn-cost">
@@ -797,6 +1222,7 @@ export default connect(
     mapStateToProps,
     {
         getUser,
-        getDoctorOfClinicList
+        getDoctorOfClinicList,
+        getDoctorList
     }
 )(DoctorClinic);

@@ -291,6 +291,7 @@ class NewClinic extends Component {
 
                         <FormItem>
                             <Button type="primary" 
+                                className = "btn-dang-ky"
                                 htmlType="submit" 
                                 size="large" 
                                 disabled={this.isFormInvalid()}

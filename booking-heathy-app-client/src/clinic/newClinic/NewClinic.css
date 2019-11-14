@@ -11,7 +11,7 @@
 .create-doctor-form-button {
     width: 100%;
 }
-.signup-form-button {
+.btn-dang-ky {
     margin-top: -10px;
 }
 .create-doctor-form-button[disabled], .create-doctor-form-button[disabled]:hover, .create-doctor-form-button[disabled]:focus {

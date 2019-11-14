@@ -1,0 +1,174 @@
+
+.boking-modal {
+    display: table  ;
+}
+
+.content-booking {
+    display: table;
+    
+}
+.line-line-distance {
+    margin-bottom: -5px;
+    margin-top: 7px;
+}
+.content-booking-input{
+    display: table;
+    width: 100%;
+}
+.ant-form-item-control {
+    margin-top: -10px;
+}
+.input-text {
+    margin-top: -10px;
+}
+
+.img-div-booking {
+    width: 25%;
+    float: left;
+    display: table  ;
+}
+.inf-div-booking {
+    width: 75%;
+    float: left;
+    display: table  ;
+}
+
+.address-clininc-booking {
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: -10px;
+}
+.img-clinic-image-booking {
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    background-size: cover;
+    width: 100%;
+}
+.title-booking {
+    margin-top: -15px;
+    margin-bottom: 10px;
+    margin-left: 30%;
+    font-size: 15px;
+    font-weight: bold;
+    display: table  ;
+    text-align: center;
+}
+
+.title-booking-person-booking {
+    margin-top: 10px;
+    margin-left: 27%;
+    font-size: 14px;
+    font-weight: bold;
+    display: table  ;
+    text-align: center;
+}
+/* .ant-col .ant-form-item-label {
+    margin-top: -5px;
+} */
+.ant-select-selection--single {
+    width: 168px;
+}
+
+.input-address-booking {
+    margin-top: -15px;
+}
+
+.logo-name-clinic-doctor-booking {
+    margin-top: 5px;
+    font-size: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: #4c78a9;
+    font-size: 15px;
+}
+
+.logo-name-clinic-addressClinic-booking {
+    margin-top: -10px;
+    font-size: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: #3c8eea;
+    font-size: 15px;
+}
+.distance {
+    height: 5px;
+    margin-top: 10px;
+}
+@media (max-width: 768px) {
+    .title-booking {
+        margin-top: 0px;
+        font-size: 15px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .img-div-booking {
+        width: 30%;
+        float: left;
+        display: table  ;
+    }
+    .inf-div-booking {
+        width: 70%;
+        float: left;
+        display: table  ;
+    }
+
+    .logo-name-clinic-doctor-booking {
+        text-align: center;
+        font-weight: bold;
+        color: #4c78a9;
+        font-size: 15px;
+    }
+    
+    .logo-name-clinic-addressClinic-booking {
+        font-size: 15px;
+        text-align: center;
+        font-weight: bold;
+        color: #3c8eea;
+        
+        font-size: 15px;
+    }
+
+    .address-clininc-booking {
+        margin-left: 10px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-top: -15px;
+    }
+
+    .line-line-distance {
+        margin-bottom: 3px;
+    }
+} 
+
+@media (max-width : 1024px ) {
+    .title-booking {
+        margin-top: 0px;
+        font-size: 15px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .img-div-booking {
+        width: 30%;
+        float: left;
+        display: table  ;
+    }
+    .inf-div-booking {
+        width: 70%;
+        float: left;
+        display: table  ;
+    }
+
+    .address-clininc-booking {
+        margin-left: 10px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-top: -15px;
+    }
+    .line-line-distance {
+        margin-bottom: 3px;
+    }
+} 

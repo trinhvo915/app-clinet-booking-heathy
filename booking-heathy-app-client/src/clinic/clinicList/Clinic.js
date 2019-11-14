@@ -11,6 +11,7 @@ import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action
 import { getUser } from "../../actions/get.user.action";
 import { addRateForDoctor } from './../../util/api/call-api';
 import { getDoctorsOfClinicApi } from './../../util/api/call-api';
+import { getDoctorList } from "../../actions/doctor.list.action";
 import DoctorClinic from './Doctor';
 
 const { Content } = Layout;
@@ -73,6 +74,7 @@ class Clinic extends Component {
 
             addRateForDoctor(rate).then(Response => {
                 this.props.getDoctorOfClinicList(this.state.paramsClininc);
+                this.props.getDoctorList()
             })
         }else {
             notification.error({
@@ -237,6 +239,7 @@ export default connect(
     mapStateToProps,
     {
         getDoctorOfClinicList,
-        getUser
+        getUser,
+        getDoctorList
     }
 )(Clinic);

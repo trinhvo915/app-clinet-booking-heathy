@@ -355,7 +355,9 @@ class RegisterDoctor extends Component {
         this.getDegreesAll();
 
         await this.setState({
-            birthday : moment( moment().format(dateFormat)._i)
+            birthday : {
+                value : moment( moment().format(dateFormat)._i)
+            }
         })
     }
 
@@ -588,6 +590,7 @@ class RegisterDoctor extends Component {
                             <Button type="primary" 
                                 htmlType="submit" 
                                 size="large" 
+                                className = "btn-register-doctor"
                                 disabled={this.isFormInvalid()}
                                 className="signup-form-button">Đăng ký</Button>
                         </FormItem>
