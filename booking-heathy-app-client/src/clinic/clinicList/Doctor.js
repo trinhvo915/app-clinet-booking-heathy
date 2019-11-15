@@ -648,14 +648,15 @@ class DoctorClinic extends Component {
     }
 
     render() {
-        console.log(this.state)
+        // console.log(this.state)
         return (
             <div>
-                <div className="commnet-modal">
+                <div className="commnet-modal-">
                     <Modal
                         style={{ top: 5 }}
                         footer={null}
                         visible={this.state.visibleCommnet}
+                        onOk={this.handleOk}
                         onCancel={this.handleCancelCommnet}
                     >
                         {
@@ -733,7 +734,7 @@ class DoctorClinic extends Component {
                                                 <div className="written-commnet">
                                                     <div className="modal-img-commnet">
                                                         {
-                                                            this.props.user.user.attachmentPerson.data !== null ? <CardImg className="img-commnet-image" variant="top" src={this.props.user.user.attachmentPerson ? "data:image/jpeg;base64," + this.props.user.user.attachmentPerson.data : "https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} /> :
+                                                           this.props.user.user.attachmentPerson && this.props.user.user.attachmentPerson.data !== null ? <CardImg className="img-commnet-image" variant="top" src={this.props.user.user.attachmentPerson ? "data:image/jpeg;base64," + this.props.user.user.attachmentPerson.data : "https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} /> :
                                                             <CardImg className="img-commnet-image" variant="top" src={"https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} />
                                                         }
                                                         
@@ -1140,6 +1141,7 @@ class DoctorClinic extends Component {
                                     <FormItem label="Giới tính Bệnh Nhân :">
                                         <Select
                                             name="genderPerent"
+                                            style={{ width: '50%' }}
                                             defaultValue="MALE"
                                             onChange={this.handleGenderPerent}
                                             value={this.state.genderPerent.value ? this.state.genderPerent.value : ""}
@@ -1265,7 +1267,7 @@ class DoctorClinic extends Component {
                                             >
                                                 {
                                                     this.props.doctor.dateBookingDoctors ? this.props.doctor.dateBookingDoctors.map((value, key) =>
-                                                        <Option value={this.props.doctor.dateBookingDoctors[key]}>{value}</Option>
+                                                        <Option key = {key} value={this.props.doctor.dateBookingDoctors[key]}>{value}</Option>
                                                     ) : null
                                                 }
                                             </Select>

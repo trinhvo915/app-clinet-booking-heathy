@@ -5,25 +5,34 @@ import moment from 'moment';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 import LoadingIndicator from '../../common/LoadingIndicator';
-import { notification, Icon, Carousel, Layout, Tabs, Radio } from 'antd';
+import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Radio, Form, Select } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
 import { addRateForDoctor } from './../../util/api/call-api';
 import { getDoctorsOfClinicApi } from './../../util/api/call-api';
+import { addPostForClinic } from './../../util/api/call-api';
+import { getListPostTypeApi } from './../../util/api/call-api';
 import { getDoctorList } from "../../actions/doctor.list.action";
+import { getPostType } from "../../actions/post.type.list.action";
 import DoctorClinic from './Doctor';
-
+import BraftEditor from 'braft-editor';
+import 'braft-editor/dist/index.css'
 const { Content } = Layout;
 const { TabPane } = Tabs;
+const FormItem = Form.Item;
+const { Option } = Select;
 
 class Clinic extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            editorState: BraftEditor.createEditorState(null),
+            editorStateValue : "",
             contentCommnet: {
                 value: ""
             },
+            idTypePost : "",
             clinics: {},
             userResponceClinics: [],
             currentRates: [],
@@ -32,7 +41,8 @@ class Clinic extends Component {
             stateViewLayout: 0,
             visibleCommnet: false,
             visibleCreateSecheduce: false,
-            isLoading: false
+            isLoading: false,
+            visiblePost: false,
         };
         this.loadClinicDoctors = this.loadClinicDoctors.bind(this);
         this.handleChangeRate = this.handleChangeRate.bind(this);
@@ -76,7 +86,7 @@ class Clinic extends Component {
                 this.props.getDoctorOfClinicList(this.state.paramsClininc);
                 this.props.getDoctorList()
             })
-        }else {
+        } else {
             notification.error({
                 message: 'Booking Clinic',
                 description: 'Xin lỗi bạn ! Bạn chưa đăng nhập !'
@@ -89,12 +99,25 @@ class Clinic extends Component {
         this.props.getDoctorOfClinicList(paramsClininc);
 
         const currentRates = this.state.currentRates.slice();
-        
+
         getDoctorsOfClinicApi(paramsClininc).then(Response => {
+
             this.setState({
                 clinics: Response.object,
                 currentRates: currentRates.concat(Array(Response.object.userResponceClinics.length).fill(null)),
-                paramsClininc : paramsClininc
+                paramsClininc: paramsClininc
+            })
+        })
+
+        getListPostTypeApi().then(response => {
+            let postTypesViews = [];
+            response.object.forEach(x => {
+                if (x.name !== "NORMAR") {
+                    postTypesViews.push(x)
+                }
+            })
+            this.setState({
+                postTypes: postTypesViews
             })
         })
     }
@@ -106,18 +129,84 @@ class Clinic extends Component {
         let paramsClininc = {
             idClinic: idClininc,
             idDoctor: idDoctor,
-            dateQurrey : dateQurrey,
-            dateCurrent : dateQurrey
+            dateQurrey: dateQurrey,
+            dateCurrent: dateQurrey
         }
         this.loadClinicDoctors(paramsClininc);
 
         this.props.getUser();
+
     }
 
+    handleChangeEditorPost = (editorState) => {
+        this.setState({ editorState : editorState.toHTML() })
+    }
+
+    showModalCreatePost = async () => {
+
+        this.setState({
+            visiblePost: true,
+
+        });
+    };
+
+    handleCancelPost = () => {
+        this.setState({
+            visiblePost: false,
+            editorState: BraftEditor.createEditorState(null),
+        });
+    }
+
+    onChangeSelectPostType = (value) => {
+        this.setState({
+            idTypePost: value
+        })
+    }
+
+    handleOkPost = () =>{
+        if(this.state.idTypePost ==="" || this.state.editorState.length < 1000){
+            if(this.state.idTypePost ===""){
+                notification.error({
+                    message: 'Booking Clinic',
+                    description: 'Xin lỗi bạn! Bạn chưa chọn kiểu bài viêt'
+                });
+            }else {
+                notification.error({
+                    message: 'Booking Clinic',
+                    description: 'Xin lỗi bạn! Nội dung bài viêt quá ít!'
+                });
+            }
+            
+        }else {
+            let param = {
+                content : this.state.editorState,
+                idClinic : this.props.match.params.id_clinic,
+                idTypePost : this.state.idTypePost
+            }
+            addPostForClinic(param).then(response=>{
+                if(response.data.data.status === 200){
+                    notification.success({
+                        message: 'Booking Clinic',
+                        description: "Tạo thành công !",
+                    });
+                }else {
+                    notification.error({
+                        message: 'Booking Clinic',
+                        description: response.data.data.message
+                    });
+                }
+            })
+        }
+    }
+    
     render() {
-        const { size } = this.state;
+
+        console.log(this.state)
+
         const { object } = this.props.clinic.clinic;
         const { clinics } = this.state;
+
+
         if (this.state.isLoading) {
             return <LoadingIndicator />;
         }
@@ -135,7 +224,7 @@ class Clinic extends Component {
             doctorViews.push(
                 <DoctorClinic
                     key={key}
-                    paramsClininc = {this.state.paramsClininc}
+                    paramsClininc={this.state.paramsClininc}
                     doctor={object.userResponceClinics[key]}
                     clinics={this.state.clinics}
                     currentRate={this.state.currentRates[key]}
@@ -149,6 +238,35 @@ class Clinic extends Component {
                 {
                     clinics ? (
                         <div className="main-clinic">
+
+                            <div className="commnet-modal">
+                                <Modal
+                                    style={{ top: 0 }}
+                                    width={920}
+                                    visible={this.state.visiblePost}
+                                    onOk={this.handleOkPost}
+                                    onCancel={this.handleCancelPost}
+                                >
+                                    <span className="title-booking">ĐĂNG THÔNG TIN PHÒNG KHÁM</span>
+                                    <hr className="line-line"></hr>
+
+                                    <strong>LOẠI BÀI VIẾT :</strong>
+                                    <Select
+                                        style={{ width: '30%' }}
+                                        placeholder="Hảy Chọn Kiểu Đăng Bài Viết"
+                                        onChange={this.onChangeSelectPostType}
+                                    >
+                                        {
+                                            this.state.postTypes ? this.state.postTypes.map((value, key) =>
+                                                <Option key={key} value={this.state.postTypes[key].id}>{value.name}</Option>
+                                            ) : null
+                                        }
+                                    </Select>
+
+                                    <hr className="line-line"></hr>
+                                    <BraftEditor language="en" placeholder="Nhập thông tin phòng khám ...." value={this.state.editorState} onChange={this.handleChangeEditorPost} />
+                                </Modal>
+                            </div>
 
                             <div className="clinic-left">
                                 <div className="logo-clinic">
@@ -177,12 +295,12 @@ class Clinic extends Component {
 
                                 <div className="menu-clinic">
 
-                                    <Radio.Group value={size} onChange={this.handleSizeChange}>
-                                        <Radio.Button className="btn-left" onClick={this.onChange1} value="large">Bác sỹ  </Radio.Button>
+                                    <Radio.Group >
+                                        <Button type="primary" onClick={this.showModalCreatePost} shape="round" size="default">
+                                            THÊM THÔNG TIN PHÒNG KHÁM
+                                        </Button>
                                         <br />
-                                        <Radio.Button className="btn-left" onClick={this.onChange2} value="default">Default</Radio.Button>
-                                        <br />
-                                        <Radio.Button className="btn-left" onClick={this.onChange3} value="small">Small</Radio.Button>
+
                                     </Radio.Group>
                                 </div>
                             </div>
@@ -215,6 +333,13 @@ class Clinic extends Component {
                                             <TabPane tab="CHI TIẾT GIÁ" key="4">
                                                 GIÁ
                                             </TabPane>
+                                            <TabPane tab="QUY TRÌNH KHÁM BỆNH" key="5">
+
+                                            </TabPane>
+
+                                            <TabPane tab="XEM LỊCH HẸN" key="6">
+
+                                            </TabPane>
                                         </Tabs>
 
                                     </div>
@@ -232,6 +357,7 @@ const mapStateToProps = (state) => {
     return {
         clinic: state.clinic,
         user: state.user,
+        postTypes: state.postTypes,
     }
 }
 
@@ -240,6 +366,7 @@ export default connect(
     {
         getDoctorOfClinicList,
         getUser,
-        getDoctorList
+        getDoctorList,
+        getPostType
     }
 )(Clinic);

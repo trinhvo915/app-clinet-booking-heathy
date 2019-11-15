@@ -87,6 +87,17 @@ export async function  getDoctorListApi() {
 	return data;
 }
 
+
+export async function  getListPostTypeApi() {
+	let data = {};
+	await callAPI("post-types",'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  postImagePerson(image) {
 	
 	let formdata= new FormData();
@@ -111,6 +122,16 @@ export async function  addCommnetForDoctor(commnet) {
 		.then(response =>{
 			data = Object.assign({}, data);
 			data =  response.data.data.object;
+		})
+	return data;
+}
+
+export async function  addPostForClinic(post) {
+	let data = {};
+	await callAPI("posts",'POST',post)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response;
 		})
 	return data;
 }
