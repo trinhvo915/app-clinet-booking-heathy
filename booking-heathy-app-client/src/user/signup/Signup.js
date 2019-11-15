@@ -228,9 +228,11 @@ class SignupForm extends Component {
                                 placeholder="Hãy nhập email của bạn !"
                             />)}
                         </FormItem>
-                        <FormItem  className = "row-file"  label={
+                        <FormItem  className = "row-file"  
+                            label={
                                 <span> <strong>Password</strong></span>
                             } hasFeedback>
+                                
                             {getFieldDecorator('password', {
                                 rules: [
                                     {

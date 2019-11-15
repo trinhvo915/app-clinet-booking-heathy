@@ -115,6 +115,25 @@ export async function  addCommnetForDoctor(commnet) {
 	return data;
 }
 
+export async function  sendEmailBooking(booking) {
+	let data = {};
+	await callAPI("booking/send-email",'POST',booking)
+		.then(response =>{
+			
+		})
+	return data;
+}
+
+export async function  boookingForDoctor(booking) {
+	let data = {};
+	await callAPI("booking/update",'PUT',booking)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data;
+		})
+	return data;
+}
+
 export async function  addRateForDoctor(rate) {
 	let data = {};
 	await callAPI("rates",'POST',rate)

@@ -39,13 +39,15 @@
     font-weight: bold;
     margin-top: -10px;
 }
+
 .img-clinic-image-booking {
-    height: 100%;
+    height: 135px;
     object-fit: cover;
     border-radius: 50%;
     background-size: cover;
     width: 100%;
 }
+
 .title-booking {
     margin-top: -15px;
     margin-bottom: 10px;
@@ -74,7 +76,9 @@
 .input-address-booking {
     margin-top: -15px;
 }
-
+.title-booking-date {
+    color: rgb(230, 32, 32);
+}
 .logo-name-clinic-doctor-booking {
     margin-top: 5px;
     font-size: 15px;
@@ -141,6 +145,10 @@
     .line-line-distance {
         margin-bottom: 3px;
     }
+
+    .img-clinic-image-booking {
+        height: 120px;
+    }
 } 
 
 @media (max-width : 1024px ) {
@@ -170,5 +178,8 @@
     }
     .line-line-distance {
         margin-bottom: 3px;
+    }
+    .img-clinic-image-booking {
+        height: 120px;
     }
 } 
