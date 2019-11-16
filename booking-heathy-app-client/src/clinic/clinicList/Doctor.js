@@ -662,7 +662,7 @@ class DoctorClinic extends Component {
                         {
                             this.props.doctor ? (
                                 <Card >
-                                    <CardImg variant="top" src={"https://scontent.fsgn2-1.fna.fbcdn.net/v/t1.0-9/72230486_2385505438432891_7454734594902851584_n.jpg?_nc_cat=105&_nc_oc=AQm8sWtHaE-l8FAHErimAlRcJnNjJFIQd7WOh1qnoaCUOrk-num3OR6Vhg3W9GF5WRo&_nc_ht=scontent.fsgn2-1.fna&oh=5061e82249b540db611e9e5f8bc9ab59&oe=5E57A337"} />
+                                    <CardImg  variant="top" src={"data:image/jpeg;base64," + this.props.doctor.attachmentPerson.data} />
                                     <CardBody className="show-revew-body">
                                         <div className="text-doctor">
                                             <CardText className="text-name-doctor">

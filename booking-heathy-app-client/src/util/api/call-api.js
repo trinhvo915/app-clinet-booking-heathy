@@ -136,6 +136,17 @@ export async function  addPostForClinic(post) {
 	return data;
 }
 
+export async function  getPostTypeApi(params) {
+	let data = {};
+
+	await callAPI("doctor/posts/"+params.id_clinic+"/"+params.id_post_type,'GET')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  sendEmailBooking(booking) {
 	let data = {};
 	await callAPI("booking/send-email",'POST',booking)

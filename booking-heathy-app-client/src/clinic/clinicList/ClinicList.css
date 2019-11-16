@@ -139,6 +139,17 @@
 /* .ant-col:hover{
     background: #f5e896;
 } */
+.posts-infor {
+    margin-left: 5px;
+    margin-right: 5px;
+    display: table;
+    background-color: #fff;
+    -webkit-box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+    border-radius: 8px;
+    border-bottom: none;
+    margin-bottom: 10px;
+}
 
 @media (max-width: 768px) {
     .search-top {

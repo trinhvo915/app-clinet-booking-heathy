@@ -133,6 +133,13 @@
     color: #4c78a9;
     font-size: 15px;
 }
+
+.line-line-post {
+    margin-top: 1px;
+}
+.line-line-post-type {
+    margin-top: -15px;
+}
 .address-logo {
     margin-top: 25px;
 }
@@ -141,6 +148,7 @@
     margin-left: 8px;
     color: #555;
 }
+
 .infor {
     width: 70%;
     float: left;

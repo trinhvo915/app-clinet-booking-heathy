@@ -5,6 +5,10 @@ import { doctorsReducer} from "./doctor.list.reducer";
 import {clinicReducer} from "./doctorsOfClinic.list.reducer";
 import {commentReducer} from "./comment.list.reducer";
 import {postTypeReducer} from "./post.type.list.reducer";
+import {postClinicReducer} from "./post.list.reducer";
+import {postInforReducer} from "./post.infor.list.reducer";
+import {postProcessReducer} from "./post.process.list.reducer";
+import {postDeviceReducer} from "./post.device.list.reducer";
 
 export default combineReducers({
   facultyList : facultyListReducer,
@@ -13,4 +17,9 @@ export default combineReducers({
   clinic : clinicReducer,
   comments : commentReducer,
   postTypes : postTypeReducer,
+  postClinics : postClinicReducer,
+  postInfors : postInforReducer,
+  postProcess: postProcessReducer,
+  postDevices : postDeviceReducer
+
 });

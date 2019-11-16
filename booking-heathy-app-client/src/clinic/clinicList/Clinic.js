@@ -5,7 +5,7 @@ import moment from 'moment';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 import LoadingIndicator from '../../common/LoadingIndicator';
-import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Radio, Form, Select } from 'antd';
+import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Radio, Select } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
@@ -15,12 +15,18 @@ import { addPostForClinic } from './../../util/api/call-api';
 import { getListPostTypeApi } from './../../util/api/call-api';
 import { getDoctorList } from "../../actions/doctor.list.action";
 import { getPostType } from "../../actions/post.type.list.action";
+import { getPostClinicList } from "../../actions/post.list.action";
+
+import { getPostProcessClinicList } from "../../actions/post.process.list.action";
+import { getPostInforClinicList } from "../../actions/post.infor.list.action";
+import { getPostDeviceClinicList } from "../../actions/post.device.list.action";
+import { Spin } from 'antd';
 import DoctorClinic from './Doctor';
 import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/index.css'
+import LoadingIsEmpty from '../../common/LoadingIsEmpty';
 const { Content } = Layout;
 const { TabPane } = Tabs;
-const FormItem = Form.Item;
 const { Option } = Select;
 
 class Clinic extends Component {
@@ -28,11 +34,11 @@ class Clinic extends Component {
         super(props);
         this.state = {
             editorState: BraftEditor.createEditorState(null),
-            editorStateValue : "",
+            editorStateValue: "",
             contentCommnet: {
                 value: ""
             },
-            idTypePost : "",
+            idTypePost: "",
             clinics: {},
             userResponceClinics: [],
             currentRates: [],
@@ -101,7 +107,6 @@ class Clinic extends Component {
         const currentRates = this.state.currentRates.slice();
 
         getDoctorsOfClinicApi(paramsClininc).then(Response => {
-
             this.setState({
                 clinics: Response.object,
                 currentRates: currentRates.concat(Array(Response.object.userResponceClinics.length).fill(null)),
@@ -111,15 +116,50 @@ class Clinic extends Component {
 
         getListPostTypeApi().then(response => {
             let postTypesViews = [];
+            let postTypeInfor = {};
+            let postTypeProcess = {};
+            let postTypeDevice = {};
             response.object.forEach(x => {
                 if (x.name !== "NORMAR") {
                     postTypesViews.push(x)
                 }
+                if (x.name === "THÔNG TIN PHÒNG KHÁM") {
+                    postTypeInfor = x;
+                }
+                if (x.name === "QUY TRÌNH KHÁM BỆNH") {
+                    postTypeProcess = x;
+                }
+                if (x.name === "TRANG THIẾT BỊ") {
+                    postTypeDevice = x;
+                }
             })
             this.setState({
-                postTypes: postTypesViews
+                postTypes: postTypesViews,
+                postTypeInfor: postTypeInfor,
+                postTypeProcess: postTypeProcess,
+                postTypeDevice: postTypeDevice,
             })
+            let paramsProcess = {
+                id_clinic: paramsClininc.idClinic,
+                id_post_type: postTypeProcess.id
+            }
+            this.state.postTypeProcess && this.props.getPostProcessClinicList(paramsProcess);
+
+            let paramsInfor = {
+                id_clinic: paramsClininc.idClinic,
+                id_post_type: postTypeInfor.id
+            }
+            this.state.postTypeInfor && this.props.getPostInforClinicList(paramsInfor);
+
+
+            let paramsDevices = {
+                id_clinic: paramsClininc.idClinic,
+                id_post_type: postTypeDevice.id
+            }
+            this.state.postTypeDevice && this.props.getPostDeviceClinicList(paramsDevices);
+
         })
+
     }
 
     componentDidMount() {
@@ -130,7 +170,7 @@ class Clinic extends Component {
             idClinic: idClininc,
             idDoctor: idDoctor,
             dateQurrey: dateQurrey,
-            dateCurrent: dateQurrey
+            dateCurrent: dateQurrey,
         }
         this.loadClinicDoctors(paramsClininc);
 
@@ -139,7 +179,7 @@ class Clinic extends Component {
     }
 
     handleChangeEditorPost = (editorState) => {
-        this.setState({ editorState : editorState.toHTML() })
+        this.setState({ editorState: editorState.toHTML() })
     }
 
     showModalCreatePost = async () => {
@@ -163,33 +203,61 @@ class Clinic extends Component {
         })
     }
 
-    handleOkPost = () =>{
-        if(this.state.idTypePost ==="" || this.state.editorState.length < 1000){
-            if(this.state.idTypePost ===""){
+    handleOkPost = () => {
+        if (this.state.idTypePost === "" || this.state.editorState.length < 1000) {
+            if (this.state.idTypePost === "") {
                 notification.error({
                     message: 'Booking Clinic',
                     description: 'Xin lỗi bạn! Bạn chưa chọn kiểu bài viêt'
                 });
-            }else {
+            } else {
                 notification.error({
                     message: 'Booking Clinic',
                     description: 'Xin lỗi bạn! Nội dung bài viêt quá ít!'
                 });
             }
-            
-        }else {
+
+        } else {
             let param = {
-                content : this.state.editorState,
-                idClinic : this.props.match.params.id_clinic,
-                idTypePost : this.state.idTypePost
+                content: this.state.editorState,
+                idClinic: this.props.match.params.id_clinic,
+                idTypePost: this.state.idTypePost
             }
-            addPostForClinic(param).then(response=>{
-                if(response.data.data.status === 200){
+            addPostForClinic(param).then(response => {
+                if (response.data.data.status === 200) {
                     notification.success({
                         message: 'Booking Clinic',
                         description: "Tạo thành công !",
                     });
-                }else {
+
+                    this.setState({
+                        editorState: BraftEditor.createEditorState(null),
+                    })
+
+                    let typeString = "";
+                    this.state.postTypes.forEach(x => {
+                        if (x.id === param.idTypePost) {
+                            typeString = x.name
+                        }
+                    })
+
+                    let paramsInfor = {
+                        id_clinic: param.idClinic,
+                        id_post_type: param.idTypePost
+                    }
+
+                    if (typeString === "THÔNG TIN PHÒNG KHÁM") {
+                        this.state.postTypeInfor && this.props.getPostInforClinicList(paramsInfor);
+                    }
+                    if (typeString === "TRANG THIẾT BỊ") {
+                        
+                        this.state.postTypeDevice && this.props.getPostDeviceClinicList(paramsInfor);
+                    }
+
+                    if (typeString === "QUY TRÌNH KHÁM BỆNH") {
+                        this.state.postTypeProcess && this.props.getPostProcessClinicList(paramsInfor);
+                    }
+                } else {
                     notification.error({
                         message: 'Booking Clinic',
                         description: response.data.data.message
@@ -198,10 +266,15 @@ class Clinic extends Component {
             })
         }
     }
-    
-    render() {
 
+    render() {
         console.log(this.state)
+
+        const postInfors = this.props.postInfors.postInfors.object;
+
+        const postProcess = this.props.postProcess.postProcess.object;
+
+        const postDevices = this.props.postDevices.postDevices.object;
 
         const { object } = this.props.clinic.clinic;
         const { clinics } = this.state;
@@ -248,23 +321,24 @@ class Clinic extends Component {
                                     onCancel={this.handleCancelPost}
                                 >
                                     <span className="title-booking">ĐĂNG THÔNG TIN PHÒNG KHÁM</span>
-                                    <hr className="line-line"></hr>
+                                    <hr className="line-line-post"></hr>
+                                    <div className="line-line-post-type">
+                                        <strong>LOẠI BÀI VIẾT :</strong>
+                                        <Select
+                                            style={{ width: '30%' }}
+                                            placeholder="Hảy Chọn Kiểu Đăng Bài Viết"
+                                            onChange={this.onChangeSelectPostType}
+                                        >
+                                            {
+                                                this.state.postTypes ? this.state.postTypes.map((value, key) =>
+                                                    <Option key={key} value={this.state.postTypes[key].id}>{value.name}</Option>
+                                                ) : null
+                                            }
+                                        </Select>
+                                    </div>
 
-                                    <strong>LOẠI BÀI VIẾT :</strong>
-                                    <Select
-                                        style={{ width: '30%' }}
-                                        placeholder="Hảy Chọn Kiểu Đăng Bài Viết"
-                                        onChange={this.onChangeSelectPostType}
-                                    >
-                                        {
-                                            this.state.postTypes ? this.state.postTypes.map((value, key) =>
-                                                <Option key={key} value={this.state.postTypes[key].id}>{value.name}</Option>
-                                            ) : null
-                                        }
-                                    </Select>
-
-                                    <hr className="line-line"></hr>
-                                    <BraftEditor language="en" placeholder="Nhập thông tin phòng khám ...." value={this.state.editorState} onChange={this.handleChangeEditorPost} />
+                                    <hr className="line-line-post"></hr>
+                                    <BraftEditor contentStyle={{ height: 400, boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)' }} language="en" placeholder="Nhập thông tin phòng khám ...." value={this.state.editorState} onChange={this.handleChangeEditorPost} />
                                 </Modal>
                             </div>
 
@@ -325,16 +399,31 @@ class Clinic extends Component {
                                                 {doctorViews}
                                             </TabPane>
                                             <TabPane tab="THÔNG TIN PHÒNG KHÁM" key="2">
-                                                Thông Tin
+                                                {
+                                                    postInfors ? postInfors.map((value, key) => (
+                                                        <div key = {key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
+                                                        </div>
+                                                    )) : <LoadingIsEmpty></LoadingIsEmpty>
+                                                }
                                             </TabPane>
                                             <TabPane tab="TRANG THIẾT BỊ" key="3">
-                                                TRANG THIẾT BỊ
+                                                {
+                                                    postDevices ? postDevices.map((value, key) => (
+                                                        <div key = {key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
+                                                        </div>
+                                                    )) : <LoadingIsEmpty/>
+                                                }
                                             </TabPane>
                                             <TabPane tab="CHI TIẾT GIÁ" key="4">
                                                 GIÁ
                                             </TabPane>
                                             <TabPane tab="QUY TRÌNH KHÁM BỆNH" key="5">
-
+                                                {
+                                                    postProcess ? postProcess.map((value, key) => (
+                                                        <div key = {key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
+                                                        </div>
+                                                    )) : <LoadingIsEmpty/>
+                                                }
                                             </TabPane>
 
                                             <TabPane tab="XEM LỊCH HẸN" key="6">
@@ -346,7 +435,7 @@ class Clinic extends Component {
                                 </div>
                             </Content>
                         </div>
-                    ) : null
+                    ) : <LoadingIndicator />
                 }
             </Layout>
         )
@@ -358,6 +447,9 @@ const mapStateToProps = (state) => {
         clinic: state.clinic,
         user: state.user,
         postTypes: state.postTypes,
+        postInfors: state.postInfors,
+        postProcess: state.postProcess,
+        postDevices: state.postDevices,
     }
 }
 
@@ -367,6 +459,9 @@ export default connect(
         getDoctorOfClinicList,
         getUser,
         getDoctorList,
-        getPostType
+        getPostType,
+        getPostProcessClinicList,
+        getPostInforClinicList,
+        getPostDeviceClinicList
     }
 )(Clinic);

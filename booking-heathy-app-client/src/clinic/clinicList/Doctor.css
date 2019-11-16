@@ -84,6 +84,13 @@
     color: #4c78a9;
     font-size: 15px;
 }
+.btn-taolich {
+    display: table-row;
+    margin-left: 5px;
+}
+.img-clinic-image {
+    display: table-row;
+}
 
 .logo-name-clinic-addressClinic-booking {
     margin-top: -10px;
