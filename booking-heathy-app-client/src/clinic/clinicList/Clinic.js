@@ -5,29 +5,29 @@ import moment from 'moment';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 import LoadingIndicator from '../../common/LoadingIndicator';
-import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Radio, Select } from 'antd';
+import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Input, Radio, Select, Form, Alert } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
 import { addRateForDoctor } from './../../util/api/call-api';
+import { addDoctorInClinic } from './../../util/api/call-api';
 import { getDoctorsOfClinicApi } from './../../util/api/call-api';
 import { addPostForClinic } from './../../util/api/call-api';
 import { getListPostTypeApi } from './../../util/api/call-api';
 import { getDoctorList } from "../../actions/doctor.list.action";
 import { getPostType } from "../../actions/post.type.list.action";
-import { getPostClinicList } from "../../actions/post.list.action";
-
 import { getPostProcessClinicList } from "../../actions/post.process.list.action";
 import { getPostInforClinicList } from "../../actions/post.infor.list.action";
 import { getPostDeviceClinicList } from "../../actions/post.device.list.action";
-import { Spin } from 'antd';
 import DoctorClinic from './Doctor';
 import BraftEditor from 'braft-editor';
+import ReactPlayer from 'react-player'
 import 'braft-editor/dist/index.css'
 import LoadingIsEmpty from '../../common/LoadingIsEmpty';
 const { Content } = Layout;
 const { TabPane } = Tabs;
 const { Option } = Select;
+const FormItem = Form.Item;
 
 class Clinic extends Component {
     constructor(props) {
@@ -40,6 +40,7 @@ class Clinic extends Component {
             },
             idTypePost: "",
             clinics: {},
+            clinicCreateBy: "",
             userResponceClinics: [],
             currentRates: [],
             rateValue: 0,
@@ -49,6 +50,13 @@ class Clinic extends Component {
             visibleCreateSecheduce: false,
             isLoading: false,
             visiblePost: false,
+            checkDoctor: "",
+            viewFormAddDoctor: false,
+            emailDoctor: {
+                value: ""
+            },
+            showAlertSuccess: false,
+            showAlertWarin: false,
         };
         this.loadClinicDoctors = this.loadClinicDoctors.bind(this);
         this.handleChangeRate = this.handleChangeRate.bind(this);
@@ -103,14 +111,32 @@ class Clinic extends Component {
 
     loadClinicDoctors(paramsClininc) {
         this.props.getDoctorOfClinicList(paramsClininc);
+        this.props.getUser();
 
         const currentRates = this.state.currentRates.slice();
 
         getDoctorsOfClinicApi(paramsClininc).then(Response => {
+            let idDoctors = [];
+            const listIdDoctors = this.props.clinic.clinic.object ? this.props.clinic.clinic.object.userResponceClinics : [];
+            listIdDoctors && listIdDoctors.forEach(x => {
+                idDoctors.push(x.id);
+            });
+
+            const userCheck = this.props.user.user ? this.props.user.user.id : "";
+
+            let checkDoctor = "";
+            idDoctors && idDoctors.forEach(x => {
+                if (x === userCheck) {
+                    checkDoctor = x;
+                }
+            })
+
             this.setState({
                 clinics: Response.object,
+                clinicCreateBy: Response.object.createdBy,
                 currentRates: currentRates.concat(Array(Response.object.userResponceClinics.length).fill(null)),
-                paramsClininc: paramsClininc
+                paramsClininc: paramsClininc,
+                checkDoctor: checkDoctor
             })
         })
 
@@ -174,7 +200,6 @@ class Clinic extends Component {
         }
         this.loadClinicDoctors(paramsClininc);
 
-        this.props.getUser();
 
     }
 
@@ -250,7 +275,7 @@ class Clinic extends Component {
                         this.state.postTypeInfor && this.props.getPostInforClinicList(paramsInfor);
                     }
                     if (typeString === "TRANG THIẾT BỊ") {
-                        
+
                         this.state.postTypeDevice && this.props.getPostDeviceClinicList(paramsInfor);
                     }
 
@@ -267,8 +292,66 @@ class Clinic extends Component {
         }
     }
 
+    showFormAddDoctor = () => {
+        this.setState({
+            viewFormAddDoctor: !this.state.viewFormAddDoctor,
+        });
+    };
+
+    handleInputChangeEmail = (event) => {
+
+        const target = event.target;
+        const inputName = target.name;
+        const inputValue = target.value;
+
+        this.setState({
+            [inputName]: {
+                value: inputValue,
+            }
+        });
+    }
+
+    handleResetAddDoctor = () => {
+        this.setState({
+            emailDoctor: {
+                value: ""
+            }
+        })
+    }
+
+    handleSubmitAddDoctor = () => {
+        let params = {
+            idClinic: this.props.match.params.id_clinic,
+            emailOrUsername: this.state.emailDoctor.value
+        }
+        addDoctorInClinic(params).then(response => {
+            console.log(response)
+            if (response === null) {
+                this.setState({
+                    showAlertWarin: true,
+                })
+
+                notification.error({
+                    message: 'Booking Clinic',
+                    description: 'Xin lỗi bạn ! Email không tồn tại !'
+                });
+            }
+
+            if (response !== null) {
+                this.props.getDoctorOfClinicList(this.state.paramsClininc);
+                notification.success({
+                    message: 'Booking Clinic',
+                    description: "Thêm Bác Sỹ Thành Công !",
+                });
+            }
+
+        });
+    }
+
     render() {
         console.log(this.state)
+
+        console.log(this.props.user.user);
 
         const postInfors = this.props.postInfors.postInfors.object;
 
@@ -278,7 +361,6 @@ class Clinic extends Component {
 
         const { object } = this.props.clinic.clinic;
         const { clinics } = this.state;
-
 
         if (this.state.isLoading) {
             return <LoadingIndicator />;
@@ -353,7 +435,6 @@ class Clinic extends Component {
                                             clinics.name
                                         }
                                     </CardText>
-
                                 </div>
 
                                 <div className="address-clinic">
@@ -368,15 +449,64 @@ class Clinic extends Component {
                                 </div>
 
                                 <div className="menu-clinic">
-
-                                    <Radio.Group >
-                                        <Button type="primary" onClick={this.showModalCreatePost} shape="round" size="default">
-                                            THÊM THÔNG TIN PHÒNG KHÁM
-                                        </Button>
-                                        <br />
-
-                                    </Radio.Group>
+                                    {
+                                        this.props.user.user && this.state.checkDoctor !== "" ? (
+                                            <Radio.Group >
+                                                <Button type="primary" onClick={this.showModalCreatePost} shape="round" size="default">
+                                                    THÊM THÔNG TIN PHÒNG KHÁM
+                                                 </Button>
+                                            </Radio.Group>
+                                        ) : ""
+                                    }
                                 </div>
+
+                                <div className="menu-clinic-add">
+                                    {
+                                        this.state.clinicCreateBy !== "" && this.props.user.user && this.state.clinicCreateBy === this.props.user.user.id ? (
+                                            <Radio.Group >
+                                                <Button type="primary" onClick={this.showFormAddDoctor} shape="round" size="default">
+                                                    THÊM BÁC SỸ VÀO PHÒNG KHÁM
+                                                 </Button>
+                                            </Radio.Group>
+                                        ) : ""
+                                    }
+                                </div>
+
+                                {
+                                    this.state.viewFormAddDoctor ? (
+                                        <div className="form-add">
+                                            <Form layout="horizontal">
+                                                <FormItem
+                                                    id="control-mention"
+                                                    label="Nhập địa chỉ Email or Username   "
+                                                >
+                                                    <Input
+                                                        name="emailDoctor"
+                                                        value={this.state.emailDoctor.value}
+                                                        autoComplete="off"
+                                                        placeholder="Nhập địa chỉ Email or Username !"
+                                                        onChange={this.handleInputChangeEmail}
+                                                        style={{ width: '82%' }} />,
+                                                 </FormItem>
+                                                <FormItem wrapperCol={{ span: 14, offset: 6 }}>
+                                                    <Button type="primary" onClick={this.handleSubmitAddDoctor}>
+                                                        Submit
+                                                    </Button>
+                                                    &nbsp;&nbsp;&nbsp;
+                                                    <Button onClick={this.handleResetAddDoctor}>Reset</Button>
+                                                </FormItem>
+                                            </Form>
+                                        </div>
+                                    ) : ""
+                                }
+
+                                <div >
+                                    <CardText className="huong-dan" >
+                                        Hướng dẫn đặt lịch
+                                            </CardText>
+                                    {/* <ReactPlayer className ="video-youtube" width='100%' height='100%' url='https://www.youtube.com/watch?v=0my54A3071s' playing /> */}
+                                </div>
+
                             </div>
                             <Content>
                                 <div className="clinic-right">
@@ -401,7 +531,7 @@ class Clinic extends Component {
                                             <TabPane tab="THÔNG TIN PHÒNG KHÁM" key="2">
                                                 {
                                                     postInfors ? postInfors.map((value, key) => (
-                                                        <div key = {key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
+                                                        <div key={key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
                                                         </div>
                                                     )) : <LoadingIsEmpty></LoadingIsEmpty>
                                                 }
@@ -409,9 +539,9 @@ class Clinic extends Component {
                                             <TabPane tab="TRANG THIẾT BỊ" key="3">
                                                 {
                                                     postDevices ? postDevices.map((value, key) => (
-                                                        <div key = {key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
+                                                        <div key={key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
                                                         </div>
-                                                    )) : <LoadingIsEmpty/>
+                                                    )) : <LoadingIsEmpty />
                                                 }
                                             </TabPane>
                                             <TabPane tab="CHI TIẾT GIÁ" key="4">
@@ -420,9 +550,9 @@ class Clinic extends Component {
                                             <TabPane tab="QUY TRÌNH KHÁM BỆNH" key="5">
                                                 {
                                                     postProcess ? postProcess.map((value, key) => (
-                                                        <div key = {key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
+                                                        <div key={key} className="posts-infor" dangerouslySetInnerHTML={{ __html: value.content }}>
                                                         </div>
-                                                    )) : <LoadingIsEmpty/>
+                                                    )) : <LoadingIsEmpty />
                                                 }
                                             </TabPane>
 

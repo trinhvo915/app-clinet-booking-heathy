@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
-    Link,
-    withRouter
+  Link,
+  withRouter
 } from 'react-router-dom';
 import './AppHeader.css';
 import { Badge } from 'antd';
@@ -10,169 +10,169 @@ import { connect } from "react-redux";
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 import { getUser } from "./../actions/get.user.action";
 const Header = Layout.Header;
-    
+
 class AppHeader extends Component {
-    constructor(props) {
-        super(props);   
-        this.state = {
-          count: 10,
-        }
-
-        this.handleMenuClick = this.handleMenuClick.bind(this);   
+  constructor(props) {
+    super(props);
+    this.state = {
+      count: 10,
     }
 
-    handleMenuClick({ key }) {
-      if(key === "logout") {
-        this.props.onLogout();
-      }
+    this.handleMenuClick = this.handleMenuClick.bind(this);
+  }
+
+  handleMenuClick({ key }) {
+    if (key === "logout") {
+      this.props.onLogout();
     }
+  }
 
-    setCount = () =>{
-      let  count = 0;
-      this.setState({ count });
+  setCount = () => {
+    let count = 0;
+    this.setState({ count });
+  }
+
+  getUserCheck = async () => {
+    if (this.props.currentUser) {
+      await this.props.getUser();
     }
+  }
 
-    getUserCheck = async () =>{
-      if(this.props.currentUser) {
-        await this.props.getUser();
-      }
-    }
+  componentDidMount = async () => {
+    await this.getUserCheck();
+  };
 
-    componentDidMount = async () => {
-      await this.getUserCheck();
-    };
+  render() {
+    const { user } = this.props.user;
 
-    render() {
-      const { user } = this.props.user;
-
-        let menuItems;
-        if(this.props.currentUser && user.check === "USER_EXPERT" ) {
-          menuItems = [
-            <Menu.Item key="/">
-              <Link to="/">
-                <div className="tooltip-icon">
-                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
-                    <span className="tooltiptext">Trang Chủ</span>
-                </div>
-              </Link>
-            </Menu.Item>,
-            
-            <Menu.Item key="/register/clinic">
-              <Link to="/register/clinic">
-                  <div className="tooltip-icon">
-                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="plus-square" />
-                    <span className="tooltiptext">Tạo Phòng Khám</span>
-                  </div>
-              </Link>
-            </Menu.Item>,
-
-            <Menu.Item onClick={this.setCount}  key="/poll/new">
-              <Link to="/poll/new">
-                  <Badge count={this.state.count}>
-                    <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-                  </Badge>
-              </Link>
-            </Menu.Item>,
-
-            <Menu.Item key="/profile" className="profile-menu">
-              <ProfileDropdownMenu 
-                currentUser={this.props.currentUser} 
-                handleMenuClick={this.handleMenuClick}/>
-            </Menu.Item>
-          ]; 
-        }else if(this.props.currentUser && user.check === "USER_CLINIC") {
-          menuItems = [
-            <Menu.Item key="/">
-              <Link to="/">
-                <div className="tooltip-icon">
-                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
-                    <span className="tooltiptext">Trang Chủ</span>
-                </div>
-              </Link>
-            </Menu.Item>,
-            
-            <Menu.Item key="/ddddd" className="clinic-menu">
-                <Clinics 
-                  user = {user}
-                  currentUser={this.props.currentUser} 
-                />
-            </Menu.Item>,
-
-            <Menu.Item onClick={this.setCount}  key="/poll/new">
-              <Link to="/poll/new">
-                  <Badge count={this.state.count}>
-                    <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-                  </Badge>
-              </Link>
-            </Menu.Item>,
-
-            <Menu.Item key="/profile" className="profile-menu">
-              <ProfileDropdownMenu 
-                currentUser={this.props.currentUser} 
-                handleMenuClick={this.handleMenuClick}/>
-            </Menu.Item>
-          ]; 
-        }else if(this.props.currentUser && user.check === "USER"){
-          menuItems = [
-            <Menu.Item key="/">
-              <Link to="/">
-                <div className="tooltip">
-                  <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
-                  <span className="tooltiptext">Trang Chủ</span>
-                </div>
-              </Link>
-            </Menu.Item>,
-
-            <Menu.Item key="/register/doctor">
-              <Link to="/register/doctor">
-                <div className="tooltip-icon">
-                  <Icon style={{ fontSize: '20px', color: '#08c' }} type="usergroup-add" />
-                    <span className="tooltiptext">Đăng ký Bác Sỹ</span>
-                </div>
-              </Link>
-            </Menu.Item>,
-
-            <Menu.Item onClick={this.setCount}  key="/poll/new">
-              <Link to="/poll/new">
-                  <Badge count={this.state.count}>
-                    <Icon  style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-                  </Badge>
-              </Link>
-            </Menu.Item>,
-
-            <Menu.Item key="/profile" className="profile-menu">
-                <ProfileDropdownMenu 
-                  currentUser={this.props.currentUser} 
-                  handleMenuClick={this.handleMenuClick}/>
-            </Menu.Item>
-          ]; 
-        }else {
-          menuItems = [
-            <Menu.Item key="/login">
-              <Link to="/login"><strong>Đăng nhập</strong></Link>
-            </Menu.Item>,
-            <Menu.Item key="/signup">
-              <Link to="/signup"><strong>Đăng ký</strong></Link>
-            </Menu.Item>                  
-          ];
-        }
-        return (
-            <Header className="app-header">
-            <div className="container">
-              <div className="app-title" >
-                <Link to="/"><strong>Booking Clinic</strong></Link>
-              </div>
-              <Menu
-                className="app-menu"
-                mode="horizontal"
-                selectedKeys={[this.props.location.pathname]}
-                style={{ lineHeight: '64px' }} >
-                  {menuItems}
-              </Menu>
+    let menuItems;
+    if (this.props.currentUser && user.check === "USER_EXPERT") {
+      menuItems = [
+        <Menu.Item key="/">
+          <Link to="/">
+            <div className="tooltip-icon">
+              <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
+              <span className="tooltiptext">Trang Chủ</span>
             </div>
-          </Header>
-        );
+          </Link>
+        </Menu.Item>,
+
+        <Menu.Item key="/register/clinic">
+          <Link to="/register/clinic">
+            <div className="tooltip-icon">
+              <Icon style={{ fontSize: '20px', color: '#08c' }} type="plus-square" />
+              <span className="tooltiptext">Tạo Phòng Khám</span>
+            </div>
+          </Link>
+        </Menu.Item>,
+
+        <Menu.Item onClick={this.setCount} key="/poll/new">
+          <Link to="/poll/new">
+            <Badge count={this.state.count}>
+              <Icon style={{ fontSize: '20px', color: '#08c' }} type="alert" />
+            </Badge>
+          </Link>
+        </Menu.Item>,
+
+        <Menu.Item key="/profile" className="profile-menu">
+          <ProfileDropdownMenu
+            currentUser={this.props.currentUser}
+            handleMenuClick={this.handleMenuClick} />
+        </Menu.Item>
+      ];
+    } else if (this.props.currentUser && user.check === "USER_CLINIC") {
+      menuItems = [
+        <Menu.Item key="/">
+          <Link to="/">
+            <div className="tooltip-icon">
+              <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
+              <span className="tooltiptext">Trang Chủ</span>
+            </div>
+          </Link>
+        </Menu.Item>,
+
+        <Menu.Item key="/ddddd" className="clinic-menu">
+          <Clinics
+            user={user}
+            currentUser={this.props.currentUser}
+          />
+        </Menu.Item>,
+
+        <Menu.Item onClick={this.setCount} key="/poll/new">
+          <Link to="/poll/new">
+            <Badge count={this.state.count}>
+              <Icon style={{ fontSize: '20px', color: '#08c' }} type="alert" />
+            </Badge>
+          </Link>
+        </Menu.Item>,
+
+        <Menu.Item key="/profile" className="profile-menu">
+          <ProfileDropdownMenu
+            currentUser={this.props.currentUser}
+            handleMenuClick={this.handleMenuClick} />
+        </Menu.Item>
+      ];
+    } else if (this.props.currentUser && user.check === "USER") {
+      menuItems = [
+        <Menu.Item key="/">
+          <Link to="/">
+            <div className="tooltip-icon">
+              <Icon style={{ fontSize: '20px', color: '#08c' }} type="home" className="nav-icon" />
+              <span className="tooltiptext">Trang Chủ</span>
+            </div>
+          </Link>
+        </Menu.Item>,
+
+        <Menu.Item key="/register/doctor">
+          <Link to="/register/doctor">
+            <div className="tooltip-icon">
+              <Icon style={{ fontSize: '20px', color: '#08c' }} type="usergroup-add" />
+              <span className="tooltiptext">Đăng ký Bác Sỹ</span>
+            </div>
+          </Link>
+        </Menu.Item>,
+
+        <Menu.Item onClick={this.setCount} key="/poll/new">
+          <Link to="/poll/new">
+            <Badge count={this.state.count}>
+              <Icon style={{ fontSize: '20px', color: '#08c' }} type="alert" />
+            </Badge>
+          </Link>
+        </Menu.Item>,
+
+        <Menu.Item key="/profile" className="profile-menu">
+          <ProfileDropdownMenu
+            currentUser={this.props.currentUser}
+            handleMenuClick={this.handleMenuClick} />
+        </Menu.Item>
+      ];
+    } else {
+      menuItems = [
+        <Menu.Item key="/login">
+          <Link to="/login"><strong>Đăng nhập</strong></Link>
+        </Menu.Item>,
+        <Menu.Item key="/signup">
+          <Link to="/signup"><strong>Đăng ký</strong></Link>
+        </Menu.Item>
+      ];
     }
+    return (
+      <Header className="app-header">
+        <div className="container">
+          <div className="app-title" >
+            <Link to="/"><strong>Booking Clinic</strong></Link>
+          </div>
+          <Menu
+            className="app-menu"
+            mode="horizontal"
+            selectedKeys={[this.props.location.pathname]}
+            style={{ lineHeight: '64px' }} >
+            {menuItems}
+          </Menu>
+        </div>
+      </Header>
+    );
+  }
 }
 
 function ProfileDropdownMenu(props) {
@@ -197,26 +197,26 @@ function ProfileDropdownMenu(props) {
   );
 
   return (
-    <Dropdown 
-      overlay={dropdownMenu} 
+    <Dropdown
+      overlay={dropdownMenu}
       trigger={['click']}
-      getPopupContainer = { () => document.getElementsByClassName('profile-menu')[0]}>
+      getPopupContainer={() => document.getElementsByClassName('profile-menu')[0]}>
       <a className="ant-dropdown-link">
-         <Icon type="user" className="nav-icon" style={{marginRight: 0},{ fontSize: '18px', color: '#08c' }} /> <Icon type="down" />
+        <Icon type="user" className="nav-icon" style={{ marginRight: 0 }, { fontSize: '18px', color: '#08c' }} /> <Icon type="down" />
       </a>
     </Dropdown>
   );
 }
 
-function Clinics (props) {
+function Clinics(props) {
   const dropdownMenu = (
     <Menu className="profile-dropdown-menu">
       {
-        props.user && props.user.clinic.map((key ,x) => {
+        props.user && props.user.clinic.map((key, x) => {
           return (
-            <div key = {key}>
+            <div key={key}>
               <Menu.Item key="profile" className="dropdown-item">
-                <Link style = {{'word-wrap' :'break-word'}} to={`/users/${props.currentUser.username}`}>{x.name}</Link>
+                <Link style={{ 'word-wrap': 'break-word' }} to={`/users/${props.currentUser.username}`}>{x.name}</Link>
               </Menu.Item>
               <Menu.Divider />
             </div>
@@ -227,10 +227,10 @@ function Clinics (props) {
   );
 
   return (
-    <Dropdown 
-      overlay={dropdownMenu} 
+    <Dropdown
+      overlay={dropdownMenu}
       trigger={['click']}
-      getPopupContainer = { () => document.getElementsByClassName('clinic-menu')[0]}>
+      getPopupContainer={() => document.getElementsByClassName('clinic-menu')[0]}>
       <a className="ant-dropdown-link">
         <div className="tooltip-icon">
           <Icon style={{ fontSize: '20px', color: '#08c' }} type="solution" />
@@ -243,7 +243,7 @@ function Clinics (props) {
 
 const mapStateToProps = (state) => {
   return {
-      user: state.user,
+    user: state.user,
   }
 }
 

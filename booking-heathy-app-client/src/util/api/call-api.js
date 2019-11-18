@@ -24,9 +24,13 @@ const callAPI = async (endpoint, method = "GET", data) => {
 }
 
 export async function  getUserApi() {
-	let user = {};
 	
-	 await callAPI("user/role",'GET',null)
+	if(!localStorage.getItem(ACCESS_TOKEN)) {
+        return Promise.reject("No access token set.");
+	}
+
+	let user = {};
+	await callAPI("user/role",'GET',null)
 		.then(response =>{
 			user = Object.assign({}, user);
 			user =  response.data;
@@ -125,6 +129,17 @@ export async function  addCommnetForDoctor(commnet) {
 		})
 	return data;
 }
+
+export async function  addDoctorInClinic(params) {
+	let data = {};
+	await callAPI("clinic/"+params.idClinic+"/"+params.emailOrUsername,'PUT')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data.object;
+		})
+	return data;
+}
+
 
 export async function  addPostForClinic(post) {
 	let data = {};
