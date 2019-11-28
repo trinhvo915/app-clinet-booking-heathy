@@ -113,6 +113,7 @@ class DoctorClinic extends Component {
     }
 
     addCommnet() {
+        console.log(this.props.user.user)
         if (this.props.user.user && this.props.user.user.status !== 401) {
 
             let comment = {

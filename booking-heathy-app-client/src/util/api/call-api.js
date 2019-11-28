@@ -25,9 +25,9 @@ const callAPI = async (endpoint, method = "GET", data) => {
 
 export async function  getUserApi() {
 	
-	if(!localStorage.getItem(ACCESS_TOKEN)) {
-        return Promise.reject("No access token set.");
-	}
+	// if(!localStorage.getItem(ACCESS_TOKEN)) {
+    //     return Promise.reject("No access token set.");
+	// }
 
 	let user = {};
 	await callAPI("user/role",'GET',null)
@@ -41,8 +41,19 @@ export async function  getUserApi() {
 
 export async function  getDoctorsOfClinicApi(params) {
 	
-	let data = {params};
+	let data = {};
 	await callAPI("doctor/all-clinic/"+params.idDoctor+"/"+params.idClinic+"/"+params.dateQurrey+"/"+params.dateCurrent,'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
+export async function  getDoctorHistoryListApi() {
+	
+	let data = {};
+	await callAPI("booking/bookeds/user",'GET',null)
 		.then(response =>{
 			data = Object.assign({}, data);
 			data =  response.data.data;

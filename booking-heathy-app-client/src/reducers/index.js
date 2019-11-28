@@ -9,6 +9,7 @@ import {postClinicReducer} from "./post.list.reducer";
 import {postInforReducer} from "./post.infor.list.reducer";
 import {postProcessReducer} from "./post.process.list.reducer";
 import {postDeviceReducer} from "./post.device.list.reducer";
+import {doctorsHistoryReducer} from "./get.history.doctor.reducer";
 
 export default combineReducers({
   facultyList : facultyListReducer,
@@ -20,6 +21,6 @@ export default combineReducers({
   postClinics : postClinicReducer,
   postInfors : postInforReducer,
   postProcess: postProcessReducer,
-  postDevices : postDeviceReducer
-
+  postDevices : postDeviceReducer,
+  doctorsHistory : doctorsHistoryReducer
 });

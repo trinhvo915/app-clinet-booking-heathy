@@ -50,6 +50,7 @@ class Clinic extends Component {
             visibleCreateSecheduce: false,
             isLoading: false,
             visiblePost: false,
+            visiblePrice: false,
             checkDoctor: "",
             viewFormAddDoctor: false,
             emailDoctor: {
@@ -215,6 +216,14 @@ class Clinic extends Component {
         });
     };
 
+    showModalCreatePrice =  async () => {
+
+        this.setState({
+            visiblePrice: true,
+
+        });
+    };
+
     handleCancelPost = () => {
         this.setState({
             visiblePost: false,
@@ -222,6 +231,12 @@ class Clinic extends Component {
         });
     }
 
+    handleCancelPrice = () => {
+        this.setState({
+            visiblePrice: false,
+        });
+    }
+    
     onChangeSelectPostType = (value) => {
         this.setState({
             idTypePost: value
@@ -424,6 +439,24 @@ class Clinic extends Component {
                                 </Modal>
                             </div>
 
+
+                            <div className="commnet-modal">
+                                <Modal
+                                    style={{ top: 0 }}
+                                    visible={this.state.visiblePrice}
+                                    // onOk={this.handleOkPost}
+                                    onCancel={this.handleCancelPrice}
+                                >
+                                    <span className="title-booking">TẠO BẢNG GIÁ</span>
+                                    <hr className="line-line-post"></hr>
+                                    <div className="line-line-post-type">
+                                        FGSDFGSDFGS
+                                    </div>
+
+                                    <hr className="line-line-post"></hr>
+                                </Modal>
+                            </div>
+
                             <div className="clinic-left">
                                 <div className="logo-clinic">
                                     <CardImg className="logo-clinic-image" variant="top" src={"https://scontent.fsgn2-2.fna.fbcdn.net/v/t1.0-9/61161283_2321475054806859_331553702676529152_n.jpg?_nc_cat=100&_nc_oc=AQmBqpb1drO4571bAv--cTorIP66LzZsIePccs_31_sohEG2SFx4Iyrg89-ZLCShm1w&_nc_ht=scontent.fsgn2-2.fna&oh=48e8c12558670da5f74940b239caad1f&oe=5E19B8E4"} />
@@ -454,6 +487,18 @@ class Clinic extends Component {
                                             <Radio.Group >
                                                 <Button type="primary" onClick={this.showModalCreatePost} shape="round" size="default">
                                                     THÊM THÔNG TIN PHÒNG KHÁM
+                                                 </Button>
+                                            </Radio.Group>
+                                        ) : ""
+                                    }
+                                </div>
+
+                                <div className="menu-clinic">
+                                    {
+                                        this.props.user.user && this.state.checkDoctor !== "" ? (
+                                            <Radio.Group >
+                                                <Button type="primary" onClick={this.showModalCreatePrice} shape="round" size="default">
+                                                    THÊM CHI TIẾT GIÁ PHÒNG KHÁM
                                                  </Button>
                                             </Radio.Group>
                                         ) : ""
@@ -508,6 +553,7 @@ class Clinic extends Component {
                                 </div>
 
                             </div>
+                            
                             <Content>
                                 <div className="clinic-right">
                                     <div className="clinic-image">
@@ -545,7 +591,7 @@ class Clinic extends Component {
                                                 }
                                             </TabPane>
                                             <TabPane tab="CHI TIẾT GIÁ" key="4">
-                                                GIÁ
+                                                <LoadingIsEmpty />
                                             </TabPane>
                                             <TabPane tab="QUY TRÌNH KHÁM BỆNH" key="5">
                                                 {

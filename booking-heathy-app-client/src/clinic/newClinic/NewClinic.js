@@ -41,9 +41,16 @@ class NewClinic extends Component {
             ],
             latitude : "",
             longitude : "",
+
             previewVisible: false,
             previewImage: '',
             fileList: [
+              
+            ],
+
+            previewVisibleLogo: false,
+            previewImageLogo: '',
+            fileListLogo: [
               
             ],
 
@@ -202,15 +209,39 @@ class NewClinic extends Component {
       });
     };
   
+    handlePreviewLogo = async file => {
+        console.log(file)
+        if (!file.url && !file.preview) {
+          file.preview = await getBase64(file.originFileObj);
+        }
+        
+        await this.setState({
+          previewImageLogo: file.url || file.preview,
+          previewVisibleLogo: true,
+        });
+    };
+
     handleChange = ({ fileList }) => {
         this.setState({ 
             fileList,
         })
     };
 
+    handleChangeLogo = ({ fileListLogo }) => {
+        console.log(fileListLogo)
+        this.setState({ 
+            fileListLogo,
+        })
+    };
+
+    handleCancelLogo = () => this.setState({ previewVisibleLogo: false });
+
     render() {
         const {facultiesResponse} =  this.state;
         const { previewVisible, previewImage, fileList } = this.state;
+
+        const { previewVisibleLogo, previewImageLogo, fileListLogo } = this.state;
+
         const uploadButton = (
             <div>
                 <Icon type="plus" />
@@ -251,6 +282,26 @@ class NewClinic extends Component {
                                 </Upload>
                                 <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                                     <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                                </Modal>
+                            </div>
+                        </FormItem>
+
+                        <FormItem  className = "row-file"
+                            label="Logo Phòng Khám :"
+                        >
+                            <div className="clearfix">
+                                <Upload
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    listType="picture-card"
+                                    fileList={fileListLogo}
+                                    onPreview={this.handlePreviewLogo}
+                                    onChange={this.handleChangeLogo}
+                                >
+                                    {/* {fileListLogo.length >= 1 ? null : uploadButton} */}
+                                    {uploadButton}
+                                </Upload>
+                                <Modal visible={previewVisibleLogo} footer={null} onCancel={this.handleCancelLogo}>
+                                    <img alt="example" style={{ width: '100%' }} src={previewImageLogo} />
                                 </Modal>
                             </div>
                         </FormItem>
