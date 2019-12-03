@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import './App.css';
 import {
   Route,
@@ -24,7 +24,8 @@ import ClinicList from '../clinic/clinicList/ClinicList';
 import { Layout, notification } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Clinic from '../clinic/clinicList/Clinic';
-const { Content } = Layout;
+import FooterLayout from '../common/FooterLayout';
+const { Content, Footer } = Layout;
 
 class App extends Component {
   constructor(props) {
@@ -32,11 +33,11 @@ class App extends Component {
     this.state = {
       currentUser: null,
       currentRates: [],
-      idcurrentUser : '',
+      idcurrentUser: '',
       isAuthenticated: false,
       isLoading: false,
-      loadTrue :  true,
-      loadFalse : false,
+      loadTrue: true,
+      loadFalse: false,
     }
     this.handleLogout = this.handleLogout.bind(this);
     this.loadCurrentUser = this.loadCurrentUser.bind(this);
@@ -46,7 +47,7 @@ class App extends Component {
       placement: 'topRight',
       top: 70,
       duration: 3,
-    });    
+    });
   }
 
   loadCurrentUser() {
@@ -54,24 +55,24 @@ class App extends Component {
       isLoading: true
     });
     getCurrentUser()
-    .then(response => {
-      this.setState({
-        currentUser: response,
-        isAuthenticated: true,
-        isLoading: false
+      .then(response => {
+        this.setState({
+          currentUser: response,
+          isAuthenticated: true,
+          isLoading: false
+        });
+      }).catch(error => {
+        this.setState({
+          isLoading: false
+        });
       });
-    }).catch(error => {
-      this.setState({
-        isLoading: false
-      });  
-    });
   }
 
   componentDidMount() {
     this.loadCurrentUser();
   }
 
-  handleLogout(redirectTo="/", notificationType="success", description="Bạn đăng xuất thành công") {
+  handleLogout(redirectTo = "/", notificationType = "success", description = "Bạn đăng xuất thành công") {
     localStorage.removeItem(ACCESS_TOKEN);
 
     this.setState({
@@ -80,7 +81,7 @@ class App extends Component {
     });
 
     this.props.history.push(redirectTo);
-    
+
     notification[notificationType]({
       message: 'Booking Clinic',
       description: description,
@@ -98,65 +99,55 @@ class App extends Component {
 
   changerLoadHeard() {
     this.setState({
-      loadTrue : false ,
-      loadFalse : true,
+      loadTrue: false,
+      loadFalse: true,
     })
   }
 
   render() {
-    if(this.state.isLoading) {
+    if (this.state.isLoading) {
       return <LoadingIndicator />
     }
     return (
-        <Layout className="app-container">
-          <AppHeader  isAuthenticated={this.state.isAuthenticated} 
-            currentUser={this.state.currentUser} 
-            onLogout={this.handleLogout} />
+      <Layout className="app-container">
+        <AppHeader isAuthenticated={this.state.isAuthenticated}
+          currentUser={this.state.currentUser}
+          onLogout={this.handleLogout} />
 
-          <Content className="app-content">
-            <div className="container-app">
-              <Switch>      
-                {/* <Route exact path="/" 
-                  render={(props) => <PollList isAuthenticated={this.state.isAuthenticated} 
-                      currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
-                </Route> */}
-                <Route exact path="/" 
-                  render={(props) => <ClinicList isAuthenticated={this.state.isAuthenticated} 
-                      currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
-                </Route>
-                <Route path="/login" 
-                  render={(props) => <Login onLogin={this.handleLogin} {...props} />}>
-                </Route>
+        <Content className="app-content">
+          <div className="container-app">
+            <Switch>
+              <Route exact path="/"
+                render={(props) => <ClinicList isAuthenticated={this.state.isAuthenticated}
+                  currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
+              </Route>
+              <Route path="/login"
+                render={(props) => <Login onLogin={this.handleLogin} {...props} />}>
+              </Route>
 
-                <Route path="/signup" component={Signup}></Route>
-                
-                <Route path="/users/:username" 
-                  render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props}  />}>
-                </Route>
+              <Route path="/signup" component={Signup}></Route>
 
-                <Route exact path="/clinic/:id_doctor/:id_clinic" 
-                  render={(props) => <Clinic isAuthenticated={this.state.isAuthenticated} 
-                      currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
-                </Route>
-                {/* <Route exact path="/clinic" 
-                  render={(props) => <Clinic isAuthenticated={this.state.isAuthenticated} 
-                      currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
-                </Route> */}
+              <Route path="/users/:username"
+                render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props} />}>
+              </Route>
 
-                <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
-                
-                <PrivateRoute onchangerLoadHeard = {this.changerLoadHeard}  authenticated={this.state.isAuthenticated} path="/register/doctor" component={RegisterDoctor} handleLogout={this.handleLogout}/>
+              <Route exact path="/clinic/:id_doctor/:id_clinic"
+                render={(props) => <Clinic isAuthenticated={this.state.isAuthenticated}
+                  currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
+              </Route>
 
-                <PrivateRoute  authenticated={this.state.isAuthenticated} path="/register/clinic" component={NewClinic} handleLogout={this.handleLogout}/>
+              <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
 
-                <Route component={NotFound}></Route>
-              </Switch>
-            </div>
-          </Content>
-          <div className = "footer">
+              <PrivateRoute onchangerLoadHeard={this.changerLoadHeard} authenticated={this.state.isAuthenticated} path="/register/doctor" component={RegisterDoctor} handleLogout={this.handleLogout} />
 
+              <PrivateRoute authenticated={this.state.isAuthenticated} path="/register/clinic" component={NewClinic} handleLogout={this.handleLogout} />
+
+              <Route component={NotFound}></Route>
+            </Switch>
           </div>
-        </Layout>
+        </Content>
+        {/* <FooterLayout/> */}
+      </Layout>
     );
   }
 }

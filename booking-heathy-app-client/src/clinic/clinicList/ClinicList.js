@@ -8,7 +8,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { connect } from "react-redux";
 import { getDoctorList } from "../../actions/doctor.list.action";
-
+import FooterLayout from './../../common/FooterLayout';
 class ClinicList extends Component {
     constructor(props) {
         super(props);
@@ -703,6 +703,7 @@ class ClinicList extends Component {
                         </List.Item>
                     </Slider>
                 </div>
+                <FooterLayout/>
             </div>
         )
     }

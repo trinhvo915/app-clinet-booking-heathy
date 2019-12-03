@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { createPoll } from '../util/APIUtils';
 import { MAX_CHOICES } from '../constants';
-import './NewPoll.css';
-import { Form, Input, Button, Icon, Row, Select, Col, notification } from 'antd';
-const Option = Select.Option;
+import './NewPrice.css';
+import { Form, Input, Button, Icon, Row, Col, notification } from 'antd';
 const FormItem = Form.Item;
 
-class NewPoll extends Component {
+class NewPrice extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -176,4 +175,4 @@ function PollChoice(props) {
 }
 
 
-export default NewPoll;
+export default NewPrice;

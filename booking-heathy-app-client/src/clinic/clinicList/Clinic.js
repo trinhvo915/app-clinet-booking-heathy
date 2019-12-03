@@ -5,11 +5,12 @@ import moment from 'moment';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 import LoadingIndicator from '../../common/LoadingIndicator';
-import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Input, Radio, Select, Form, Alert } from 'antd';
+import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Input, Radio, Select, Form, Row, Col, List } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
 import { addRateForDoctor } from './../../util/api/call-api';
+import { addPrices } from './../../util/api/call-api';
 import { addDoctorInClinic } from './../../util/api/call-api';
 import { getDoctorsOfClinicApi } from './../../util/api/call-api';
 import { addPostForClinic } from './../../util/api/call-api';
@@ -19,11 +20,15 @@ import { getPostType } from "../../actions/post.type.list.action";
 import { getPostProcessClinicList } from "../../actions/post.process.list.action";
 import { getPostInforClinicList } from "../../actions/post.infor.list.action";
 import { getPostDeviceClinicList } from "../../actions/post.device.list.action";
+import { getPricesClinicList } from "../../actions/price.list.action";
 import DoctorClinic from './Doctor';
 import BraftEditor from 'braft-editor';
 import ReactPlayer from 'react-player'
 import 'braft-editor/dist/index.css'
 import LoadingIsEmpty from '../../common/LoadingIsEmpty';
+import { MAX_CHOICES } from '../../constants';
+import { getPricesApi } from '../../util/api/call-api';
+import FooterLayout from '../../common/FooterLayout';
 const { Content } = Layout;
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -50,6 +55,7 @@ class Clinic extends Component {
             visibleCreateSecheduce: false,
             isLoading: false,
             visiblePost: false,
+            visiblePrice: false,
             checkDoctor: "",
             viewFormAddDoctor: false,
             emailDoctor: {
@@ -57,11 +63,116 @@ class Clinic extends Component {
             },
             showAlertSuccess: false,
             showAlertWarin: false,
+            choices: [
+                {
+                    description: "",
+                    totalPrice: ""
+                },
+                {
+                    description: "",
+                    totalPrice: ""
+                },
+            ],
         };
         this.loadClinicDoctors = this.loadClinicDoctors.bind(this);
         this.handleChangeRate = this.handleChangeRate.bind(this);
+
+        this.addChoice = this.addChoice.bind(this);
+        this.handleChangeName = this.handleChangeName.bind(this);
+        this.handleChangePrice = this.handleChangePrice.bind(this);
+        this.removeChoice = this.removeChoice.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.checkFromSubmitPrice = this.checkFromSubmitPrice.bind(this);
+        this.submitPrices = this.submitPrices.bind(this);
     }
 
+    handleChangeName(event, index) {
+        const choices = this.state.choices.slice();
+        const value = event.target.value;
+
+        const choiceCopy = choices[index];
+        choices[index] = {
+            description: value,
+            totalPrice: choiceCopy.totalPrice
+        }
+
+        this.setState({
+            choices: choices
+        });
+    }
+
+    handleChangePrice(event, index) {
+        const choices = this.state.choices.slice();
+        const value = event.target.value;
+        const choiceCopy = choices[index];
+
+        choices[index] = {
+            description: choiceCopy.description,
+            totalPrice: value,
+        }
+
+        this.setState({
+            choices: choices
+        });
+    }
+
+    addChoice(event) {
+        const choices = this.state.choices.slice();
+        this.setState({
+            choices: choices.concat([{
+                description: "",
+                totalPrice: ""
+            }])
+        });
+    }
+
+    submitPrices() {
+        const idClininc = this.props.match.params.id_clinic;
+        addPrices(idClininc, this.state.choices).then(response => {
+            if (response.status === 200) {
+                this.setState({
+                    visiblePrice: false,
+                    choices: [
+                        {
+                            description: "",
+                            totalPrice: ""
+                        },
+                        {
+                            description: "",
+                            totalPrice: ""
+                        },
+                    ],
+                });
+                notification.success({
+                    message: 'Booking Clinic',
+                    description: response.message + "!"
+                });
+                let paramClinic = {
+                    id_clinic: this.props.match.params.id_clinic
+                }
+    
+                this.props.getPricesClinicList(paramClinic)
+            } else {
+                notification.error({
+                    message: 'Booking Clinic',
+                    description: 'Thêm giá cho phòng khám thất bại !'
+                });
+            }
+        })
+    }
+
+    removeChoice(choiceNumber) {
+        const choices = this.state.choices.slice();
+        this.setState({
+            choices: [...choices.slice(0, choiceNumber), ...choices.slice(choiceNumber + 1)]
+        });
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+
+    }
+    /////////
     handleChangeRate(value, doctor, key) {
 
         if (this.props.user.user && this.props.user.user.status !== 401) {
@@ -184,6 +295,11 @@ class Clinic extends Component {
             }
             this.state.postTypeDevice && this.props.getPostDeviceClinicList(paramsDevices);
 
+            let paramClinic = {
+                id_clinic: paramsClininc.idClinic
+            }
+
+            this.props.getPricesClinicList(paramClinic)
         })
 
     }
@@ -200,7 +316,12 @@ class Clinic extends Component {
         }
         this.loadClinicDoctors(paramsClininc);
 
-
+        // let paramsClinincc = {
+        //     id_clinic: idClininc,
+        // }
+        // getPricesApi(paramsClinincc).then(res =>{
+        //     console.log(res)
+        // })
     }
 
     handleChangeEditorPost = (editorState) => {
@@ -215,10 +336,34 @@ class Clinic extends Component {
         });
     };
 
+    showModalCreatePrice = async () => {
+
+        this.setState({
+            visiblePrice: true,
+
+        });
+    };
+
     handleCancelPost = () => {
         this.setState({
             visiblePost: false,
             editorState: BraftEditor.createEditorState(null),
+        });
+    }
+
+    handleCancelPrice = () => {
+        this.setState({
+            visiblePrice: false,
+            choices: [
+                {
+                    description: "",
+                    totalPrice: ""
+                },
+                {
+                    description: "",
+                    totalPrice: ""
+                },
+            ],
         });
     }
 
@@ -325,7 +470,6 @@ class Clinic extends Component {
             emailOrUsername: this.state.emailDoctor.value
         }
         addDoctorInClinic(params).then(response => {
-            console.log(response)
             if (response === null) {
                 this.setState({
                     showAlertWarin: true,
@@ -348,16 +492,28 @@ class Clinic extends Component {
         });
     }
 
+    checkFromSubmitPrice = () => {
+        let flag = false;
+        this.state.choices.forEach(x => {
+            if (x.description === "" || x.totalPrice === "") {
+                flag = true
+            } else {
+                flag = false
+            }
+        })
+        return flag;
+    }
+
     render() {
-        console.log(this.state)
-
-        console.log(this.props.user.user);
-
         const postInfors = this.props.postInfors.postInfors.object;
 
         const postProcess = this.props.postProcess.postProcess.object;
 
         const postDevices = this.props.postDevices.postDevices.object;
+
+        const prices = this.props.prices;
+
+        console.log(prices)
 
         const { object } = this.props.clinic.clinic;
         const { clinics } = this.state;
@@ -388,11 +544,48 @@ class Clinic extends Component {
             )
         });
 
+        const choiceViews = [];
+        this.state.choices.forEach((choice, index) => {
+            choiceViews.push(<PollChoice key={index} choice={choice} choiceNumber={index} removeChoice={this.removeChoice} handleChangeName={this.handleChangeName} handleChangePrice={this.handleChangePrice} />);
+        });
+
         return (
             <Layout>
                 {
                     clinics ? (
                         <div className="main-clinic">
+                            <div className="commnet-modal-">
+                                <Modal
+                                    style={{ top: 5 }}
+                                    footer={null}
+                                    visible={this.state.visiblePrice}
+                                    onCancel={this.handleCancelPrice}
+                                >
+                                    <span className="title-booking">THÊM CHI TIẾT GIÁ PHÒNG KHÁM</span>
+                                    <div className="new-poll-container">
+                                        <div className="new-poll-content">
+                                            <Form className="create-poll-form">
+
+                                                {choiceViews}
+
+                                                <FormItem className="poll-form-row">
+                                                    <Button type="dashed" onClick={this.addChoice} disabled={this.state.choices.length === MAX_CHOICES}>
+                                                        <Icon type="plus" /> Thêm Gía
+                                                    </Button>
+                                                </FormItem>
+
+                                                <FormItem className="poll-form-row">
+                                                    <Button type="primary"
+                                                        onClick={() => this.submitPrices()}
+                                                        disabled={this.checkFromSubmitPrice()}
+                                                        size="large"
+                                                        className="create-poll-form-button">Tạo Gía</Button>
+                                                </FormItem>
+                                            </Form>
+                                        </div>
+                                    </div>
+                                </Modal>
+                            </div>
 
                             <div className="commnet-modal">
                                 <Modal
@@ -452,19 +645,29 @@ class Clinic extends Component {
                                     {
                                         this.props.user.user && this.state.checkDoctor !== "" ? (
                                             <Radio.Group >
-                                                <Button type="primary" onClick={this.showModalCreatePost} shape="round" size="default">
+                                                <Button className = "btn-left-clinic" type="primary" onClick={this.showModalCreatePost} shape="round" size="default">
                                                     THÊM THÔNG TIN PHÒNG KHÁM
                                                  </Button>
                                             </Radio.Group>
                                         ) : ""
                                     }
                                 </div>
-
+                                <div className="menu-clinic">
+                                    {
+                                        this.props.user.user && this.state.checkDoctor !== "" ? (
+                                            <Radio.Group >
+                                                <Button className = "btn-left-clinic" type="primary" onClick={this.showModalCreatePrice} shape="round" size="default">
+                                                    THÊM GIÁ PHÒNG KHÁM
+                                                </Button>
+                                            </Radio.Group>
+                                        ) : ""
+                                    }
+                                </div>
                                 <div className="menu-clinic-add">
                                     {
                                         this.state.clinicCreateBy !== "" && this.props.user.user && this.state.clinicCreateBy === this.props.user.user.id ? (
                                             <Radio.Group >
-                                                <Button type="primary" onClick={this.showFormAddDoctor} shape="round" size="default">
+                                                <Button className = "btn-left-clinic" type="primary" onClick={this.showFormAddDoctor} shape="round" size="default">
                                                     THÊM BÁC SỸ VÀO PHÒNG KHÁM
                                                  </Button>
                                             </Radio.Group>
@@ -544,8 +747,29 @@ class Clinic extends Component {
                                                     )) : <LoadingIsEmpty />
                                                 }
                                             </TabPane>
-                                            <TabPane tab="CHI TIẾT GIÁ" key="4">
-                                                GIÁ
+                                            <TabPane className="prices" tab="CHI TIẾT GIÁ" key="4">
+                                                {
+                                                    prices.prices.object ? (
+                                                        <table >
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th>STT</th>
+                                                                    <th>THÔNG TIN CHI TIẾT DỊCH VỤ</th>
+                                                                    <th>GIÁ TIỀN - VND</th>
+                                                                </tr>
+                                                                {
+                                                                    prices.prices.object.map((value, key) => (
+                                                                        <tr key={key} className="tr-prices">
+                                                                            <td>{key + 1}</td>
+                                                                            <td>{value.description}</td>
+                                                                            <td>{value.totalPrice}<sub>đ</sub></td>
+                                                                        </tr>
+                                                                    ))
+                                                                }
+                                                            </tbody>
+                                                        </table >
+                                                    ) : <LoadingIsEmpty />
+                                                }
                                             </TabPane>
                                             <TabPane tab="QUY TRÌNH KHÁM BỆNH" key="5">
                                                 {
@@ -559,10 +783,13 @@ class Clinic extends Component {
                                             <TabPane tab="XEM LỊCH HẸN" key="6">
 
                                             </TabPane>
+                                            
                                         </Tabs>
 
                                     </div>
+                                    <FooterLayout/>
                                 </div>
+                                
                             </Content>
                         </div>
                     ) : <LoadingIndicator />
@@ -572,6 +799,43 @@ class Clinic extends Component {
     }
 }
 
+function PollChoice(props) {
+    return (
+        <FormItem className="poll-form-row">
+            <Row>
+                <Col span={12}>
+                    <Input
+                        placeholder={"Nhập nội dung giá !"}
+                        size="large"
+                        value={props.choice.description}
+                        className={"optional-choice"}
+                        onChange={(event) => props.handleChangeName(event, props.choiceNumber)} />
+                </Col>
+                <Col span={10}>
+                    <Input
+                        placeholder={"Nhập số tiền  VND!"}
+                        size="large"
+                        value={props.choice.totalPrice}
+                        className={"optional-choice"}
+                        onChange={(event) => props.handleChangePrice(event, props.choiceNumber)} />
+                </Col>
+                <Col span={2}>
+                    {
+                        props.choiceNumber > 1 ? (
+                            <Icon
+                                className="dynamic-delete-button"
+                                type="close"
+                                disabled={props.choiceNumber <= 1}
+                                onClick={() => props.removeChoice(props.choiceNumber)}
+                            />) : null
+                    }
+                </Col>
+
+            </Row>
+
+        </FormItem>
+    );
+}
 const mapStateToProps = (state) => {
     return {
         clinic: state.clinic,
@@ -580,6 +844,7 @@ const mapStateToProps = (state) => {
         postInfors: state.postInfors,
         postProcess: state.postProcess,
         postDevices: state.postDevices,
+        prices: state.prices
     }
 }
 
@@ -592,6 +857,7 @@ export default connect(
         getPostType,
         getPostProcessClinicList,
         getPostInforClinicList,
-        getPostDeviceClinicList
+        getPostDeviceClinicList,
+        getPricesClinicList
     }
 )(Clinic);

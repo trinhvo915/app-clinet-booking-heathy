@@ -3,7 +3,7 @@ import axios from 'axios';
 import { ACCESS_TOKEN } from '../../constants';
 
 const callAPI = async (endpoint, method = "GET", data) => {
-    let token ;
+	let token ;
     if(localStorage.getItem(ACCESS_TOKEN)) {
         token = localStorage.getItem(ACCESS_TOKEN);
     }
@@ -130,6 +130,16 @@ export async function  addCommnetForDoctor(commnet) {
 	return data;
 }
 
+export async function  addPrices(idClinic, prices) {
+	let data = {};
+	await callAPI("price/"+idClinic,'POST',prices)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  addDoctorInClinic(params) {
 	let data = {};
 	await callAPI("clinic/"+params.idClinic+"/"+params.emailOrUsername,'PUT')
@@ -155,6 +165,16 @@ export async function  getPostTypeApi(params) {
 	let data = {};
 
 	await callAPI("doctor/posts/"+params.id_clinic+"/"+params.id_post_type,'GET')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
+export async function  getPricesApi(params) {
+	let data = {};
+	await callAPI("doctor/prices/"+params.id_clinic,'GET')
 		.then(response =>{
 			data = Object.assign({}, data);
 			data =  response.data.data;
