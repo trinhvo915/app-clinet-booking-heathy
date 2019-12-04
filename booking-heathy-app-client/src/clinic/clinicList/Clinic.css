@@ -323,6 +323,23 @@ table {
 .btn-left-clinic {
     width: 250px;
 }
+.view-bookeds-doctor {
+    background:#ffffff;
+    -webkit-box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+    border-radius: 12px;
+    margin-bottom: 5px;
+}
+
+.title-bookeds {
+    font-size: 15px;
+    color: #1890ff;
+    font-weight: bolder;
+}
+.text-data-booked {
+    font-size: 12px;
+    color: black ;
+    font-weight: bolder;
+}
 @media (max-width: 768px) {
    .clinic-left {
         display: none;

@@ -5,7 +5,7 @@ import moment from 'moment';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 import LoadingIndicator from '../../common/LoadingIndicator';
-import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Input, Radio, Select, Form, Row, Col, List } from 'antd';
+import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Input, Radio, Select, Form, Row, Col, Comment, Tooltip, Avatar, Collapse } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
@@ -15,24 +15,28 @@ import { addDoctorInClinic } from './../../util/api/call-api';
 import { getDoctorsOfClinicApi } from './../../util/api/call-api';
 import { addPostForClinic } from './../../util/api/call-api';
 import { getListPostTypeApi } from './../../util/api/call-api';
+import { reportUserForDoctorApi } from './../../util/api/call-api';
+import { sendEmailBookedBusyy } from './../../util/api/call-api';
 import { getDoctorList } from "../../actions/doctor.list.action";
 import { getPostType } from "../../actions/post.type.list.action";
 import { getPostProcessClinicList } from "../../actions/post.process.list.action";
 import { getPostInforClinicList } from "../../actions/post.infor.list.action";
 import { getPostDeviceClinicList } from "../../actions/post.device.list.action";
 import { getPricesClinicList } from "../../actions/price.list.action";
+import { getBookedsDoctorList } from "../../actions/booked.doctor.list.action";
 import DoctorClinic from './Doctor';
 import BraftEditor from 'braft-editor';
 import ReactPlayer from 'react-player'
 import 'braft-editor/dist/index.css'
 import LoadingIsEmpty from '../../common/LoadingIsEmpty';
 import { MAX_CHOICES } from '../../constants';
-import { getPricesApi } from '../../util/api/call-api';
 import FooterLayout from '../../common/FooterLayout';
 const { Content } = Layout;
 const { TabPane } = Tabs;
 const { Option } = Select;
+const { confirm } = Modal;
 const FormItem = Form.Item;
+const { Panel } = Collapse;
 
 class Clinic extends Component {
     constructor(props) {
@@ -73,6 +77,7 @@ class Clinic extends Component {
                     totalPrice: ""
                 },
             ],
+            idClinic: "",
         };
         this.loadClinicDoctors = this.loadClinicDoctors.bind(this);
         this.handleChangeRate = this.handleChangeRate.bind(this);
@@ -84,6 +89,7 @@ class Clinic extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.checkFromSubmitPrice = this.checkFromSubmitPrice.bind(this);
         this.submitPrices = this.submitPrices.bind(this);
+        this.onClickTabs = this.onClickTabs.bind(this);
     }
 
     handleChangeName(event, index) {
@@ -150,7 +156,7 @@ class Clinic extends Component {
                 let paramClinic = {
                     id_clinic: this.props.match.params.id_clinic
                 }
-    
+
                 this.props.getPricesClinicList(paramClinic)
             } else {
                 notification.error({
@@ -316,12 +322,6 @@ class Clinic extends Component {
         }
         this.loadClinicDoctors(paramsClininc);
 
-        // let paramsClinincc = {
-        //     id_clinic: idClininc,
-        // }
-        // getPricesApi(paramsClinincc).then(res =>{
-        //     console.log(res)
-        // })
     }
 
     handleChangeEditorPost = (editorState) => {
@@ -504,6 +504,62 @@ class Clinic extends Component {
         return flag;
     }
 
+    onClickTabs(key) {
+        if (key === '6') {
+            let paramClinic = {
+                id_clinic: this.state.clinics.id
+            }
+            this.state.paramsClininc && this.props.getBookedsDoctorList(paramClinic)
+        }
+    }
+
+    showConfirmReport = (idBooked, idUser, idDoctor, username) => (
+        confirm({
+            title: 'Bạn có muốn Report người dùng : ' + username + ' ?',
+            content: 'Chức năng Report thực hiện khi Người dùng đặt lịch mà không đến khám. Nếu số lượng Report 3 lần thì tài khoản sẻ bị khóa !',
+            onOk() {
+                let param = {
+                    id_user: idUser,
+                    id_expert: idDoctor,
+                    id_booked: idBooked
+                }
+
+                reportUserForDoctorApi(param).then(response => {
+                    if (response.status === 200) {
+                        notification.success({
+                            message: 'Booking Clinic',
+                            description: response.message + "!"
+                        });
+                    } else if (response.status === 400) {
+                        notification.error({
+                            message: 'Booking Clinic',
+                            description: response.message + "!"
+                        });
+                    }
+                })
+            },
+            onCancel() {
+            },
+        })
+    )
+
+    showConfirmBusyy = (idBooked) => (
+        confirm({
+            title: 'Bạn có muốn thực hiện chức năng này ?',
+            content: 'Chức năng này thực hiện khi bác sĩ bận lịch !',
+            onOk() {
+                sendEmailBookedBusyy(idBooked).then(response => {
+                    notification.success({
+                        message: 'Booking Clinic',
+                        description: response.message + "!"
+                    });
+                })
+            },
+            onCancel() {
+            },
+        })
+    )
+
     render() {
         const postInfors = this.props.postInfors.postInfors.object;
 
@@ -513,7 +569,9 @@ class Clinic extends Component {
 
         const prices = this.props.prices;
 
-        console.log(prices)
+
+        const bookedsDoctor = this.props.bookedsDoctor;
+        console.log(bookedsDoctor)
 
         const { object } = this.props.clinic.clinic;
         const { clinics } = this.state;
@@ -645,7 +703,7 @@ class Clinic extends Component {
                                     {
                                         this.props.user.user && this.state.checkDoctor !== "" ? (
                                             <Radio.Group >
-                                                <Button className = "btn-left-clinic" type="primary" onClick={this.showModalCreatePost} shape="round" size="default">
+                                                <Button className="btn-left-clinic" type="primary" onClick={this.showModalCreatePost} shape="round" size="default">
                                                     THÊM THÔNG TIN PHÒNG KHÁM
                                                  </Button>
                                             </Radio.Group>
@@ -656,7 +714,7 @@ class Clinic extends Component {
                                     {
                                         this.props.user.user && this.state.checkDoctor !== "" ? (
                                             <Radio.Group >
-                                                <Button className = "btn-left-clinic" type="primary" onClick={this.showModalCreatePrice} shape="round" size="default">
+                                                <Button className="btn-left-clinic" type="primary" onClick={this.showModalCreatePrice} shape="round" size="default">
                                                     THÊM GIÁ PHÒNG KHÁM
                                                 </Button>
                                             </Radio.Group>
@@ -667,7 +725,7 @@ class Clinic extends Component {
                                     {
                                         this.state.clinicCreateBy !== "" && this.props.user.user && this.state.clinicCreateBy === this.props.user.user.id ? (
                                             <Radio.Group >
-                                                <Button className = "btn-left-clinic" type="primary" onClick={this.showFormAddDoctor} shape="round" size="default">
+                                                <Button className="btn-left-clinic" type="primary" onClick={this.showFormAddDoctor} shape="round" size="default">
                                                     THÊM BÁC SỸ VÀO PHÒNG KHÁM
                                                  </Button>
                                             </Radio.Group>
@@ -727,7 +785,7 @@ class Clinic extends Component {
 
                                     <div className="main-content">
 
-                                        <Tabs defaultActiveKey="1" tabPosition="top" style={{ height: 'auto' }}>
+                                        <Tabs onChange={this.onClickTabs} defaultActiveKey="1" tabPosition="top" style={{ height: 'auto' }}>
                                             <TabPane tab="BÁC SỸ" key="1">
                                                 {doctorViews}
                                             </TabPane>
@@ -779,17 +837,91 @@ class Clinic extends Component {
                                                     )) : <LoadingIsEmpty />
                                                 }
                                             </TabPane>
+                                            {
+                                                this.props.user.user && this.state.checkDoctor !== "" ? (
+                                                    <TabPane tab="XEM LỊCH HẸN" key="6">
+                                                        {
+                                                            bookedsDoctor.bookedsDoctor.object && bookedsDoctor.bookedsDoctor.object.length > 0 ? bookedsDoctor.bookedsDoctor.object.map((value, key) => (
+                                                                <Comment
+                                                                    key={key}
+                                                                    className="view-bookeds-doctor"
+                                                                    author={<a className="title-bookeds">{value.userBooked.username}</a>}
+                                                                    avatar={
+                                                                        <Avatar
+                                                                            src={value.userBooked.attachmentPerson ? "data:image/jpeg;base64," + value.userBooked.attachmentPerson.data : "https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"}
+                                                                            alt="Han Solo"
+                                                                        />
+                                                                    }
+                                                                    content={
+                                                                        <div>
+                                                                            <Row >
+                                                                                <Col className="Col-bookeds" span={4} >
+                                                                                    <span className="title-bookeds">Tên Bệnh Nhân</span>
+                                                                                    <br />
+                                                                                    <span className="text-data-booked">{value.namePatient}</span>
+                                                                                </Col>
+                                                                                <Col className="Col-bookeds" span={4} >
+                                                                                    <span className="title-bookeds">Tên Người Đặt Lịch</span>
+                                                                                    <br />
+                                                                                    <span className="text-data-booked">{value.namePersonBooking}</span>
+                                                                                </Col>
+                                                                                <Col className="Col-bookeds" span={4} >
+                                                                                    <span className="title-bookeds">Số điện thoại</span>
+                                                                                    <br />
+                                                                                    <span className="text-data-booked">{value.numberPhone}</span>
+                                                                                </Col>
+                                                                                <Col className="Col-bookeds" span={4} >
+                                                                                    <span className="title-bookeds">Ngày đặt lịch</span>
+                                                                                    <br />
+                                                                                    <span className="text-data-booked">{value.timeBooking + " H : " + value.dateBooking}</span>
+                                                                                </Col>
+                                                                                <Col className="Col-bookeds" span={4} >
+                                                                                    <span className="title-bookeds">Email</span>
+                                                                                    <br />
+                                                                                    <span className="text-data-booked">{value.email}</span>
+                                                                                </Col>
+                                                                                <Col className="Col-bookeds" span={4} >
+                                                                                    <span className="title-bookeds">Địa chỉ</span>
+                                                                                    <br />
+                                                                                    <span className="text-data-booked">{value.address}
+                                                                                    </span>
+                                                                                </Col>
+                                                                            </Row>
+                                                                            <Row>
+                                                                                <Collapse accordion>
+                                                                                    <Panel header="Tiệu chứng khám bệnh" key="1">
+                                                                                        <span className="text-data-booked">{value.pathology}</span>
+                                                                                    </Panel>
+                                                                                </Collapse>,
+                                                                            </Row>
+                                                                            <Row>
+                                                                                <span key="comment-basic-like">
+                                                                                    <Tooltip title="Report">
+                                                                                        <Icon onClick={() => this.showConfirmReport(value.id, value.userBooked.id, this.props.user.user.id, value.userBooked.username)} style={{ fontSize: '25px', color: 'red' }} type="heat-map" />
+                                                                                    </Tooltip>
+                                                                                </span>
+                                                                                <span style={{ marginLeft: "10px" }} key='comment-basic-dislike'>
+                                                                                    <Tooltip title="Báo Bận">
+                                                                                        <Icon onClick={() => this.showConfirmBusyy(value.id)} style={{ fontSize: '25px', color: 'darkorange' }} type="radar-chart" />
+                                                                                    </Tooltip>
+                                                                                </span>
+                                                                            </Row>
+                                                                        </div>
+                                                                    }
 
-                                            <TabPane tab="XEM LỊCH HẸN" key="6">
+                                                                />
+                                                            )) : <LoadingIsEmpty></LoadingIsEmpty>
+                                                        }
 
-                                            </TabPane>
-                                            
+                                                    </TabPane>
+                                                ) : ""
+                                            }
                                         </Tabs>
 
                                     </div>
-                                    <FooterLayout/>
+                                    <FooterLayout />
                                 </div>
-                                
+
                             </Content>
                         </div>
                     ) : <LoadingIndicator />
@@ -798,6 +930,7 @@ class Clinic extends Component {
         )
     }
 }
+
 
 function PollChoice(props) {
     return (
@@ -844,7 +977,8 @@ const mapStateToProps = (state) => {
         postInfors: state.postInfors,
         postProcess: state.postProcess,
         postDevices: state.postDevices,
-        prices: state.prices
+        prices: state.prices,
+        bookedsDoctor: state.bookedsDoctor
     }
 }
 
@@ -858,6 +992,7 @@ export default connect(
         getPostProcessClinicList,
         getPostInforClinicList,
         getPostDeviceClinicList,
-        getPricesClinicList
+        getPricesClinicList,
+        getBookedsDoctorList
     }
 )(Clinic);

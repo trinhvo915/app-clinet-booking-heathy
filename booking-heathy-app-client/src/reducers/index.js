@@ -10,6 +10,7 @@ import {postInforReducer} from "./post.infor.list.reducer";
 import {postProcessReducer} from "./post.process.list.reducer";
 import {postDeviceReducer} from "./post.device.list.reducer";
 import {pricesReducer} from "./price.list.reducer";
+import {bookedsDoctorReducer} from "./bookeds.doctor.list.reducer";
 
 export default combineReducers({
   facultyList : facultyListReducer,
@@ -23,4 +24,5 @@ export default combineReducers({
   postProcess: postProcessReducer,
   postDevices : postDeviceReducer,
   prices : pricesReducer,
+  bookedsDoctor:bookedsDoctorReducer
 });

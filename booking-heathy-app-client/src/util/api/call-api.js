@@ -182,11 +182,41 @@ export async function  getPricesApi(params) {
 	return data;
 }
 
+export async function  getBookedsForDoctorApi(params) {
+	let data = {};
+	await callAPI("booking/bookeds/"+params.id_clinic,'GET')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
+export async function  reportUserForDoctorApi(params) {
+	let data = {};
+	await callAPI("user/report/"+params.id_user+"/"+params.id_expert+"/"+params.id_booked,'GET')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  sendEmailBooking(booking) {
 	let data = {};
 	await callAPI("booking/send-email",'POST',booking)
 		.then(response =>{
 			
+		})
+	return data;
+}
+
+export async function  sendEmailBookedBusyy(id_booked) {
+	let data = {};
+	await callAPI("send-email/busyy/"+id_booked,'GET')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response
 		})
 	return data;
 }

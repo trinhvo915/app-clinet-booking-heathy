@@ -11,7 +11,6 @@ function* getPricesList(action) {
     const payload = yield call(
         getPricesApi, action.payload.params
     );
-    console.log(payload)
     yield put(getPricesClinicListSuccess(payload));
   } catch (error) {
     yield put(getPricesClinicListFailed());
