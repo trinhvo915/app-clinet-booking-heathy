@@ -571,7 +571,6 @@ class Clinic extends Component {
 
 
         const bookedsDoctor = this.props.bookedsDoctor;
-        console.log(bookedsDoctor)
 
         const { object } = this.props.clinic.clinic;
         const { clinics } = this.state;

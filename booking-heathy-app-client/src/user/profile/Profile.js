@@ -1,119 +1,129 @@
 import React, { Component } from 'react';
-import PollList from '../../poll/PollList';
-import { getUserProfile } from '../../util/APIUtils';
-import { Avatar, Tabs } from 'antd';
-import { getAvatarColor } from '../../util/Colors';
-import { formatDate } from '../../util/Helpers';
-import LoadingIndicator  from '../../common/LoadingIndicator';
 import './Profile.css';
-import NotFound from '../../common/NotFound';
-import ServerError from '../../common/ServerError';
-
-const TabPane = Tabs.TabPane;
+import { CardText, CardImg } from 'reactstrap';
+import { Icon, Button, Layout, Tabs, Avatar,notification } from 'antd';
+import FooterLayout from '../../common/FooterLayout';
+import LoadingIsEmpty from '../../common/LoadingIsEmpty';
+import { getHistoryBookedDoctorList } from "../../actions/historyBookedDoctor.list.action";
+import { getHistoryBookedDoctorApi } from './../../util/api/call-api';
+import { addRateForDoctor } from './../../util/api/call-api';
+import { getUser } from "../../actions/get.user.action";
+import { connect } from "react-redux";
+import DoctorHistory from './DoctorHistory';
+const { Content } = Layout;
+const { TabPane } = Tabs;
 
 class Profile extends Component {
+
     constructor(props) {
         super(props);
-        this.state = {
-            user: null,
-            isLoading: false
-        }
-        this.loadUserProfile = this.loadUserProfile.bind(this);
     }
 
-    loadUserProfile(username) {
-        this.setState({
-            isLoading: true
-        });
-
-        getUserProfile(username)
-        .then(response => {
-            this.setState({
-                user: response,
-                isLoading: false
-            });
-        }).catch(error => {
-            if(error.status === 404) {
-                this.setState({
-                    notFound: true,
-                    isLoading: false
-                });
-            } else {
-                this.setState({
-                    serverError: true,
-                    isLoading: false
-                });        
-            }
-        });        
+    loadHistoryBookedDoctors (){
+        this.props.getHistoryBookedDoctorList();
     }
-      
+
+
     componentDidMount() {
-        const username = this.props.match.params.username;
-        this.loadUserProfile(username);
-    }
+        this.loadHistoryBookedDoctors();
 
-    componentDidUpdate(nextProps) {
-        if(this.props.match.params.username !== nextProps.match.params.username) {
-            this.loadUserProfile(nextProps.match.params.username);
-        }        
     }
 
     render() {
-        if(this.state.isLoading) {
-            return <LoadingIndicator />;
-        }
-
-        if(this.state.notFound) {
-            return <NotFound />;
-        }
-
-        if(this.state.serverError) {
-            return <ServerError />;
-        }
-
-        const tabBarStyle = {
-            textAlign: 'center'
-        };
-
+        const {object} = this.props.historyBookedDoctor.historyBookedDoctor;
+        console.log(object)
+        console.log(this.state)
+        const doctorBooked = [];
+        object && object.forEach((doctor, key) => {
+            doctorBooked.push(
+                <DoctorHistory
+                    key={key}
+                    doctor={object[key]}
+                />
+            )
+        });
         return (
-            <div className="profile">
-                { 
-                    this.state.user ? (
-                        <div className="user-profile">
-                            <div className="user-details">
-                                <div className="user-avatar">
-                                    <Avatar className="user-avatar-circle" style={{ backgroundColor: getAvatarColor(this.state.user.name)}}>
-                                        {this.state.user.name[0].toUpperCase()}
-                                    </Avatar>
-                                </div>
-                                <div className="user-summary">
-                                    <div className="full-name">{this.state.user.name}</div>
-                                    <div className="username">@{this.state.user.username}</div>
-                                    <div className="user-joined">
-                                        Joined {formatDate(this.state.user.joinedAt)}
-                                    </div>
-                                </div>
+            <Layout>
+                <div className="main-clinic-profile">
+                    <div className="clinic-left-profile">
+                        <div className="avatar-user">
+                            <div className="avatar-user-center">
+                                <Avatar size={115} icon="user" />
                             </div>
-                            <div className="user-poll-details">    
-                                <Tabs defaultActiveKey="1" 
-                                    animated={false}
-                                    tabBarStyle={tabBarStyle}
-                                    size="large"
-                                    className="profile-tabs">
-                                    <TabPane tab={`${this.state.user.pollCount} Polls`} key="1">
-                                        <PollList username={this.props.match.params.username} type="USER_CREATED_POLLS" />
-                                    </TabPane>
-                                    <TabPane tab={`${this.state.user.voteCount} Votes`}  key="2">
-                                        <PollList username={this.props.match.params.username} type="USER_VOTED_POLLS" />
+                            <span className="profile-center">VÕ VĂN TRINH</span>
+                        </div>
+                        <hr className="profile-hr" />
+                        <div className="infor-profile">
+                            <div className="detail-profile">
+                                <div className="icon-profile">
+                                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="schedule" />
+                                </div>
+                                <div className="icon-infor-profile">sdfsdfasdfasdfasd</div>
+                            </div>
+
+                            <div className="detail-profile">
+                                <div className="icon-profile">
+                                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="cluster" />
+                                </div>
+                                <div className="icon-infor-profile">sdfsdfasdfasdfasd</div>
+                            </div>
+
+                            <div className="detail-profile">
+                                <div className="icon-profile">
+                                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="environment" />
+                                </div>
+                                <div className="icon-infor-profile">sdfsdfasdfasdfasd</div>
+                            </div>
+                            <div className="detail-profile">
+                                <div className="icon-profile">
+                                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="phone" />
+                                </div>
+                                <div className="icon-infor-profile">sdfsdfasdfasdfasd</div>
+                            </div>
+                            <div className="detail-profile">
+                                <div className="icon-profile">
+                                    <Icon style={{ fontSize: '20px', color: '#08c' }} type="facebook" />
+                                </div>
+                                <div className="icon-infor-profile">sdfsdfasdfasdfasd</div>
+                            </div>
+                        </div>
+
+                        <div className="profile-btn">
+                            <Button type="primary">Cập Nhật</Button>
+                        </div>
+                    </div>
+                    <Content>
+                        <div className="clinic-right-profile">
+                            <div className="main-content">
+                                <Tabs defaultActiveKey="1" tabPosition="top" style={{ height: 'auto' }}>
+                                    <TabPane tab="LỊCH SỬ ĐẶT LỊCH" key="1">
+                                        {doctorBooked}
+                                        {/* <LoadingIsEmpty /> */}
                                     </TabPane>
                                 </Tabs>
-                            </div>  
-                        </div>  
-                    ): null               
-                }
-            </div>
+                            </div>
+                            <hr  />
+                            <FooterLayout />
+                        </div>
+
+                    </Content>
+                </div>
+            </Layout>
         );
     }
 }
 
-export default Profile;
+const mapStateToProps = (state) => {
+    return {
+        historyBookedDoctor: state.historyBookedDoctor,
+        user: state.user,
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    {
+        getHistoryBookedDoctorList,
+        getUser
+    }
+)(Profile);

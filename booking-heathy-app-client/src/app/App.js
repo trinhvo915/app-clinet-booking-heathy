@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import './App.css';
 import {
   Route,
@@ -24,8 +24,7 @@ import ClinicList from '../clinic/clinicList/ClinicList';
 import { Layout, notification } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Clinic from '../clinic/clinicList/Clinic';
-import FooterLayout from '../common/FooterLayout';
-const { Content, Footer } = Layout;
+const { Content } = Layout;
 
 class App extends Component {
   constructor(props) {
@@ -146,7 +145,6 @@ class App extends Component {
             </Switch>
           </div>
         </Content>
-        {/* <FooterLayout/> */}
       </Layout>
     );
   }

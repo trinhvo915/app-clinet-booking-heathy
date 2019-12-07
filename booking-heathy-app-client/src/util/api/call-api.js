@@ -192,6 +192,16 @@ export async function  getBookedsForDoctorApi(params) {
 	return data;
 }
 
+export async function  getHistoryBookedDoctorApi() {
+	let data = {};
+	await callAPI("booking/bookeds/user",'GET')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  reportUserForDoctorApi(params) {
 	let data = {};
 	await callAPI("user/report/"+params.id_user+"/"+params.id_expert+"/"+params.id_booked,'GET')
