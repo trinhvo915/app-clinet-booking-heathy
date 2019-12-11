@@ -4,11 +4,11 @@ import {
   getProfileSuccess,
   getProfileFailed
 } from "../actions/profile.action";
-import Api from "../api/api";
+import { getUserProfileApi } from '../util/api/call-api';
 
 function* getProfile() {
   try {
-    const payload = yield call(Api.getProfile);
+    const payload = yield call(getUserProfileApi);
     yield put(getProfileSuccess(payload));
   } catch (error) {
     yield put(getProfileFailed());

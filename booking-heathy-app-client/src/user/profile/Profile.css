@@ -90,6 +90,11 @@
     border-bottom: none;
     margin-bottom: 10px;
 }
+.detail-profile .icon-profile {
+    position: relative;
+    margin-bottom: 8px;
+    padding-left: 26px;
+}
 @media (min-width: 576px) {
    
 }
@@ -101,7 +106,7 @@
         background:  white;
         width: 100%;
         float: left;
-        height: 450px;
+        height: 650px;
     }
     .doctor-profie {
         width: 100%;

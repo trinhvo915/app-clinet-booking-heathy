@@ -12,6 +12,7 @@ import {postDeviceReducer} from "./post.device.list.reducer";
 import {pricesReducer} from "./price.list.reducer";
 import {bookedsDoctorReducer} from "./bookeds.doctor.list.reducer";
 import {historyBookedDoctorReducer} from "./history.booked.doctor.reducer";
+import {profileReducer} from "./profile.reducer";
 
 export default combineReducers({
   facultyList : facultyListReducer,
@@ -26,5 +27,6 @@ export default combineReducers({
   postDevices : postDeviceReducer,
   prices : pricesReducer,
   bookedsDoctor : bookedsDoctorReducer,
-  historyBookedDoctor : historyBookedDoctorReducer
+  historyBookedDoctor : historyBookedDoctorReducer,
+  profile : profileReducer,
 });

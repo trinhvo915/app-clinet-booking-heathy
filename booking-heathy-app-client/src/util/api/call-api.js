@@ -202,6 +202,16 @@ export async function  getHistoryBookedDoctorApi() {
 	return data;
 }
 
+export async function  getUserProfileApi() {
+	let data = {};
+	await callAPI("user/profiles",'GET')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  reportUserForDoctorApi(params) {
 	let data = {};
 	await callAPI("user/report/"+params.id_user+"/"+params.id_expert+"/"+params.id_booked,'GET')
@@ -244,6 +254,16 @@ export async function  boookingForDoctor(booking) {
 export async function  addRateForDoctor(rate) {
 	let data = {};
 	await callAPI("rates",'POST',rate)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data;
+		})
+	return data;
+}
+
+export async function  updateProfileUser(user) {
+	let data = {};
+	await callAPI("user/update",'POST',user)
 		.then(response =>{
 			data = Object.assign({}, data);
 			data =  response.data;

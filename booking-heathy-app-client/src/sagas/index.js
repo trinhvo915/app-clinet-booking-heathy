@@ -12,6 +12,7 @@ import {watchgetPostProcessListAsync} from "./post.process.list.saga";
 import {watchGetPricesListAsync} from "./price.list.saga";
 import {watchGetBookedsDoctorListAsync} from "./bookeds.doctor.list.saga";
 import {watchHistoryBookedDoctorListAsync} from "./history.booked.list.saga";
+import {watchProfileSagasAsync} from "./profile.saga";
 
 export default function* sagas() {
   yield all([
@@ -28,5 +29,6 @@ export default function* sagas() {
     fork(watchGetPricesListAsync),
     fork(watchGetBookedsDoctorListAsync),
     fork(watchHistoryBookedDoctorListAsync),
+    fork(watchProfileSagasAsync),
   ]);
 }
