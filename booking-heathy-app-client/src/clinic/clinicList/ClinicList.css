@@ -1,7 +1,20 @@
-.search-top {
-    background-size: cover;
-    background-image: url("../../image/bacground.jpg");  
-    height: 300px;
+.dangnhap-show {
+    margin-top: 9px;
+    height: 150px;
+    background: #f8f8f6;
+}
+.img-show {
+    float: left;
+    width: 50%;
+}
+.sign-show {
+    margin-top: 20px;
+    text-align: center;
+    float: left;
+    width: 50%;
+}
+.sign-title {
+    font-size: 23px;
 }
 .clinic-all {
     padding: 0.4em 0em 0.5em 0em;
@@ -152,6 +165,12 @@
 }
 
 @media (max-width: 768px) {
+    .img-show {
+        display: none;
+    }
+    .sign-show {
+        width: 100%;
+    }
     .search-top {
         height: 200px;
     }

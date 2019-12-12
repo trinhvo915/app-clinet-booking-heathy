@@ -1,7 +1,19 @@
 .app-title {
     float: left;
   }
+  .head-search {
+    float: left;
+    margin-left: 2%;
+  }
   
+  .province-select {
+    width: 190px;
+  }
+
+  .distrit-select {
+    width: 190px;
+  }
+
   .app-title a {
     text-decoration: none;
     font-size: 21px;
@@ -77,10 +89,21 @@
   }
 
 @media (max-width: 768px) {
+  
+  .province-select {
+    width: 130px;
+  }
+
+  .distrit-select {
+    width: 130px;
+  }
+
   .app-title a {
     font-size: 20px;
   }
-
+  .head-search {
+    display: none;
+  }
   .app-menu > li {
     padding: 0 8px;
   }

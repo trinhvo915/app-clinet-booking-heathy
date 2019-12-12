@@ -58,7 +58,7 @@ export default class FooterLayout extends Component {
                         </Row>
                         <Row className="footer-address">
                             <span>
-                                CÔNG TY TNHH CHỢ TỐT - Địa chỉ: Phòng 1808, Tầng 18, Mê Linh Point Tower, 02 Ngô Đức Kế, Phường Bến Nghé, Quận 1, TP Hồ Chí Minh<br />
+                                CÔNG TY TNHH BOOKING CLINIC - Địa chỉ: Phòng 1808, Tầng 18, Mê Linh Point Tower, 02 Ngô Đức Kế, Phường Bến Nghé, Quận 1, TP Hồ Chí Minh<br />
                                 Giấy chứng nhận đăng ký doanh nghiệp số 0312120782 do Sở Kế Hoạch và Đầu Tư TPHCM cấp ngày 11/01/2013<br />
                                 Email: trogiup@chotot.vn - Đường dây nóng: (028)38664041
                         </span>

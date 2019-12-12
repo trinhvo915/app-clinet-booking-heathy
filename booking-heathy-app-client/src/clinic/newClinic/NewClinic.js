@@ -291,10 +291,7 @@ class NewClinic extends Component {
         const { previewVisible, previewImage, fileList } = this.state;
         let provinces = this.props.province.province;
         let distrits = this.props.distrits.distrits;
-        let kaka = this.props.province.province ? this.props.province.province.object : "";
-        console.log(this.state)
-
-        console.log(distrits)
+        
         const uploadButton = (
             <div>
                 <Icon type="plus" />

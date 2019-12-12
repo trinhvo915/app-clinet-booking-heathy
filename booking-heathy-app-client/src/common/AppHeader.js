@@ -7,18 +7,41 @@ import './AppHeader.css';
 import { Badge } from 'antd';
 import { connect } from "react-redux";
 // import pollIcon from '../poll.svg';
-import { Layout, Menu, Dropdown, Icon } from 'antd';
+import { Layout, Menu, Dropdown, Icon, Button, Modal, Select, Row, Col } from 'antd';
 import { getUser } from "./../actions/get.user.action";
+import { getProvinces } from "../actions/province.list.action";
+import { getDistristList } from "../actions/distrits.list.action";
 const Header = Layout.Header;
+const Option = Select.Option;
 
 class AppHeader extends Component {
   constructor(props) {
     super(props);
     this.state = {
       count: 10,
+      visibleSearch: false,
+      distrit: "BA ĐÌNH",
+      nameDistritSearch: "",
+      nameProvinceSearch: "",
     }
 
     this.handleMenuClick = this.handleMenuClick.bind(this);
+    this.handleChangeProvinceHead = this.handleChangeProvinceHead.bind(this);
+    this.handleChangeDistritsHead = this.handleChangeDistritsHead.bind(this);
+  }
+
+
+
+  showModalSearch() {
+    this.setState({
+      visibleSearch: true
+    })
+  }
+
+  handleCancelSearch = () => {
+    this.setState({
+      visibleSearch: false
+    })
   }
 
   handleMenuClick({ key }) {
@@ -38,13 +61,46 @@ class AppHeader extends Component {
     }
   }
 
+  getData() {
+    this.props.getProvinces();
+    this.props.getDistristList("2");
+  }
+
   componentDidMount = async () => {
     await this.getUserCheck();
+    this.getData();
   };
+
+  handleChangeDistritsHead(value) {
+    let distrits = this.props.distrits.distrits.object;
+    distrits.forEach(x => {
+      if (x._name === value) {
+        this.setState({
+          nameDistritSearch: x._name,
+        })
+      }
+    })
+  }
+
+  handleChangeProvinceHead(value) {
+    let provinces = this.props.province.province.object;
+    provinces.forEach(x => {
+      if (x._name === value) {
+        this.props.getDistristList(x.id);
+        let arrdis = this.props.distrits.distrits.object;
+        let lalal = arrdis[0]
+        this.setState({
+          distrit: lalal._name,
+          nameProvinceSearch: x._name
+        })
+      }
+    })
+  }
 
   render() {
     const { user } = this.props.user;
-
+    let provinces = this.props.province.province;
+    let distrits = this.props.distrits.distrits;
     let menuItems;
     if (this.props.currentUser && user.check === "USER_EXPERT") {
       menuItems = [
@@ -156,21 +212,75 @@ class AppHeader extends Component {
         </Menu.Item>
       ];
     }
+
     return (
-      <Header className="app-header">
-        <div className="container">
-          <div className="app-title" >
-            <Link to="/"><strong>Booking Clinic</strong></Link>
-          </div>
-          <Menu
-            className="app-menu"
-            mode="horizontal"
-            selectedKeys={[this.props.location.pathname]}
-            style={{ lineHeight: '64px' }} >
-            {menuItems}
-          </Menu>
+      <div>
+        <div className="commnet-modal-heard">
+          <Modal
+            style={{ top: 90 }}
+            width={620}
+            footer={null}
+            visible={this.state.visibleSearch}
+            onCancel={this.handleCancelSearch}
+          >
+            <span className="title-booking">TÌM KIẾM THEO KHU VỰC</span>
+            <Row>
+              <Col span={10}>
+                {
+                  provinces ? (
+                    <Select defaultValue={"Hà Nội"} className="province-select" onChange={this.handleChangeProvinceHead} >
+                      {
+                        provinces.object ? provinces.object.map((value, key) =>
+                          <Option key={key} value={value._name}>{value._name}</Option>
+                        ) : null
+                      }
+                    </Select>
+                  ) : ""
+                }
+              </Col>
+              <Col span={10}>
+                {
+                  distrits ? (
+                    <Select defaultValue={this.state.distrit} className="distrit-select" onChange={this.handleChangeDistritsHead}  >
+                      {
+                        distrits.object ? distrits.object.map((value, key) =>
+                          <Option key={key} value={value._name}>{value._name}</Option>
+                        ) : null
+                      }
+                    </Select>
+                  ) : ""
+                }
+              </Col>
+              <Col span={4}>
+                <Link to={this.state.nameProvinceSearch !== "" && this.state.nameDistritSearch ? "/search/"+this.state.nameProvinceSearch + " "+ this.state.nameDistritSearch : ""}>
+                  <Icon style={{ fontSize: '30px', color: '#08c' }} type="search" />
+                </Link>
+              </Col>
+            </Row>
+          </Modal>
         </div>
-      </Header>
+
+        <Header className="app-header">
+          <div className="container">
+            <div className="app-title" >
+              <Link to="/"><strong>Booking Clinic</strong></Link>
+            </div>
+            <div className="head-search" >
+              <Button onClick={() => this.showModalSearch()} type="primary" icon="search">
+                Tìm Kiếm
+             </Button>
+            </div>
+            <Menu
+              className="app-menu"
+              mode="horizontal"
+              selectedKeys={[this.props.location.pathname]}
+              style={{ lineHeight: '64px' }} >
+              {menuItems}
+            </Menu>
+          </div>
+        </Header>
+      </div>
+
     );
   }
 }
@@ -244,12 +354,16 @@ function Clinics(props) {
 const mapStateToProps = (state) => {
   return {
     user: state.user,
+    province: state.province,
+    distrits: state.distrits
   }
 }
 
 export default connect(
   mapStateToProps,
   {
-    getUser
+    getUser,
+    getProvinces,
+    getDistristList
   }
 )(withRouter(AppHeader));

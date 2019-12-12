@@ -15,6 +15,7 @@ import {historyBookedDoctorReducer} from "./history.booked.doctor.reducer";
 import {profileReducer} from "./profile.reducer";
 import {provinceReducer} from "./province.reducer";
 import {distritsReducer} from "./distrist.reducer";
+import {searchDoctorsReducer} from "./search.doctor.list.reducer";
 
 export default combineReducers({
   facultyList : facultyListReducer,
@@ -33,5 +34,5 @@ export default combineReducers({
   profile : profileReducer,
   province : provinceReducer,
   distrits : distritsReducer,
-  
+  searchdoctors : searchDoctorsReducer,
 });

@@ -111,6 +111,16 @@ export async function  getDoctorListApi() {
 	return data;
 }
 
+export async function  getSearchDoctorListApi(address) {
+	let data = {};
+	
+	await callAPI("doctor/search/"+address,'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
 
 export async function  getListPostTypeApi() {
 	let data = {};
