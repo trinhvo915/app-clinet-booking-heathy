@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Spin, Empty,Button } from 'antd';
+import { Spin, Empty,Button,  } from 'antd';
 import './LoadingIsEmpty.css';
 export default class LoadingIsEmpty extends Component {
     render() {

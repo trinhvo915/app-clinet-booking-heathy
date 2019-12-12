@@ -49,7 +49,7 @@
 }
 
 .logo-clinic-image {
-    height: auto;
+    height: 160px;
     object-fit: cover;
     background-size: cover;
     width: 100%;

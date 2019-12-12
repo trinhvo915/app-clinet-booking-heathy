@@ -60,6 +60,26 @@ export async function  getListCommentDoctorApi(params) {
 	return data;
 }
 
+export async function  getProvincesApi() {
+	let data = {};
+	await callAPI("doctor/provinces",'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
+export async function  getDistritsApi(id) {
+	let data = {};
+	await callAPI("doctor/district/"+id,'GET',null)
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data.data;
+		})
+	return data;
+}
+
 export async function  getListDayBookingDoctorApi(params) {
 	let data = {};
 	await callAPI("doctor/dates-booking/"+params.idDoctor+"/"+params.idClinic,'GET',null)
@@ -107,6 +127,15 @@ export async function  postImagePerson(image) {
 	let formdata= new FormData();
 	formdata.append("file",image);
 	formdata.append("attachmentType","DAIDIEN")
+	
+	await callAPI("user/uploadFile",'POST',formdata)
+}
+
+export async function  postImageLogoClinic(image) {
+	
+	let formdata= new FormData();
+	formdata.append("file",image);
+	formdata.append("attachmentType","DAIDIENCLINIC")
 	
 	await callAPI("user/uploadFile",'POST',formdata)
 }

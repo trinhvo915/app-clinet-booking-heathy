@@ -5,7 +5,7 @@ import moment from 'moment';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 import LoadingIndicator from '../../common/LoadingIndicator';
-import { notification, Icon, Modal, Button, Carousel, Layout, Tabs, Input, Radio, Select, Form, Row, Col, Comment, Tooltip, Avatar, Collapse } from 'antd';
+import { Spin, Alert, notification, Icon, Modal, Button, Carousel, Layout, Tabs, Input, Radio, Select, Form, Row, Col, Comment, Tooltip, Avatar, Collapse } from 'antd';
 import { connect } from "react-redux";
 import { getDoctorOfClinicList } from "../../actions/doctorsOfClinic.list.action";
 import { getUser } from "../../actions/get.user.action";
@@ -180,8 +180,7 @@ class Clinic extends Component {
     }
     /////////
     handleChangeRate(value, doctor, key) {
-
-        if (this.props.user.user && this.props.user.user.status !== 401) {
+        if (!this.props.user.failed) {
             let numberStar = "";
 
             if (value === 1) {
@@ -676,7 +675,20 @@ class Clinic extends Component {
 
                             <div className="clinic-left">
                                 <div className="logo-clinic">
-                                    <CardImg className="logo-clinic-image" variant="top" src={"https://scontent.fsgn2-2.fna.fbcdn.net/v/t1.0-9/61161283_2321475054806859_331553702676529152_n.jpg?_nc_cat=100&_nc_oc=AQmBqpb1drO4571bAv--cTorIP66LzZsIePccs_31_sohEG2SFx4Iyrg89-ZLCShm1w&_nc_ht=scontent.fsgn2-2.fna&oh=48e8c12558670da5f74940b239caad1f&oe=5E19B8E4"} />
+                                    {
+                                        clinics.photoClinicLogo ? (
+                                            <CardImg  className="logo-clinic-image"  variant="top" src={"data:image/jpeg;base64," + clinics.photoClinicLogo.data } />
+                                        ) : (
+                                                <Spin tip="Loading...">
+                                                    <Alert
+                                                        message="Alert message title"
+                                                        description="Further details about the context of this alert."
+                                                        type="info"
+                                                    />
+                                                </Spin>
+                                            )
+                                    }
+
                                 </div>
 
                                 <div className="logo-clinic-name">

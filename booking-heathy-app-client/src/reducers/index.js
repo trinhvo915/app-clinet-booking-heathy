@@ -13,6 +13,8 @@ import {pricesReducer} from "./price.list.reducer";
 import {bookedsDoctorReducer} from "./bookeds.doctor.list.reducer";
 import {historyBookedDoctorReducer} from "./history.booked.doctor.reducer";
 import {profileReducer} from "./profile.reducer";
+import {provinceReducer} from "./province.reducer";
+import {distritsReducer} from "./distrist.reducer";
 
 export default combineReducers({
   facultyList : facultyListReducer,
@@ -29,4 +31,7 @@ export default combineReducers({
   bookedsDoctor : bookedsDoctorReducer,
   historyBookedDoctor : historyBookedDoctorReducer,
   profile : profileReducer,
+  province : provinceReducer,
+  distrits : distritsReducer,
+  
 });

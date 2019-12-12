@@ -113,7 +113,7 @@ class DoctorClinic extends Component {
     }
 
     addCommnet() {
-        if (this.props.user.user && this.props.user.user.status !== 401) {
+        if (!this.props.user.failed ) {
 
             let comment = {
                 content: this.state.contentCommnet.value,
@@ -254,7 +254,7 @@ class DoctorClinic extends Component {
     };
 
     showModalBooking(booking, doctor, clinic) {
-        if (this.props.user.user && this.props.user.user.status !== 401) {
+        if (!this.props.user.failed ) {
             this.setState({
                 bookingDoctor: booking,
                 imageDoctor: doctor.attachmentPerson.data,
