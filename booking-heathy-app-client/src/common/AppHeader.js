@@ -4,9 +4,7 @@ import {
   withRouter
 } from 'react-router-dom';
 import './AppHeader.css';
-import { Badge } from 'antd';
 import { connect } from "react-redux";
-// import pollIcon from '../poll.svg';
 import { Layout, Menu, Dropdown, Icon, Button, Modal, Select, Row, Col } from 'antd';
 import { getUser } from "./../actions/get.user.action";
 import { getProvinces } from "../actions/province.list.action";
@@ -99,6 +97,7 @@ class AppHeader extends Component {
 
   render() {
     const { user } = this.props.user;
+    console.log(user)
     let provinces = this.props.province.province;
     let distrits = this.props.distrits.distrits;
     let menuItems;
@@ -122,12 +121,12 @@ class AppHeader extends Component {
           </Link>
         </Menu.Item>,
 
-        <Menu.Item onClick={this.setCount} key="/poll/new">
-          <Link to="/poll/new">
-            <Badge count={this.state.count}>
-              <Icon style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-            </Badge>
-          </Link>
+        <Menu.Item key="/poll/new">
+
+          <Clinics
+            user={user}
+            currentUser={this.props.currentUser}
+          />
         </Menu.Item>,
 
         <Menu.Item key="/profile" className="profile-menu">
@@ -154,14 +153,6 @@ class AppHeader extends Component {
           />
         </Menu.Item>,
 
-        <Menu.Item onClick={this.setCount} key="/poll/new">
-          <Link to="/poll/new">
-            <Badge count={this.state.count}>
-              <Icon style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-            </Badge>
-          </Link>
-        </Menu.Item>,
-
         <Menu.Item key="/profile" className="profile-menu">
           <ProfileDropdownMenu
             currentUser={this.props.currentUser}
@@ -185,14 +176,6 @@ class AppHeader extends Component {
               <Icon style={{ fontSize: '20px', color: '#08c' }} type="usergroup-add" />
               <span className="tooltiptext">Đăng ký Bác Sỹ</span>
             </div>
-          </Link>
-        </Menu.Item>,
-
-        <Menu.Item onClick={this.setCount} key="/poll/new">
-          <Link to="/poll/new">
-            <Badge count={this.state.count}>
-              <Icon style={{ fontSize: '20px', color: '#08c' }} type="alert" />
-            </Badge>
           </Link>
         </Menu.Item>,
 
@@ -252,7 +235,7 @@ class AppHeader extends Component {
                 }
               </Col>
               <Col span={4}>
-                <Link to={this.state.nameProvinceSearch !== "" && this.state.nameDistritSearch ? "/search/"+this.state.nameProvinceSearch + " "+ this.state.nameDistritSearch : ""}>
+                <Link to={this.state.nameProvinceSearch !== "" && this.state.nameDistritSearch ? "/search/" + this.state.nameProvinceSearch + " " + this.state.nameDistritSearch : ""}>
                   <Icon style={{ fontSize: '30px', color: '#08c' }} type="search" />
                 </Link>
               </Col>
@@ -318,20 +301,23 @@ function ProfileDropdownMenu(props) {
   );
 }
 
+
 function Clinics(props) {
   const dropdownMenu = (
-    <Menu className="profile-dropdown-menu">
+    <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
+      <Menu.Item key="user-info" className="dropdown-item" disabled>
+        <div className="user-full-name-info">
+          PHÒNG KHÁM
+        </div>
+      </Menu.Item>
+      <Menu.Divider />
       {
-        props.user && props.user.clinic.map((key, x) => {
-          return (
-            <div key={key}>
-              <Menu.Item key="profile" className="dropdown-item">
-                <Link style={{ 'word-wrap': 'break-word' }} to={`/users/${props.currentUser.username}`}>{x.name}</Link>
-              </Menu.Item>
-              <Menu.Divider />
-            </div>
-          )
-        })
+
+        props.user.clinicViews ? props.user.clinicViews.map((value, key) => (
+          <Menu.Item key={key} className="dropdown-item">
+            <Link to={`/clinic/${value.idUser}/${value.idClinic}`}>Phòng khám  {key +1}</Link>
+          </Menu.Item>
+        )) : ""
       }
     </Menu>
   );
@@ -340,12 +326,9 @@ function Clinics(props) {
     <Dropdown
       overlay={dropdownMenu}
       trigger={['click']}
-      getPopupContainer={() => document.getElementsByClassName('clinic-menu')[0]}>
-      <a className="ant-dropdown-link">
-        <div className="tooltip-icon">
-          <Icon style={{ fontSize: '20px', color: '#08c' }} type="solution" />
-          <span className="tooltiptext">Phòng Khám</span>
-        </div>
+      getPopupContainer={() => document.getElementsByClassName('profile-menu')[0]}>
+      <a >
+        <Icon type="windows" className="nav-icon" style={{ marginRight: 0 }, { fontSize: '18px', color: '#08c' }} />
       </a>
     </Dropdown>
   );

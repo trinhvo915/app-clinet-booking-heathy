@@ -8,7 +8,7 @@ import {
 
 import { getCurrentUser } from '../util/APIUtils';
 import { ACCESS_TOKEN } from '../constants';
-
+import { connect } from "react-redux";
 // import PollList from '../poll/PollList';
 import NewPoll from '../poll/NewPoll';
 import Login from '../user/login/Login';
@@ -24,6 +24,7 @@ import ClinicList from '../clinic/clinicList/ClinicList';
 import { Layout, notification } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Clinic from '../clinic/clinicList/Clinic';
+import { getUser } from "../actions/get.user.action";
 import SearchClinicAddress from '../clinic/search/SearchClinicAddress';
 const { Content } = Layout;
 
@@ -74,7 +75,7 @@ class App extends Component {
 
   handleLogout(redirectTo = "/", notificationType = "success", description = "Bạn đăng xuất thành công") {
     localStorage.removeItem(ACCESS_TOKEN);
-
+    this.props.getUser();
     this.setState({
       currentUser: null,
       isAuthenticated: false
@@ -156,4 +157,17 @@ class App extends Component {
   }
 }
 
-export default withRouter(App);
+const mapStateToProps = (state) => {
+  return {
+      user: state.user,
+  }
+}
+
+export default withRouter(
+  connect(
+    mapStateToProps,
+    {
+        getUser,
+    }
+  )(App)
+) ;
