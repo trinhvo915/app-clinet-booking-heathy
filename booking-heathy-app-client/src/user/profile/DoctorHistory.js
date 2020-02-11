@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
-// import './../../clinic/clinicList/Clinic.css';
-// import './../../clinic/clinicList/Doctor.css';
+
 import './Profile.css';
-import { Card, CardText, CardImg, CardBody } from 'reactstrap';
+import {CardText, CardImg } from 'reactstrap';
 import moment from 'moment';
-import { DatePicker, Row, notification, Col, Form, Input, Button, Icon, Rate, Tabs, Modal, Select, List } from 'antd';
+import {  Icon } from 'antd';
 import { connect } from "react-redux";
 import { getUser } from "../../actions/get.user.action";
 
@@ -59,18 +58,7 @@ class DoctorHistory extends Component {
                             <div className="logo-infor">
                                 <div className="logo">
                                     <CardImg className="img-clinic-image" variant="top" src={"data:image/jpeg;base64," + this.props.doctor.attachment.data} />
-                                    {/* {
-                                        this.props.doctor.id === this.props.user.user.id ? (
-                                            <div className="btn-taolich">
-                                                <Button  className="btn-taolich" type="primary" ghost>Tạo Lịch</Button>
-                                            </div>
-                                        ) : ""
-                                    } */}
-
-                                    {/* <div className="btn-taolich">
-                                        <span style={{ color: '#5ab0ff' }}>Lượt đánh giá</span>
-                                        <Rate disabled className="show-rate" allowHalf value={this.props.doctor.countRate} />
-                                    </div> */}
+                                   
                                 </div>
                                 <div className="infor">
                                     <CardText className="logo-name-clinic">

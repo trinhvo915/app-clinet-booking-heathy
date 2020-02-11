@@ -11,6 +11,7 @@ import { addCommnetForDoctor } from './../../util/api/call-api';
 import { addLichForDoctor } from './../../util/api/call-api';
 import { sendEmailBooking } from './../../util/api/call-api';
 import { boookingForDoctor } from './../../util/api/call-api';
+import { deleteBookingApi } from './../../util/api/call-api';
 import { getDoctorList } from "../../actions/doctor.list.action";
 import {
     NAME_MIN_LENGTH, NAME_MAX_LENGTH,
@@ -46,6 +47,7 @@ class DoctorClinic extends Component {
             visibleBooking: false,
             visibleCreateSecheduce: false,
             isLoading: false,
+            idBooking: "",
             contentCommnet: {
                 value: ""
             },
@@ -113,7 +115,7 @@ class DoctorClinic extends Component {
     }
 
     addCommnet() {
-        if (!this.props.user.failed ) {
+        if (!this.props.user.failed) {
 
             let comment = {
                 content: this.state.contentCommnet.value,
@@ -196,6 +198,7 @@ class DoctorClinic extends Component {
     handleCancelCreateSecheduce = e => {
         this.setState({
             visibleCreateSecheduce: false,
+            dateBooking: moment(moment().format('YYYY-MM-DD')._i),
             distanceEverning: "5",
             distanceMorning: "5",
             distanceAfternoon: "5",
@@ -236,6 +239,29 @@ class DoctorClinic extends Component {
         });
     };
 
+    deleteBooking = () => {
+        deleteBookingApi(this.state.idBooking).then(response => {
+            if (response.success === true) {
+                notification.success({
+                    message: 'Booking Clinic',
+                    description: response.message + "!"
+                });
+
+                this.setState({
+                    visibleBooking: false,
+                });
+
+     
+                this.props.paramsClininc && this.props.getDoctorOfClinicList(this.props.paramsClininc);
+            } else {
+                notification.error({
+                    message: 'Booking Clinic',
+                    description: response.message + "!"
+                });
+            }
+        })
+    }
+
     onChangeDayBooking = value => {
         this.onChangeDay('dateBooking', value);
     };
@@ -254,9 +280,10 @@ class DoctorClinic extends Component {
     };
 
     showModalBooking(booking, doctor, clinic) {
-        if (!this.props.user.failed ) {
+        if (!this.props.user.failed) {
             this.setState({
                 bookingDoctor: booking,
+                idBooking: booking.id,
                 imageDoctor: doctor.attachmentPerson.data,
                 nameDoctor: doctor.fullName,
                 degreesDoctor: doctor.degrees,
@@ -276,6 +303,8 @@ class DoctorClinic extends Component {
     };
 
     handleSubmitCreateBooking() {
+
+        console.log(this.state.dateBooking)
 
         if ((this.state.startTimeMorning !== "" && this.state.endTimeMorning !== "") || (this.state.startTimeAfternoon !== "" && this.state.endTimeAfternoon !== "") || (this.state.endTimeEverning !== "" && this.state.endTimeEverning !== "")) {
 
@@ -553,98 +582,98 @@ class DoctorClinic extends Component {
         }
     }
 
-    handleSubmitBooking (){
+    handleSubmitBooking() {
 
-        if(this.state.fullNameOwner.value !=="" && this.state.emailBookingPerson.value  !==""
-             && this.state.mobileBookingPerson.value  !==""  && this.state.fullNamePerent.value  !==""
-             && this.state.birthdayPerent.value  !=="" && this.state.genderPerent.value  !==""
-             && this.state.addressPerent.value  !=="" && this.state.aboutPerent.value  !==""
-             ){
-                    let param = {
-                        address : this.state.addressPerent.value,
-                        addressClinic : this.state.clinic.address,
-                        birthdayYear : this.state.birthdayPerent.value,
-                        dateBooking : this.state.bookingDoctor.dateBooking,
-                        email : this.state.emailBookingPerson.value,
-                        gender : this.state.genderPerent.value,
-                        idBooking : this.state.bookingDoctor.id,
-                        idDoctor : this.state.doctor.id,
-                        nameClinc : this.state.clinic.address,
-                        nameDoctor : this.state.doctor.fullName,
-                        namePatient : this.state.fullNamePerent.value,
-                        namePersinBooking : this.state.fullNameOwner.value,
-                        numberPhone : this.state.mobileBookingPerson.value,
-                        pathology : this.state.aboutPerent.value,
-                        timeBooking : this.state.bookingDoctor.timeBooking
+        if (this.state.fullNameOwner.value !== "" && this.state.emailBookingPerson.value !== ""
+            && this.state.mobileBookingPerson.value !== "" && this.state.fullNamePerent.value !== ""
+            && this.state.birthdayPerent.value !== "" && this.state.genderPerent.value !== ""
+            && this.state.addressPerent.value !== "" && this.state.aboutPerent.value !== ""
+        ) {
+            let param = {
+                address: this.state.addressPerent.value,
+                addressClinic: this.state.clinic.address,
+                birthdayYear: this.state.birthdayPerent.value,
+                dateBooking: this.state.bookingDoctor.dateBooking,
+                email: this.state.emailBookingPerson.value,
+                gender: this.state.genderPerent.value,
+                idBooking: this.state.bookingDoctor.id,
+                idDoctor: this.state.doctor.id,
+                nameClinc: this.state.clinic.address,
+                nameDoctor: this.state.doctor.fullName,
+                namePatient: this.state.fullNamePerent.value,
+                namePersinBooking: this.state.fullNameOwner.value,
+                numberPhone: this.state.mobileBookingPerson.value,
+                pathology: this.state.aboutPerent.value,
+                timeBooking: this.state.bookingDoctor.timeBooking
+            }
+
+            boookingForDoctor(param).then(response => {
+                if (response.success === true) {
+
+                    let idClininc = this.props.paramsClininc.idClinic;
+                    let idDoctor = this.props.paramsClininc.idDoctor;
+                    let dateQurrey = param.dateBooking;
+                    let dateCurrent = this.props.paramsClininc.dateCurrent;
+
+                    let paramsClinincResponse = {
+                        idClinic: idClininc,
+                        idDoctor: idDoctor,
+                        dateQurrey: dateQurrey,
+                        dateCurrent: dateCurrent
                     }
 
-                    boookingForDoctor(param).then(response =>{
-                        if(response.success === true){
-                            
-                            let idClininc = this.props.paramsClininc.idClinic;
-                            let idDoctor = this.props.paramsClininc.idDoctor;
-                            let dateQurrey = param.dateBooking;
-                            let dateCurrent = this.props.paramsClininc.dateCurrent;
-                    
-                            let paramsClinincResponse = {
-                                idClinic: idClininc,
-                                idDoctor: idDoctor,
-                                dateQurrey: dateQurrey,
-                                dateCurrent: dateCurrent
-                            }
-                    
-                            this.props.paramsClininc && this.props.getDoctorOfClinicList(paramsClinincResponse);
-                            
-                            notification.success({
-                                message: 'Booking Clinic',
-                                description: response.message +"\nKiểm tra email :"+param.email+".\nĐể xem chi tiết lịch khám bệnh !",
-                            });
-                            this.props.getDoctorList()
-                            this.setState({
-                                visibleBooking: false,
-                                fullNameOwner: {
-                                    value: ''
-                                },
-                                emailBookingPerson: {
-                                    value: ''
-                                },
-                                mobileBookingPerson: {
-                                    value: ''
-                                },
-                                fullNamePerent: {
-                                    value: ''
-                                },
-                                birthdayPerent: {
-                                    value: moment(moment().format(dateFormat)._i)
-                                },
-                                genderPerent: {
-                                    value: 'MALE'
-                                },
-                                addressPerent: {
-                                    value: ''
-                                },
-                                aboutPerent: {
-                                    value: ''
-                                },
-                            });
+                    this.props.paramsClininc && this.props.getDoctorOfClinicList(paramsClinincResponse);
 
-                            sendEmailBooking(param).then(response =>{
-                                
-                            })
-                        }else {
-                            notification.error({
-                                message: 'Booking Clinic',
-                                description: response.message
-                            });
-                        }
+                    notification.success({
+                        message: 'Booking Clinic',
+                        description: response.message + "\nKiểm tra email :" + param.email + ".\nĐể xem chi tiết lịch khám bệnh !",
+                    });
+                    this.props.getDoctorList()
+                    this.setState({
+                        visibleBooking: false,
+                        fullNameOwner: {
+                            value: ''
+                        },
+                        emailBookingPerson: {
+                            value: ''
+                        },
+                        mobileBookingPerson: {
+                            value: ''
+                        },
+                        fullNamePerent: {
+                            value: ''
+                        },
+                        birthdayPerent: {
+                            value: moment(moment().format(dateFormat)._i)
+                        },
+                        genderPerent: {
+                            value: 'MALE'
+                        },
+                        addressPerent: {
+                            value: ''
+                        },
+                        aboutPerent: {
+                            value: ''
+                        },
+                    });
+
+                    sendEmailBooking(param).then(response => {
+
                     })
-                    
-             }else {
-                notification.error({
-                    message: 'Booking Clinic',
-                    description: 'Xin lỗi bạn ! Bạn chưa nhập đầy đủ thông tin !'
-                });
-             }
+                } else {
+                    notification.error({
+                        message: 'Booking Clinic',
+                        description: response.message
+                    });
+                }
+            })
+
+        } else {
+            notification.error({
+                message: 'Booking Clinic',
+                description: 'Xin lỗi bạn ! Bạn chưa nhập đầy đủ thông tin !'
+            });
+        }
     }
 
     render() {
@@ -662,7 +691,7 @@ class DoctorClinic extends Component {
                         {
                             this.props.doctor ? (
                                 <Card >
-                                    <CardImg  variant="top" src={"data:image/jpeg;base64," + this.props.doctor.attachmentPerson.data} />
+                                    <CardImg variant="top" src={"data:image/jpeg;base64," + this.props.doctor.attachmentPerson.data} />
                                     <CardBody className="show-revew-body">
                                         <div className="text-doctor">
                                             <CardText className="text-name-doctor">
@@ -714,7 +743,7 @@ class DoctorClinic extends Component {
                                                                     {
                                                                         value.attachment.data !== null ? <CardImg className="img-commnet-image" variant="top" src={"data:image/jpeg;base64," + value.attachment.data} /> : <CardImg className="img-commnet-image" variant="top" src={"https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} />
                                                                     }
-                                                                    
+
                                                                 </div>
                                                                 <div className="conten-commnet-text">
                                                                     <CardText className="text-commnet-modal">
@@ -734,10 +763,10 @@ class DoctorClinic extends Component {
                                                 <div className="written-commnet">
                                                     <div className="modal-img-commnet">
                                                         {
-                                                           this.props.user.user.attachmentPerson && this.props.user.user.attachmentPerson.data !== null ? <CardImg className="img-commnet-image" variant="top" src={this.props.user.user.attachmentPerson ? "data:image/jpeg;base64," + this.props.user.user.attachmentPerson.data : "https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} /> :
-                                                            <CardImg className="img-commnet-image" variant="top" src={"https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} />
+                                                            this.props.user.user.attachmentPerson && this.props.user.user.attachmentPerson.data !== null ? <CardImg className="img-commnet-image" variant="top" src={this.props.user.user.attachmentPerson ? "data:image/jpeg;base64," + this.props.user.user.attachmentPerson.data : "https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} /> :
+                                                                <CardImg className="img-commnet-image" variant="top" src={"https://www.aamc.org/sites/default/files/risking-everything-to-become-a-doctor-jirayut-new-latthivongskorn.jpg"} />
                                                         }
-                                                        
+
                                                     </div>
                                                     <div className="modal-area-commnet">
                                                         <TextArea className="text-area-commnet" placeholder="Viết bình luận ..."
@@ -1022,6 +1051,13 @@ class DoctorClinic extends Component {
                         visible={this.state.visibleBooking}
                         onCancel={this.handleCancelBooking}
                     >
+                        {
+                            this.props.doctor.id === this.props.user.user.id ? (
+                                <div className="btn-taolich">
+                                    <Button onClick={this.deleteBooking} className="btn-taolich" type="danger" ghost>Xóa Lịch</Button>
+                                </div>
+                            ) : ""
+                        }
                         <span className="title-booking">ĐẶT LỊCH KHÁM BỆNH</span>
                         <hr className="line-line"></hr>
 
@@ -1057,10 +1093,10 @@ class DoctorClinic extends Component {
 
                         </div>
 
-                            <span className="title-booking">NGÀY ĐẶT LỊCH : <span className="title-booking-date">{this.state.bookingDoctor ? this.state.bookingDoctor.dateBooking : ""} </span></span>
+                        <span className="title-booking">NGÀY ĐẶT LỊCH : <span className="title-booking-date">{this.state.bookingDoctor ? this.state.bookingDoctor.dateBooking : ""} </span></span>
 
-                            <span className="title-booking">THỜI GIAN : <span className="title-booking-date">{this.state.bookingDoctor ? this.state.bookingDoctor.timeBooking : ""} </span></span>
-                                
+                        <span className="title-booking">THỜI GIAN : <span className="title-booking-date">{this.state.bookingDoctor ? this.state.bookingDoctor.timeBooking : ""} </span></span>
+
                         <hr className="line-line-distance"></hr>
                         <span className="title-booking-person-booking">THÔNG TIN NGƯỜI ĐẶT LỊCH</span>
                         <div className="content-booking-input">
@@ -1229,7 +1265,9 @@ class DoctorClinic extends Component {
                                         </div>
                                         <CardText className="text-address">
                                             {
-                                                this.props.doctor.address
+                                                this.props.doctor.faculties ? this.props.doctor.faculties.map(value =>
+                                                    value.name + " - "
+                                                ) : null
                                             }
                                         </CardText>
                                     </div>
@@ -1267,7 +1305,7 @@ class DoctorClinic extends Component {
                                             >
                                                 {
                                                     this.props.doctor.dateBookingDoctors ? this.props.doctor.dateBookingDoctors.map((value, key) =>
-                                                        <Option key = {key} value={this.props.doctor.dateBookingDoctors[key]}>{value}</Option>
+                                                        <Option key={key} value={this.props.doctor.dateBookingDoctors[key]}>{value}</Option>
                                                     ) : null
                                                 }
                                             </Select>

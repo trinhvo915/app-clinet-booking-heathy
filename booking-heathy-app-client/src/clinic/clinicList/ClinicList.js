@@ -181,7 +181,7 @@ class ClinicList extends Component {
                                 historyBookedDoctor && historyBookedDoctor.object ? (
                                     <div>
                                         {
-                                            historyBookedDoctor.object > 0 ? (
+                                            historyBookedDoctor.object  ? (
                                                 <CardText className="title-title">
                                                     Bác sĩ bạn đã đặt lịch
                                             </CardText>

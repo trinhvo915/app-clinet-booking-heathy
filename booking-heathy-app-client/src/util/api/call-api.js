@@ -319,3 +319,13 @@ export async function  addLichForDoctor(lich) {
 		})
 	return data;
 }
+
+export async function  deleteBookingApi(id) {
+	let data = {};
+	await callAPI("booking/delete/"+id,'POST')
+		.then(response =>{
+			data = Object.assign({}, data);
+			data =  response.data;
+		})
+	return data;
+}

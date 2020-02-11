@@ -97,7 +97,6 @@ class AppHeader extends Component {
 
   render() {
     const { user } = this.props.user;
-    console.log(user)
     let provinces = this.props.province.province;
     let distrits = this.props.distrits.distrits;
     let menuItems;

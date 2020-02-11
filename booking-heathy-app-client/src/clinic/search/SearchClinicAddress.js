@@ -100,7 +100,7 @@ class SearchClinicAddress extends Component {
 
                 <div className="clinic-all">
                     <CardText className="title-title">
-                        Tất cả các Bác sĩ
+                        Bác sĩ cần tìm
                     </CardText>
                     <List
                         grid={{ gutter: 8, xs: 4 }}

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Profile.css';
-import { Upload, message, Layout, DatePicker, TimePicker, Row, notification, Col, Form, Input, Button, Icon, Tabs, Modal, Select, List, Avatar } from 'antd';
+import { Upload, message, Layout, DatePicker, Row, notification, Col, Form, Input, Button, Icon, Tabs, Modal, Avatar } from 'antd';
 import FooterLayout from '../../common/FooterLayout';
 import LoadingIsEmpty from '../../common/LoadingIsEmpty';
 import { getHistoryBookedDoctorList } from "../../actions/historyBookedDoctor.list.action";
@@ -22,7 +22,6 @@ const { Content } = Layout;
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const { TextArea } = Input;
-const { Option } = Select;
 const dateFormat = 'DD/MM/YYYY';
 
 function beforeUpload(file) {
@@ -434,7 +433,7 @@ class Profile extends Component {
                                 size="large"
                                 className="btn-register-doctor"
                                 disabled={this.isFormInvalidProfile()}
-                                className="signup-form-button">Đăng ký</Button>
+                                className="signup-form-button">Cập Nhật</Button>
                         </FormItem>
 
                     </Modal>
@@ -456,7 +455,7 @@ class Profile extends Component {
                                 <div className="icon-profile">
                                     <Icon style={{ fontSize: '20px', color: '#08c' }} type="schedule" />
                                 </div>
-                                <div className="icon-infor-profile">{dataprofile  || dataprofile === null ? dataprofile.birthday.substring(0, 10) : ""}</div>
+                                <div className="icon-innn bvvfor-profile">{dataprofile  || dataprofile === null ? dataprofile.birthday : ""}</div>
                             </div>
 
                             <div className="detail-profile">
@@ -496,8 +495,9 @@ class Profile extends Component {
                             <div className="main-content">
                                 <Tabs defaultActiveKey="1" tabPosition="top" style={{ height: 'auto' }}>
                                     <TabPane tab="LỊCH SỬ ĐẶT LỊCH" key="1">
+                                        {console.log(doctorBooked)}
                                         {
-                                            doctorBooked > 0 ? doctorBooked : <LoadingIsEmpty />
+                                            doctorBooked !== 0 ? doctorBooked : <LoadingIsEmpty />
                                         }
                                     </TabPane>
                                 </Tabs>

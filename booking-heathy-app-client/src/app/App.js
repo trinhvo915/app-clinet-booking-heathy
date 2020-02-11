@@ -10,7 +10,6 @@ import { getCurrentUser } from '../util/APIUtils';
 import { ACCESS_TOKEN } from '../constants';
 import { connect } from "react-redux";
 // import PollList from '../poll/PollList';
-import NewPoll from '../poll/NewPoll';
 import Login from '../user/login/Login';
 import Signup from '../user/signup/Signup';
 import Profile from '../user/profile/Profile';
@@ -141,8 +140,6 @@ class App extends Component {
                 render={(props) => <SearchClinicAddress isAuthenticated={this.state.isAuthenticated}
                   currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
               </Route>
-
-              <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
 
               <PrivateRoute onchangerLoadHeard={this.changerLoadHeard} authenticated={this.state.isAuthenticated} path="/register/doctor" component={RegisterDoctor} handleLogout={this.handleLogout} />
 
